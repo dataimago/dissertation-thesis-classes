@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "description": "Registry of thesis/dissertation output-format classes for the dataimago dissertation vertical. Consumed by dissertation-ai onboarding (interview Q15), Level-3 generated-app PDF builds, and the Level-3 author harness. See docs/discovery-contract.md.",
+  "modes": {
+    "shipped": "A class exists in this registry for the institution; use it as-is.",
+    "vendored": "The author supplies their institution's class; normalize it here and optionally contribute back.",
+    "generated": "No class exists; the author's AI drafts one from written guidelines, validates it, and may contribute it back."
+  },
+  "classes": [
+    {
+      "id": "cu-boulder",
+      "institution": "University of Colorado Boulder",
+      "graduateSchool": "CU Boulder Graduate School",
+      "credentials": ["PhD dissertation", "Master's thesis"],
+      "path": "classes/cu-boulder/thesis.cls",
+      "companions": ["classes/cu-boulder/macros.tex"],
+      "example": "classes/cu-boulder/example/",
+      "engine": "xelatex",
+      "documentclass": "thesis",
+      "classOptions": ["defaultstyle", "11pt"],
+      "version": "1.14 (Ken Anderson, 2020-08)",
+      "lineage": "John P. Weiss (1997) → maintained through v1.14; hyperref-compatible (Ni 2014); signature page removed, committee on title page (Anderson 2020)",
+      "conformsTo": "CU Boulder Graduate School Specifications (April 2010)",
+      "status": "available",
+      "mode": "shipped",
+      "notes": "Provides \\title, \\author, \\degree, \\dept, \\advisor, \\reader/\\readerThree, \\abstract, \\dedication, \\acknowledgements, and \\ToCisShort/\\LoFisShort/\\LoTisShort one-page toggles. See classes/cu-boulder/README.md."
+    }
+  ]
+}

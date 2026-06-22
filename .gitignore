@@ -1,0 +1,25 @@
+# dissertation-thesis-classes — keep the .cls/.tex/.bib + the example PDF;
+# ignore only LaTeX build aux and OS/editor noise.
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.run.xml
+*.bcf
+
+# NOT ignored (intentional): *.cls, *.tex, *.bib, classes/**/example/sample-output.pdf
+
+# OS / editor
+.DS_Store
+.Rhistory
+.RData
+*.swp
