@@ -33,8 +33,9 @@ author ─────┤
    class unchanged.
 
 ### VENDORED (use the author's own)
-1. The author uploads their institution's `.cls` during onboarding (interview Q15
-   `vendored`), or drops it into their Level-3 repo.
+1. The author chooses `vendored` during onboarding (the interview's
+   thesis-class question) and adds their institution's `.cls` to their
+   Level-3 repo after setup.
 2. The author harness normalizes it (records `engine`, `documentclass`,
    `classOptions`, required macros) and, with consent, opens a PR adding
    `classes/<institution-id>/` here so the next author at that institution gets
@@ -44,10 +45,20 @@ author ─────┤
 
 ### GENERATED (draft a new one)
 1. When no class exists and the author supplies **written formatting guidelines**
-   (interview Q15 `generated`), the author harness drafts a `.cls`.
+   (the interview's `generated` option), the author harness drafts a `.cls`.
 2. It validates by compiling a synthetic `example/` (never the author's prose).
 3. The result may be contributed back as a new `classes/<id>/` (status:
    `generated`, flagged for human review before promotion to `available`).
+
+### `shipped` is never the framework default
+
+`shipped` always names a class listed in this registry, matched to the
+author's institution (`vertical.dissertation.institution` in their spec). The
+framework's generic `thesis.cls` in the Level-3 templates is not `shipped`: it
+is the starting draft that `generated` adapts until the author's guidelines
+arrive, and the onboarding interview's default answer is `generated` for that
+reason. (Reconciled 2026-11-07; the interview had offered `shipped` as "the
+framework's default layout".)
 
 ## What a consumer may rely on
 
