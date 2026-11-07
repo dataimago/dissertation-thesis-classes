@@ -68,3 +68,16 @@ thesis document" — not anyone's dissertation.)
 Add `classes/<institution-id>/` with the `.cls` (+ macros + a synthetic
 `example/`), add a `README.md`, and append an entry to `registry.json`. See
 `docs/discovery-contract.md`.
+
+## Licensing
+
+- **dataimago's own files** (this README, `CLAUDE.md`, `registry.json`,
+  `docs/`, and each class directory's `README.md`) are MIT-licensed; see
+  [`LICENSE`](LICENSE).
+- **Classes contributed to the registry** from now on are licensed under the
+  [LaTeX Project Public License 1.3c](https://www.latex-project.org/lppl/lppl-1-3c/)
+  unless the class's own `README.md` says otherwise.
+- **Third-party classes** keep their own terms. The repository license does
+  not cover them, and dataimago does not relicense them. Each class's
+  `README.md` records where it came from and what terms, if any, it carries
+  (e.g. [`classes/cu-boulder/`](classes/cu-boulder/README.md)).

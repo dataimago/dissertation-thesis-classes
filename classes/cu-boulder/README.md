@@ -40,3 +40,19 @@ TEXINPUTS=..: xelatex main.tex   # run twice for ToC/refs; bibtex refs if citing
 
 (Or copy `../thesis.cls` into `example/` first.) The example is the contract test:
 it must build unchanged whenever the class is updated.
+
+## Provenance and license
+
+`thesis.cls` is a third-party file, not dataimago's work. Its header credits
+John P. Weiss (v1.00, 1997), Bruce Fast (1998–2008), Steven V. Penton (1999),
+E. Joshua Rigler (2003), Hongcheng Ni (2014) and Ken Anderson (v1.14, 2020).
+It is redistributed here as CU Boulder publishes it, from the CU OIT TeX/LaTeX
+page its header points to
+([colorado.edu/oit/software-hardware/tex-latex](https://www.colorado.edu/oit/software-hardware/tex-latex),
+which now redirects to the OIT software catalog). It carries no explicit
+license. The repository's `LICENSE` does not cover it, and dataimago does not
+relicense it.
+
+`macros.tex` and `example/` come from the same upstream distribution, except
+`example/appendixA.tex` and `example/appendixB.tex`: their filler text was
+replaced in 2026 with text written for this repository.
