@@ -32,6 +32,15 @@ class machinery — not their writing.
 
 ## Consumers (don't break these)
 
-- `dissertation-ai` onboarding interview Q15 (mode selection) reads `registry.json`.
+- `dissertation-ai` onboarding: the interview's thesis-class question
+  (`citationAndClass` → `classFile`) builds its options from `registry.json`:
+  one per key of `modes`, and the `shipped` option names the institutions of
+  the `available` shipped classes. The hub reads a **byte-identical copy**
+  (`apps/hub/src/lib/thesis-classes/registry.json`; it builds on Vercel from its
+  own repo). After changing `registry.json`, run
+  `pnpm --filter @dataimago/dissertation-hub registry:sync` in `dissertation-ai`
+  and open a PR there; its `registry:check` fails until you do. Adding or
+  renaming a mode also needs the interview's words for it in
+  `dissertation.yaml`, or the hub's contract test fails.
 - Level-3 generated apps' `build-thesis.yml` fetches the selected class.
 - The Level-3 author harness uses `docs/discovery-contract.md` to use/adapt/draft.

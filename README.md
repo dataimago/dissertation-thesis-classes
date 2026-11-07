@@ -47,10 +47,13 @@ classes/<institution-id>/
 
 ## Consumers
 
-- **`dissertation-ai` onboarding** — interview Q15 ("how should your thesis be
-  formatted?") reads `registry.json` to offer the author a known institution
-  (`shipped`), accept their own upload (`vendored`), or capture written
-  guidelines for AI generation (`generated`).
+- **`dissertation-ai` onboarding** — the interview's thesis-class question
+  ("How should we format the dissertation PDF?") builds its options from
+  `registry.json`: a ready-made class for the author's institution
+  (`shipped`, naming the institutions listed here), their institution's own
+  `.cls` (`vendored`), or a custom layout from written guidelines
+  (`generated`). The hub reads a byte-identical copy; see `CLAUDE.md` for
+  keeping it in step.
 - **Level-3 generated apps** — the per-user dissertation repo's PDF build
   (`build-thesis.yml`, Quarto + XeLaTeX) pulls the selected class from here.
 - **The author's AI (the Level-3 author harness)** — consults the discovery
