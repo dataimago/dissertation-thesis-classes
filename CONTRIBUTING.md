@@ -73,8 +73,7 @@ request from a fork**.
 
 GitHub withholds secrets from workflows that run for fork pull requests, on
 purpose, so the Grok review (`composer-review.yml`) does not run on them. Those
-are exactly the pull requests that carry outside text. Until a safe label-based
-review exists (below), a maintainer, or the maintainer's agent, re-pushes the
+are exactly the pull requests that carry outside text. A maintainer, or the maintainer's agent, re-pushes the
 contribution:
 
 1. **Check consent.** The fork pull request body (or the thread) says the author
@@ -105,14 +104,9 @@ contribution:
 
 If the contributor withdraws, or consent is unclear, close without re-pushing.
 
-### Later: a label-triggered review of the fork pull request
-
-Once `wi-20261108-review-agent-read-only` lands (the reviewer gets read-only
-tools and a network allowlist), a label such as `review-contribution` will
-trigger a review of the fork pull request's diff from a workflow on `main` that
-never executes the fork's code. Until then it does not exist, and re-pushing is
-the only route. When it does, this section is updated and the re-push stays as the
-route for merging.
+A label-triggered review of the fork pull request itself (a workflow on `main`
+that never executes the fork's code, with a read-only reviewer) is planned. The
+re-push stays the route until it ships, and this section is updated then.
 
 ## Adding a class
 
