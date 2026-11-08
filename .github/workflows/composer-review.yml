@@ -164,14 +164,21 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-      - name: No-op (secret absent)
+      # A missing key must be visible: a green check with no review reads as
+      # "reviewed" (three repos went unreviewed that way until 2026-11-08).
+      # The warning annotates the run; the comment job then posts a NOT RUN
+      # notice on the PR under the same marker, which a later real review
+      # replaces.
+      - name: No review (secret absent)
         if: steps.gate.outputs.enabled != 'true'
-        run: echo "CURSOR_API_KEY not configured - Grok 4.6 review disabled." >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "::warning title=No PR review::CURSOR_API_KEY is not set for ${GITHUB_REPOSITORY}, so this PR was NOT reviewed by Grok."
+          echo "**No review ran:** CURSOR_API_KEY is not set for this repository." >> "$GITHUB_STEP_SUMMARY"
 
   comment:
     name: Post the review comment (deterministic, write-scoped)
     needs: review
-    if: needs.review.outputs.enabled == 'true'
+    if: needs.review.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     # The ONLY job that holds write. It runs no model — it posts a file.
@@ -180,6 +187,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Download the review
+        if: needs.review.outputs.enabled == 'true'
         uses: actions/download-artifact@v4
         with:
           name: composer-review-${{ github.event.pull_request.number }}
@@ -192,13 +200,24 @@ jobs:
           GH_REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          ENABLED: ${{ needs.review.outputs.enabled }}
         run: |
           set -euo pipefail
+          MARKER="<!-- composer-review -->"
+          if [ "$ENABLED" != "true" ]; then
+            {
+              echo "$MARKER"
+              echo "## Grok 4.6 PR Review: NOT RUN"
+              echo
+              echo "_\`${HEAD_SHA:0:8}\` was **not reviewed**: this repository has no \`CURSOR_API_KEY\` secret._"
+              echo
+              echo "Add it with \`gh secret set CURSOR_API_KEY --repo ${GITHUB_REPOSITORY}\`, then re-run this workflow or push again. The review will replace this notice."
+            } > body.md
+          else
           if [ ! -s composer-review.md ]; then
             echo "::error::composer-review.md missing or empty — the review job produced no output to post" >&2
             exit 1
           fi
-          MARKER="<!-- composer-review -->"
           {
             echo "$MARKER"
             echo "## Grok 4.6 PR Review (first-party pool, xhigh)"
@@ -207,6 +226,7 @@ jobs:
             echo
             cat composer-review.md
           } > body.md
+          fi
           # `last`, not [0]: the upsert only ever writes one marked comment, but
           # if two exist the live one is the most recent, so update that.
           # --paginate: the list endpoint returns 30 comments a page, oldest
