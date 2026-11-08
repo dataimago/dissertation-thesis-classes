@@ -111,6 +111,21 @@ framework's default layout".)
   `institution` and a `mode`. Those now sit on `profiles`; a consumer reads
   `profiles` to find what an institution is offered.
 
+## Readers of the live registry
+
+Some consumers fetch `main/registry.json` live rather than from a vendored copy.
+Repos already generated from `dissertation-app-template` carry a thesis-build
+skill (`.claude/skills/thesis-build/SKILL.md`, step 2) that looks for a `classes`
+entry whose `institution` is the author's and whose `status` is `available`.
+`schemaVersion` 2 carries no `institution` on any `classes` entry, so that
+version-1 reader finds no match for any institution and takes its documented
+"no ready-made class" path: it tells the author the registry has none yet and
+offers `generated`. That is graceful (no crash, and it can never select the
+`legacy` CU class, which is neither `available` nor named by an institution), but
+it is a behaviour change for CU authors until the templates read `profiles`
+(`wi-20261108-house-class-templates`). A new reader must check
+`schemaVersion` and read `profiles`, not `classes`, to find an institution.
+
 ## Privacy invariant
 
 No real manuscript prose enters this repo. Examples are synthetic. The author's

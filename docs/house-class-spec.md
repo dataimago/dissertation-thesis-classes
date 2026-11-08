@@ -11,16 +11,13 @@
 So the registry's unit is ONE well-built class plus a small, checkable PROFILE per
 institution. Converting a guide means filling in a profile, not writing a class.
 
-**Status of this contract.** This spec describes the TARGET. Until the registry step
-(`wi-20261108-house-class-registry`) lands, `registry.json` and `docs/discovery-contract.md`
-stay in force unchanged: the three modes (`shipped`, `vendored`, `generated`) keep their
-current meanings, the registry unit is a class per institution, and the engine is
-`xelatex`. The following are targets that take effect only when that step lands, together
-with a `schemaVersion` bump and a matching dissertation-ai PR that runs `registry:sync`
-AND updates the onboarding interview's words for the modes (`dissertation.yaml`, the
-`classFile` question), since `registry:sync` copies only `registry.json`: the new mode
-meanings in F12, the `profiles/` directory, the house class entry, the `engineFallback`
-field, and the LuaLaTeX default.
+**Status of this contract.** The registry step (`wi-20261108-house-class-registry`)
+has landed: `registry.json` is `schemaVersion` 2 and `docs/discovery-contract.md` is
+rewritten to match. The new mode meanings in F12, the `profiles/` directory, the house
+class entry, the `engineFallback` field and the LuaLaTeX default are in force. The
+hub's interview words for the modes (`dissertation.yaml`, the `classFile` question)
+move in a matching dissertation-ai PR, since `registry:sync` copies only
+`registry.json`.
 
 **Reading rules.** MUST / SHOULD / MAY carry their RFC 2119 meaning. Each requirement
 has a one-line reason. Items marked **[inferred]** were not stated by a source and
