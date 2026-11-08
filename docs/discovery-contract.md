@@ -21,8 +21,9 @@ Consumers read this file; they do not hard-code paths.
   (`profile=<id>`), `status` and `mode`. A profile for an institution also has
   `institution`, `graduateSchool` and `credentials`.
 
-`status` is `available` (offered; the class or profile builds its synthetic
-example), `legacy` (kept for reference, never offered), `contributed` (an author's own
+`status` is `available` (current and buildable: the class or profile builds its
+synthetic example; a profile is offered to authors only when it is also
+`mode: shipped`, so `house` is `available` with `mode: generated`), `legacy` (kept for reference, never offered), `contributed` (an author's own
 class, archived here with consent and not offered) or `generated` (a profile
 contributed by an author's AI and flagged for human review before promotion to
 `available`).

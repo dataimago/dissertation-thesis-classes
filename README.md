@@ -57,7 +57,7 @@ classes/<institution-id>/          a vendored or legacy per-institution class (c
 - **`dissertation-ai` onboarding** — the interview's thesis-class question
   ("How should we format the dissertation PDF?") builds its options from
   `registry.json`: the house class with the profile for the author's institution
-  (`shipped`, naming the institutions whose profile is `available` here), their
+  (`shipped`, naming the institutions whose profile is `available` with `mode: shipped` here), their
   institution's own `.cls` (`vendored`), or a custom layout adapted from written
   guidelines starting at the house profile (`generated`). The hub reads a byte-identical copy; see `CLAUDE.md` for
   keeping it in step.
