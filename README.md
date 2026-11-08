@@ -38,6 +38,7 @@ changing the contract.
 ```
 registry.json                     machine-readable index of available classes
 docs/discovery-contract.md        how an L3 build + the author's AI find/select/modify a class
+docs/house-class-spec.md           requirements spec for the house class (dataimago-thesis.cls) and the profile format
 classes/<institution-id>/
   ├─ thesis.cls                   the document class
   ├─ macros.tex                   companion macros (if any)
