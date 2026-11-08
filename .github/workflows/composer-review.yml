@@ -1,0 +1,270 @@
+name: Grok 4.6 PR Review
+
+# Fast-layer PR review on Cursor's first-party pool (Grok 4.6 extra-high),
+# replacing automatic Bugbot reviews after the 2026-08-07 finding that Bugbot's
+# model is not account-selectable and its runs draw the other-models pool.
+# Grok 4.6 is first-party Cursor Models pool (same treatment as Composer);
+# xhigh is the effort pin. Bugbot remains installed for on-demand review
+# (`bugbot run` comment) on governance-heavy PRs. Review instructions are
+# sourced from .cursor/BUGBOT.md (one source, many channels) — edit that file,
+# not this prompt, to tune review behavior. ADVISORY: not a required check.
+#
+# TOKEN ISOLATION — TWO JOBS, NOT ONE (this is the load-bearing part). The
+# `review` job runs the model with `contents: read` ONLY and no token in the
+# model step's environment; a separate `comment` job holds
+# `pull-requests: write` and only posts the markdown the review job produced —
+# it runs no model. The earlier single-job form ran the model inside a job that
+# already held write, and its header claimed "the model never receives GitHub
+# credentials" while the write token sat one env-block away. The split is what
+# makes that claim literally true: the job the model runs in has no credential
+# to give, so a prompt-injected diff cannot make the reviewer write anywhere.
+# The review output crosses to the writer as a build artifact, and it is only
+# ever posted as a comment body — never executed.
+#
+# THE DIFF IS SUPPLIED, NOT FETCHED. The review step writes
+# `git diff BASE...HEAD` to pr.diff and hands the model that file; the model is
+# told not to run git (it cannot). A reviewer without the diff falls back to the
+# working tree and reviews the whole repo — on dataimago-design#187, a wiki-only
+# PR, Composer raised a P1 about tools/check-linked-ranges.mjs, a file not in
+# that PR at all. An empty or failed diff FAILS the job loudly (no `|| true`)
+# rather than handing the model nothing and letting an empty change set read as
+# "## No actionable findings" — a green check over zero changes reviewed.
+#
+# Activation requires the CURSOR_API_KEY repository secret (maintainer-minted;
+# cursor.com dashboard -> API keys). Absent the secret, the review job warns
+# and the comment job posts "Grok 4.6 PR Review: NOT RUN"; a real review posts
+# "Grok 4.6 PR Review (first-party pool, xhigh)" and replaces that notice. A
+# green check, or a marked comment, is not proof of review: read the heading.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# Workflow-default token is read-only. The comment job re-grants
+# pull-requests: write to itself alone; the review job never gets it.
+permissions:
+  contents: read
+
+concurrency:
+  group: composer-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  review:
+    name: Grok 4.6 Review (first-party pool, xhigh)
+    if: >-
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    outputs:
+      enabled: ${{ steps.gate.outputs.enabled }}
+    steps:
+      - name: Gate on API key presence
+        id: gate
+        env:
+          HAS_KEY: ${{ secrets.CURSOR_API_KEY != '' }}
+        run: echo "enabled=$HAS_KEY" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout PR head (no credentials persist)
+        if: steps.gate.outputs.enabled == 'true'
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install Cursor CLI (record version)
+        if: steps.gate.outputs.enabled == 'true'
+        run: |
+          curl -fsS https://cursor.com/install | bash
+          echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
+          "$HOME/.cursor/bin/cursor-agent" --version | tee cli-version.txt
+          echo "Installed cursor-agent $(cat cli-version.txt)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Review diff with Grok 4.6 (no GitHub credentials)
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          # GitHub never puts GITHUB_TOKEN in a step's environment unless the
+          # workflow passes it; these empty values keep that true even if a
+          # job- or workflow-level env adds one later.
+          GITHUB_TOKEN: ''
+          GH_TOKEN: ''
+          # The Actions runtime and OIDC tokens, if the runner sets them, are not
+          # the agent's to use either (the upload step gets its own env).
+          ACTIONS_RUNTIME_TOKEN: ''
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ''
+          ACTIONS_ID_TOKEN_REQUEST_URL: ''
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          # Rules from the BASE commit: a PR must not weaken the rules it is
+          # reviewed against. The head copy is used only when base has none
+          # (the PR that adds the rules file).
+          RULES_PATH=.cursor/BUGBOT.md
+          if git cat-file -e "${BASE_SHA}:${RULES_PATH}" 2>/dev/null; then
+            RULES=$(git show "${BASE_SHA}:${RULES_PATH}")
+          else
+            RULES=$(cat "$RULES_PATH")
+          fi
+          # SUPPLY THE DIFF (see header). Written to a file rather than inlined so
+          # a large diff cannot blow the argument limit, and truncated LOUDLY
+          # rather than silently. NO `|| true`: a swallowed diff failure hands the
+          # reviewer an empty pr.diff, and an empty change set reads as
+          # "## No actionable findings" — a green workflow over nothing reviewed.
+          if ! git diff "${BASE_SHA}...${HEAD_SHA}" > pr.diff; then
+            echo "::error::git diff ${BASE_SHA}...${HEAD_SHA} failed — refusing to review without the diff" >&2
+            exit 1
+          fi
+          DIFF_BYTES=$(wc -c < pr.diff | tr -d ' ')
+          if [ "$DIFF_BYTES" -eq 0 ]; then
+            echo "::error::pr.diff is empty for ${BASE_SHA}...${HEAD_SHA} — nothing to review, and a clean verdict here would be meaningless" >&2
+            exit 1
+          fi
+          MAX=400000
+          if [ "$DIFF_BYTES" -gt "$MAX" ]; then
+            head -c "$MAX" pr.diff > pr.diff.trunc
+            printf '\n\n[TRUNCATED: diff is %s bytes, showing the first %s. Findings below this point cannot be complete; say so in the review.]\n' "$DIFF_BYTES" "$MAX" >> pr.diff.trunc
+            mv pr.diff.trunc pr.diff
+          fi
+          echo "Diff supplied to the reviewer: ${DIFF_BYTES} bytes" >> "$GITHUB_STEP_SUMMARY"
+          PROMPT=$(cat <<PROMPT_EOF
+          You are the fast-layer PR reviewer for this repository. Your review
+          instructions, repository contracts, known defect classes, and
+          boundaries are exactly the following document; obey it fully,
+          including the Alignment concern format and the Boundaries section:
+
+          ${RULES}
+
+          Review ONLY the changes between base ${BASE_SHA} and head
+          ${HEAD_SHA} of pull request #${PR_NUMBER}. THE DIFF IS ALREADY ON DISK
+          at ./pr.diff — read that file first and treat it as the authoritative
+          statement of what changed. Do not attempt to run git; this job cannot.
+          If a finding concerns a file that does not appear in pr.diff, it is out
+          of scope for this review: say so rather than raising it.
+          Read unchanged code only as the Boundaries permit. Do not modify,
+          commit, push, or interact with GitHub.
+
+          For each actionable finding use:
+          ### [P0|P1|P2|P3] Short title
+          **Location:** path:line
+          **Problem / Why it matters / Suggested fix** as separate lines.
+          If nothing is actionable, output exactly:
+          ## No actionable findings
+          followed by two sentences on what you examined. Markdown only.
+          PROMPT_EOF
+          )
+          # --trust: non-interactive CI cannot answer the directory-trust
+          # prompt; the workspace is a credential-free checkout of this repo.
+          cursor-agent --print "$PROMPT" \
+            --trust \
+            --model cursor-grok-4.6-xhigh \
+            --output-format text > composer-review.md
+          # Only a non-empty regular file goes on: an empty run fails here, so
+          # nothing is uploaded and "Re-run all jobs" starts clean.
+          if [ ! -f composer-review.md ] || [ -L composer-review.md ] || [ ! -s composer-review.md ]; then
+            echo "::error::the review produced no output (or not a regular file); nothing was published" >&2
+            exit 1
+          fi
+          # The key sits in this step's env beside a --trust agent; a
+          # prompt-injected diff could make it print the key, and the comment
+          # job publishes this file verbatim. Refuse to hand it on if so.
+          if grep -qF -- "$CURSOR_API_KEY" composer-review.md; then
+            : > composer-review.md
+            echo "::error::the review output contained CURSOR_API_KEY; nothing was published. Rotate the key." >&2
+            exit 1
+          fi
+          cat composer-review.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Hand the review to the comment job (artifact, not a token)
+        if: steps.gate.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: composer-review-${{ github.event.pull_request.number }}
+          path: composer-review.md
+          retention-days: 1
+          if-no-files-found: error
+          overwrite: true
+
+      # A missing key must be visible: a green check with no review reads as
+      # "reviewed" (three repos went unreviewed that way until 2026-11-08).
+      # The warning annotates the run; the comment job then posts a NOT RUN
+      # notice on the PR under the same marker, which a later real review
+      # replaces.
+      - name: No review (secret absent)
+        if: steps.gate.outputs.enabled != 'true'
+        run: |
+          echo "::warning title=No PR review::CURSOR_API_KEY is not set for ${GITHUB_REPOSITORY}, so this PR was NOT reviewed by Grok."
+          echo "**No review ran:** CURSOR_API_KEY is not set for this repository." >> "$GITHUB_STEP_SUMMARY"
+
+  comment:
+    name: Post the review comment (deterministic, write-scoped)
+    needs: review
+    if: needs.review.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # The ONLY job that holds write. It runs no model — it posts a file.
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Download the review
+        if: needs.review.outputs.enabled == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: composer-review-${{ github.event.pull_request.number }}
+
+      - name: Post or update the review comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # This job has no checkout, so gh cannot infer the repo from a remote —
+          # name it explicitly (gh reads GH_REPO, not GITHUB_REPOSITORY).
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          ENABLED: ${{ needs.review.outputs.enabled }}
+        run: |
+          set -euo pipefail
+          MARKER="<!-- composer-review -->"
+          if [ "$ENABLED" != "true" ]; then
+            {
+              echo "$MARKER"
+              echo "## Grok 4.6 PR Review: NOT RUN"
+              echo
+              echo "_\`${HEAD_SHA:0:8}\` was **not reviewed**: this repository has no \`CURSOR_API_KEY\` secret._"
+              echo
+              echo "Add it with \`gh secret set CURSOR_API_KEY --repo ${GITHUB_REPOSITORY}\`, then re-run this workflow or push again. The review will replace this notice."
+            } > body.md
+          else
+          if [ ! -s composer-review.md ]; then
+            echo "::error::composer-review.md missing or empty — the review job produced no output to post" >&2
+            exit 1
+          fi
+          {
+            echo "$MARKER"
+            echo "## Grok 4.6 PR Review (first-party pool, xhigh)"
+            echo
+            echo "_Reviewed \`${HEAD_SHA:0:8}\` with cursor-grok-4.6-xhigh; instructions sourced from .cursor/BUGBOT.md_"
+            echo
+            cat composer-review.md
+          } > body.md
+          fi
+          # `last`, not [0]: the upsert only ever writes one marked comment, but
+          # if two exist the live one is the most recent, so update that.
+          # --paginate: the list endpoint returns 30 comments a page, oldest
+          # first, so a busy thread would hide the marker past page one.
+          EXISTING=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- composer-review -->"))) | .id' | tail -n 1)
+          if [ -n "$EXISTING" ]; then
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${EXISTING}" -F body=@body.md >/dev/null
+          else
+            gh pr comment "$PR_NUMBER" --body-file body.md
+          fi
