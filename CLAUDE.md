@@ -21,7 +21,9 @@ author's manuscript prose** — only classes, macros, and synthetic samples.
   profile; `generated` starts from the `house` profile (never a shipped option);
   `vendored` is the author's own class. `classes/cu-boulder/` is `legacy`: an
   unlicensed feature reference, never offered.
-- Each `classes/<id>/` holds: `thesis.cls` (+ macros), a `README.md` (institution,
+- Each `classes/<id>/` (the house class, a `vendored` class, or the legacy CU class)
+  holds: the `.cls` (`dataimago-thesis.cls`, or `thesis.cls` for a vendored/legacy
+  class, + macros), a `README.md` (institution,
   version, lineage, engine, capabilities), and an `example/` that builds to PDF
   with the class unchanged. The example must be synthetic.
 - The discovery + 3-mode rules live in `docs/discovery-contract.md`. Keep code and
@@ -33,9 +35,9 @@ author's manuscript prose** — only classes, macros, and synthetic samples.
 ## SECURITY — privacy invariant
 
 Never add real manuscript prose, unpublished claims, or an identifiable author's
-thesis content. Examples are synthetic. A `vendored` or `generated` class is
+thesis content. Examples are synthetic. A `vendored` class or a `generated` profile is
 contributed here only with the author's explicit consent, and even then only the
-class machinery — not their writing.
+class or profile machinery — not their writing.
 
 ## Consumers (don't break these)
 
