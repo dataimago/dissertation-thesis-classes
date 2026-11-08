@@ -1,17 +1,38 @@
 {
-  "schemaVersion": 1,
-  "description": "Registry of thesis/dissertation output-format classes for the dataimago dissertation vertical. Consumed by dissertation-ai onboarding (interview Q15), Level-3 generated-app PDF builds, and the Level-3 author harness. See docs/discovery-contract.md.",
+  "schemaVersion": 2,
+  "description": "Registry of thesis/dissertation output-format classes and institution profiles for the dataimago dissertation vertical. Consumed by dissertation-ai onboarding (interview Q15), Level-3 generated-app PDF builds, and the Level-3 author harness. The unit is one house class plus a profile per institution. See docs/discovery-contract.md.",
   "modes": {
-    "shipped": "A class exists in this registry for the institution; use it as-is.",
-    "vendored": "The author supplies their institution's class; normalize it here and optionally contribute back.",
-    "generated": "No class exists; the author's AI drafts one from written guidelines, validates it, and may contribute it back."
+    "shipped": "A profile exists in this registry for the institution; use the house class with that profile as-is.",
+    "vendored": "The author supplies their institution's own class; normalize it here and optionally contribute back.",
+    "generated": "No profile exists for the institution; the author's AI starts from the house profile and adapts it from written guidelines, validates it, and may contribute it back."
   },
   "classes": [
     {
+      "id": "dataimago-thesis",
+      "path": "classes/dataimago-thesis/dataimago-thesis.cls",
+      "companions": [
+        "classes/dataimago-thesis/thesis-profile.lua",
+        "classes/dataimago-thesis/thesis-divs.lua",
+        "classes/dataimago-thesis/doc-class.tex",
+        "classes/dataimago-thesis/title.tex",
+        "classes/dataimago-thesis/before-body.tex",
+        "classes/dataimago-thesis/toc.tex",
+        "classes/dataimago-thesis/fonts.latex",
+        "classes/dataimago-thesis/font-settings.latex"
+      ],
+      "example": "classes/dataimago-thesis/example/",
+      "engine": "lualatex",
+      "engineFallback": "xelatex",
+      "documentclass": "dataimago-thesis",
+      "classOptions": [],
+      "version": "0.1.0 (2026-11-08)",
+      "license": "LPPL-1.3c",
+      "status": "available",
+      "notes": "The house class. Everything an institution's guide decides lives in a profile, compiled to profiles/<id>.cfg, which the class reads; select it with the class option profile=<id> (Quarto: thesis.profile). Build with LuaLaTeX (tagged PDF); XeLaTeX is supported and untagged. Use in a Quarto book: see classes/dataimago-thesis/README.md."
+    },
+    {
       "id": "cu-boulder",
       "institution": "University of Colorado Boulder",
-      "graduateSchool": "CU Boulder Graduate School",
-      "credentials": ["PhD dissertation", "Master's thesis"],
       "path": "classes/cu-boulder/thesis.cls",
       "companions": ["classes/cu-boulder/macros.tex"],
       "example": "classes/cu-boulder/example/",
@@ -21,9 +42,35 @@
       "version": "1.14 (Ken Anderson, 2020-08)",
       "lineage": "John P. Weiss (1997) → maintained through v1.14; hyperref-compatible (Ni 2014); signature page removed, committee on title page (Anderson 2020)",
       "conformsTo": "CU Boulder Graduate School Specifications (April 2010)",
+      "license": "unstated (third party)",
+      "status": "legacy",
+      "notes": "Unlicensed feature reference for the house class, kept in the tree. Never offered to authors and never fetched by a build: its institution's shipped option is the cu-boulder profile above."
+    }
+  ],
+  "profiles": [
+    {
+      "id": "house",
+      "class": "dataimago-thesis",
+      "yaml": "profiles/house.yaml",
+      "cfg": "profiles/house.cfg",
+      "classOptions": ["profile=house"],
+      "status": "available",
+      "mode": "generated",
+      "notes": "The neutral dataimago default; no institution's guide stands behind it. The starting profile for the generated mode, adapted from the author's written guidelines. Never a shipped option and never the framework default of the interview (shipped always names an institution's profile)."
+    },
+    {
+      "id": "cu-boulder",
+      "institution": "University of Colorado Boulder",
+      "graduateSchool": "CU Boulder Graduate School",
+      "credentials": ["PhD dissertation", "Master's thesis"],
+      "class": "dataimago-thesis",
+      "yaml": "profiles/cu-boulder.yaml",
+      "cfg": "profiles/cu-boulder.cfg",
+      "classOptions": ["profile=cu-boulder"],
+      "guide": "CU Boulder Graduate School, Specifications for Preparation of Master's Theses & Doctoral Dissertations (web page, revised 2018, 2023, 2026)",
       "status": "available",
       "mode": "shipped",
-      "notes": "Provides \\title, \\author, \\degree, \\dept, \\advisor, \\reader/\\readerThree, \\abstract, \\dedication, \\acknowledgements, and \\ToCisShort/\\LoFisShort/\\LoTisShort one-page toggles. See classes/cu-boulder/README.md."
+      "notes": "Fields the guide does not state are listed under `unstated` in the profile and keep the house value; they are pending sources (wi-20261108-cu-profile-sources). Read the profile's `unstated` and `sources` before claiming conformance."
     }
   ]
 }
