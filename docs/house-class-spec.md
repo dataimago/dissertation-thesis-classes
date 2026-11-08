@@ -490,10 +490,19 @@ See section 10 for links.
 
 ### 4.3 Link style
 
-R18. `hyperref` is loaded once, by the class, with `pdftitle`, `pdfauthor`,
-`pdfsubject`, `pdfkeywords`, `bookmarksnumbered=true`, `pdfusetitle`, `pdfdisplaydoctitle=true` (A6); per S8 for
-colors. Quarto's `colorlinks`, `linkcolor`, `urlcolor`, `citecolor` are unsupported (R10).
-**Reason:** one owner; Pandoc's template also loads hyperref.
+R18. `hyperref` has one owner, the class, and is configured with `pdftitle`,
+`pdfauthor`, `pdfsubject`, `pdfkeywords`, `bookmarksnumbered=true`, `pdfusetitle`,
+`pdfdisplaydoctitle=true` (A6), and S8 for colors. How it is loaded depends on the path:
+* **Tagged (`\DocumentMetadata` active, the house default):** the tagging code loads
+  `hyperref` itself. The class MUST NOT `\usepackage{hyperref}` or pass load-time options;
+  it sets every key above with `\hypersetup{...}` after the class loads.
+* **Untagged (XeLaTeX fallback, R19):** the class loads `hyperref` once with
+  `\usepackage{hyperref}` and then applies the same `\hypersetup{...}`.
+Pandoc's own hyperref load in `pandoc.tex` is neutralized through the class hooks named in
+the partials table. Quarto's `colorlinks`, `linkcolor`, `urlcolor`, `citecolor` are
+unsupported (R10). **[verify]** in `-build` that `\hypersetup` after `\DocumentMetadata`
+sets `pdfdisplaydoctitle` and the bookmark options on the pinned TeX Live.
+**Reason:** one owner, and no option clash on the tagged path.
 
 ### 4.4 Math font
 
@@ -742,7 +751,7 @@ Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.
 | `titlePage.statement` | template string | see 3.7 | slots | |
 | `titlePage.byline` | template string | `by {author}` | | |
 | `titlePage.date` | enum | `year` | `year`, `month-year`, `none` | |
-| `titlePage.case` | enum | `as-typed` | `upper` | |
+| `titlePage.case` | enum | `as-typed` | `as-typed`, `upper` | |
 | `titlePage.previousDegrees` | bool | `false` | | |
 | `copyright.enabled` | bool | `true` | | |
 | `copyright.template` | template | `© {year} {author}. All rights reserved.` | | |
@@ -761,7 +770,7 @@ Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.
 | `acknowledgments.maxPages` | int | none | | CI warning |
 | `lists.lot.mode`, `lists.lof.mode` | enum | `auto` | `always`, `auto`, `never` | |
 | `lists.<list>.numberFirstPage` | enum | `auto` | `auto`, `show`, `hide` | |
-| `titlesCase` | enum | `as-typed` | `upper` | |
+| `titlesCase` | enum | `as-typed` | `as-typed`, `upper` | |
 
 #### `toc`
 
@@ -937,6 +946,7 @@ spacing:
   tables: single
   bibliography: { within: single, between: 1em }
   toc: double
+  lists: double                  # inferred: the class wraps \listoftables and \listoffigures in \doublespacing
   abstract: double
 headings:
   chapter:    { label: chapter-number, align: center, case: as-typed, size: 12, weight: bold, newPage: any }
