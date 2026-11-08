@@ -51,7 +51,7 @@ channel), **drop** (not carried over).
 | C2 | Warn-and-ignore options: `titlepage`, `notitlepage`, `twoside`, `twocolumn`, `landscape`, `legalpaper`, `a4paper`, `a5paper`, `b5paper`, `executivepaper`, `letterpaper`, `onecolumn`, `oneside` | Emit class warnings | **drop** | Replace with profile-driven `geometry.paper` / `geometry.sides`; `twocolumn`, `notitlepage` stay unsupported and raise an error naming the option | Silent-ish warnings are noise; the profile is the single place paper and sides are chosen. |
 | C3 | Pass-through options `fleqn leqno openbib draft final openright openany 10pt 11pt 12pt` | Forwarded to `book` | **keep** (subset) | `draft`, `final`, `fleqn`, `leqno`, `openbib` pass through to `book`. `openany`/`openright` are NOT author options: the class sends the resolved `headings.chapter.newPage` value to `book`, and an author `classoption` for either warns and is ignored (R11); type size comes from the profile (`type.size`), with `10pt/11pt/12pt` still accepted as an override | Authors expect these; `11pt` is how CU is invoked today. |
 | C4 | Style presets `defaultstyle`, `modernstyle`, `typewriterstyle` | Bundles of heading/numbering flags | **drop**, flags kept individually | Express as profile fields under `headings.*` and `numbering.*` | Presets hide what each flag does; a guide is converted field by field. |
-| C5 | `consecutivenumbering` | Figure/table/equation numbers continue across chapters | **rename** | `numbering.floats: per-chapter \| continuous` | Guides state this; make it data. |
+| C5 | `consecutivenumbering` | Figure/table/equation numbers continue across chapters | **rename** | `numbering.floats: per-chapter \| continuous` (figures and tables) and `numbering.equations: per-chapter \| continuous` | Guides state this; make it data. |
 | C6 | `inlineh4`, `nonumh4` | Level-4 heading inline or unnumbered | **rename** | `headings.level4.style: inline \| block`, `headings.level4.numbered` | Same. |
 | C7 | `centerh1`, `chapleft` (both set the same flag, oddly) | Center or left-align section headings | **rename** | `headings.section.align`, `headings.chapter.align` (independent) | One flag for two options is a bug; separate fields. |
 | C8 | `chapup` | All-caps chapter and list titles | **rename** | `headings.chapter.case: as-typed \| upper`, `frontmatter.titlesCase` | Guides state caps for chapter titles and list headings separately. |
@@ -701,7 +701,7 @@ decision 5.)
 
 | Field | Type | House | Allowed | Maps to |
 |---|---|---|---|---|
-| `body` | enum or number | `double` | `single`, `onehalf`, `double`, or a multiple, or `{pitch: 24pt}` | `\setstretch`/`\linespread` |
+| `body` | enum \| number \| `{pitch: length}` | `double` | `single`, `onehalf`, `double`, or a multiple, or `{pitch: 24pt}` | `\setstretch`/`\linespread` |
 | `paragraph.indent` | length | `0.5in` | `0` allowed | `\parindent` |
 | `paragraph.skip` | length | `0pt` | | `\parskip` |
 | `blockQuotes` | enum | `single` | `single`, `inherit` | `quote`, `quotation`, `verse` |
@@ -732,7 +732,7 @@ decision 5.)
 | `numbering.depth` | int | `3` | 0-5 | `secnumdepth` |
 | `numbering.floats` | enum | `per-chapter` | `per-chapter`, `continuous` | |
 | `numbering.footnotes` | enum | `continuous` | `per-chapter`, `continuous` | |
-| `numbering.equations` | enum | `per-chapter` | | |
+| `numbering.equations` | enum | `per-chapter` | `per-chapter`, `continuous` | `\counterwithin`/`\counterwithout{equation}{chapter}` |
 
 #### `pagenumber`
 
