@@ -36,8 +36,8 @@ guide is fully met: read the profile's `unstated` list.
 ## The three modes
 
 ```
-            ┌─ institution has a profile in the registry?
-author ─────┤
+            ┌─ institution has an available profile
+author ─────┤  with mode "shipped" in the registry?
             └─ no
                  │
    yes → SHIPPED │  no → does the author have their institution's own .cls?

@@ -83,7 +83,7 @@ compiled `.cfg`) and append a `profiles` entry to `registry.json` with
 `status: available`, `mode: shipped`. For an
 author's own class (`vendored`), add `classes/<institution-id>/` with the `.cls`
 (+ macros + a synthetic `example/`) and a `README.md`, and append a `classes`
-entry. See `docs/discovery-contract.md`.
+entry with `status: contributed` (archived and not offered). See `docs/discovery-contract.md`.
 
 ## Licensing
 
