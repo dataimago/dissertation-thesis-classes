@@ -30,8 +30,10 @@ guide with the `thesis-format` skill; `CONTRIBUTING.md` says how a contribution
 arrives (a fork pull request) and how a maintainer re-pushes it to a same-repo
 branch for review. The canonical copy of the skill is in
 `dissertation-app-template`; `.claude/skills/thesis-format/` here points to it
-and adds only what differs in this repository. Never add a profile value the
-guide does not state: list the field under `unstated`.
+and adds only what differs in this repository. Cite every value that differs from
+the house value in `sources`, mark a value read from a sample the institution
+published `inferred`, and never add a value the guide does not state: omit the
+field and list it under `unstated`.
 
 ## SECURITY — privacy invariant
 
