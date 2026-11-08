@@ -48,7 +48,7 @@ wants to contribute the result. By hand, the same rules apply:
    known). Use `retrieved: unretrieved` only if you did not read the guide.
 5. Validate and build (see the class README for the full commands). The sample
    book picks its profile from an overlay named after it, so a new profile needs
-   `classes/dataimago-thesis/example/_quarto-<id>.yml` with two lines,
+   `classes/dataimago-thesis/example/_quarto-<id>.yml` containing
    `thesis:` and `  profile: <id>`, plus `  institution: <the profile's institution.name>`
    if the profile sets one (an institution's name, never a person's):
 
