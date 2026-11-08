@@ -152,7 +152,7 @@ jobs:
           path: |
             classes/dataimago-thesis/example/_build/${{ matrix.profile }}-${{ matrix.engine }}/thesis.pdf
             classes/dataimago-thesis/example/thesis.tex
-            classes/dataimago-thesis/example/thesis.log
+            classes/dataimago-thesis/example/index.log
           if-no-files-found: ignore
           retention-days: 7
 
