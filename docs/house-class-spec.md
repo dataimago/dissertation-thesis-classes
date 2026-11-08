@@ -100,7 +100,7 @@ channel), **drop** (not carried over).
 | F3 | `\onehalfspacing` | 1.5 spacing | **rename** | House default `spacing.body: double`; guide-overridable | Most guides say double. |
 | F4 | `\thesistitle{title}{author}{institution}{program}{year}` | Title page macro with 5 positional arguments | **drop** | Title page generated from metadata | Positional macros are not Quarto-native and the name collides with nothing useful. |
 | F5 | `\signaturepage{...}`, `\sigline{...}` | Signature page and line | **rename** | Generated `approval` page (its own `frontmatter.order` entry) with signature lines built from `thesis.advisors[]` and `thesis.committee[]`, when `frontmatter.approval.enabled` | Same data, no macro. |
-| F6 | `abstract` environment (`\newenvironment`, centered bold heading) | Abstract | **keep** | The class defines `abstract` with `\newenvironment` (`book` has none; `\renewenvironment` fails with `Environment abstract undefined`); Quarto's `abstract:` renders through it | Prior fix recorded in the `thesis-build` skill. |
+| F6 | `abstract` environment (`\newenvironment`, centered bold heading) | Abstract | **keep** | The class defines `abstract` with `\newenvironment` (`book` has none; `\renewenvironment` fails with `Environment abstract undefined`); `\thesisfrontmatter` wraps the `\thesisabstract{...}` text (from `$abstract$`, R6) in it, once, at the `abstract` slot of `frontmatter.order`. Quarto's own abstract output is gone because `before-body.tex` is replaced (2.4) | Prior fix recorded in the `thesis-build` skill. |
 | F7 | `dataimago.sty`: `fontspec`, `\parindent 0`, `\parskip 0.6em` | Sans-serif look, block paragraphs | **drop** | Not loaded. Paragraph style from `spacing.paragraph.indent` and `.skip` | Block paragraphs plus double spacing is non-standard for theses and conflicts with most guides. |
 | F8 | `mainfont`/`sansfont`/`mathfont: Noto Sans (Math)` in `_quarto.yml` | Fonts set by Quarto | **rename** | Fonts come from the profile (`type.*`); the Quarto font keys are unsupported; the Lua filter warns per R10 and the font partials are emptied so Pandoc does not apply them | One owner for fonts (see 2.4). |
 | F9 | `include-in-header: text: \usepackage{dataimago}` | Package load | **drop** | None; the class is loaded by `doc-class.tex` | Known failure: file injection of a `.sty` truncates `index.tex`. |
@@ -144,7 +144,7 @@ visible to partials in the pinned Quarto version.
 | Author | `book.author` (Pandoc `author`, a name or a list with one entry) | `user.name` | MUST | `\author{}` (one argument) |
 | Author, inverted | `thesis.author-family`, `thesis.author-given` | none (derived by the AI from `user.name`) | SHOULD | `\thesisauthorfamily{}`, `\thesisauthorgiven{}` |
 | Date (defense/submission) | `book.date` | `timeline.defenseDate` / `submissionDate` | SHOULD | `\date{}`; profile decides whether the title page shows month+year |
-| Copyright year | `thesis.year` | `institution.expectedDefenseYear` | MUST | `\thesisyear{}`; default: year of `date` |
+| Copyright year | `thesis.year` | `institution.expectedDefenseYear` | MUST (default: year of `date`) | `\thesisyear{}` |
 | Degree name | `thesis.degree.name` ("Doctor of Philosophy") | **not in spec**: derive from `institution.degreeProgram`, confirm with author | MUST | `\thesisdegree{}` |
 | Degree abbreviation | `thesis.degree.abbreviation` ("Ph.D.") | `institution.degreeProgram` ("Ph.D. ...") | SHOULD | `\thesisdegreeabbr{}` |
 | Field / program | `thesis.degree.field` | `institution.degreeProgram` | SHOULD | `\thesisfield{}` |
@@ -166,8 +166,12 @@ visible to partials in the pinned Quarto version.
 | Profile id | `thesis.profile` (default `house`) | derived from `institution.name` via `registry.json` | MUST (default) | selects `profiles/<id>` config file |
 | Draft marking | `thesis.draft: true` | none | MAY | `draft` option and a "DRAFT" footer; MUST fail CI if set on a release build |
 
-R5. Required fields missing at build time MUST produce one error that names the
-`_quarto.yml` key, not the LaTeX macro. **Reason:** authors never see the macro layer.
+R5. A field marked plain **MUST** in the table above that is missing at build time MUST
+produce one error that names the `_quarto.yml` key, not the LaTeX macro. A field marked
+**MUST (default …)** (`thesis.year`, `thesis.type`, `lang`, `thesis.profile`) never errors:
+when unset it takes the stated default, and the build logs one `quarto.log.info` line naming
+the key and the value used. **Reason:** authors never see the macro layer, and a valid
+document must not fail for a field the spec can fill.
 
 R6. The abstract is the author's Pandoc `abstract:` field in `index.qmd` (the one
 supported channel). Dedication and acknowledgments are markdown divs in files, never YAML
@@ -216,11 +220,11 @@ quoted in the docs **[verify]** against the pinned version.
 | `before-body.tex` | **replace** | Calls `\thesisfrontmatter` (title, copyright, approval, committee, abstract, dedication, acknowledgments, preface, ToC, lists, in profile order), then `\mainmatter`. The dedication, acknowledgments and similar pages are read from the metadata the filter lifted (R8), never from `$body$`. | Quarto's default prints `\maketitle` and the abstract itself; the class owns the order. |
 | `toc.tex` | **replace with empty** | Suppresses Quarto's own ToC and lists | The class prints them in `frontmatter.order`. Avoids a doubled ToC. |
 | `after-body.tex` | keep (empty) | | Nothing to add; the class handles back matter itself. |
-| `pandoc.tex` | **keep**; if it loads `geometry`/`hyperref`/fonts, neutralize through class hooks, not by editing it | | Required by Quarto; Pandoc features (highlighting, tables, citations) need it. |
+| `pandoc.tex` | **keep**, unedited. Its `hyperref`/`bookmark` load is a no-op because the package is already loaded (by the tagging code, or by the class on the untagged path). Its `\hypersetup{...}` is overridden: the class re-applies its own `\hypersetup{...}` (R18) in `\AddToHook{begindocument/before}`, which runs after the whole preamble, so the class's values win. Geometry and font loads are prevented by the emptied sub-partials below. **[verify]** in `-build` against the pinned Quarto's `pandoc.tex`. | | Required by Quarto; Pandoc features (highlighting, tables, citations) need it. |
 | font and geometry sub-partials (names **[verify]**) | **replace with empty** so Pandoc applies none of those keys; the warning comes from the Lua filter (R10), not from these partials | Fonts and geometry belong to the profile | The `Option clash for package geometry` failure and the Noto fallback both came from two owners. |
 
 R10. Unsupported Quarto keys MUST be detected, not silently ignored: if `geometry`,
-`mainfont`, `sansfont`, `mathfont`, `fontsize`, `linestretch`, `papersize`,
+`mainfont`, `sansfont`, `monofont` (replaced by `type.mono`), `mathfont`, `fontsize`, `linestretch`, `papersize`,
 `colorlinks`, `linkcolor`, `urlcolor` or `citecolor` is set, the Lua filter (the one of R8) MUST read it from `doc.meta` and warn through
 `quarto.log.warning`, naming the key and the profile field that replaces it. The class and the
 emptied partials cannot see these keys, so they are not the place for the warning. **Reason:** an author changing `fontsize` and seeing nothing happen
@@ -498,8 +502,9 @@ R18. `hyperref` has one owner, the class, and is configured with `pdftitle`,
   it sets every key above with `\hypersetup{...}` after the class loads.
 * **Untagged (XeLaTeX fallback, R19):** the class loads `hyperref` once with
   `\usepackage{hyperref}` and then applies the same `\hypersetup{...}`.
-Pandoc's own hyperref load in `pandoc.tex` is neutralized through the class hooks named in
-the partials table. Quarto's `colorlinks`, `linkcolor`, `urlcolor`, `citecolor` are
+Pandoc's own hyperref load and `\hypersetup` in `pandoc.tex` are handled as the partials
+table's `pandoc.tex` row says: the load is a no-op, and the class re-applies its settings in
+`\AddToHook{begindocument/before}`. Quarto's `colorlinks`, `linkcolor`, `urlcolor`, `citecolor` are
 unsupported (R10). **[verify]** in `-build` that `\hypersetup` after `\DocumentMetadata`
 sets `pdfdisplaydoctitle` and the bookmark options on the pinned TeX Live.
 **Reason:** one owner, and no option clash on the tagged path.
@@ -1042,7 +1047,7 @@ Notes on the CU example:
 | T14 | **PDF/A** (optional but on by default when `pdfa != none`) | veraPDF with the profile matching the level; the job is skipped if veraPDF is not installed | any failure |
 | T15 | **Tagging** (lualatex, `tagged: on`) | structure tree present (`qpdf --show-object` on StructTreeRoot or `pdfinfo` "Tagged: yes"); alt text on every Figure element; optional veraPDF PDF/UA profile | missing |
 | T16 | **Math font check** | run once with a deliberately broken math font in a negative test; CI MUST turn red | the check does not catch it |
-| T17 | **Unsupported keys** | negative test: set `geometry:`, `mainfont:` and `linkcolor:` in `_quarto.yml`; the Lua filter MUST log a `quarto.log.warning` for each, naming the replacing profile field (R10) | no warning |
+| T17 | **Unsupported keys** | negative test: set `geometry:`, `mainfont:`, `monofont:` and `linkcolor:` in `_quarto.yml`; the Lua filter MUST log a `quarto.log.warning` for each, naming the replacing profile field (R10) | no warning |
 | T18 | **Size** | file size under `submission.maxMB` | warning |
 
 R20. Measurement tolerances live in the profile test config (`profiles/<id>.test.yaml`),
