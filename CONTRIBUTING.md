@@ -61,8 +61,10 @@ wants to contribute the result. By hand, the same rules apply:
 6. Open a pull request that changes only the profile's files (spec R21):
    `profiles/<id>.yaml`, its generated `profiles/<id>.cfg`, the first-page
    snapshots `profiles/snapshots/<id>/` and, optionally, `profiles/<id>.test.yaml`,
-   plus the one-file overlay from step 5 (R21 does not list it, but neither the
-   build nor CI selects a new profile without it).
+   plus the one-file overlay from step 5. R21 does not list the overlay; it is
+   needed because `render.sh` sets only `QUARTO_PROFILE`, so without
+   `_quarto-<id>.yml` the example keeps `thesis.profile: house` and the new id
+   would be checked against the house book.
    The snapshots need a full TeX Live (`python tools/check_pdf.py ... --update-snapshots`).
    If you cannot produce them, send the YAML and `.cfg` alone: the snapshot check
    (T11) fails until the maintainer adds them in the re-push below, and that
@@ -96,6 +98,8 @@ contribution:
    ```sh
    gh pr checkout <fork-pr-number> --branch contrib/<id>    # fetches the commits only
    git diff --stat origin/main...contrib/<id>               # re-check: only profile files
+   texlua classes/dataimago-thesis/thesis-profile.lua profiles <id>   # regenerate the .cfg from the YAML
+   git status --short profiles/                              # if the .cfg changed, commit it as a maintainer commit
    git push -u origin contrib/<id>
    ```
 

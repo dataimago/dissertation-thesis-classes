@@ -39,10 +39,12 @@ what differs when you run it inside this repository.
   python tools/check_pdf.py --pdf <built pdf> --profile <id> --update-snapshots profiles/snapshots/<id>   # first-page snapshots
   ```
 
-  and add `profiles/<id>.test.yaml` (tolerances; copy `profiles/cu-boulder.test.yaml`
-  and exempt nothing the guide does not exempt).
+  and, only if the defaults do not fit, add `profiles/<id>.test.yaml` (optional per
+  R21; tolerances; copy `profiles/cu-boulder.test.yaml` and exempt nothing the guide
+  does not exempt).
 - **Touch only the profile's files** (spec R21): `profiles/<id>.yaml`, `.cfg`,
-  `profiles/snapshots/<id>/`, `profiles/<id>.test.yaml`, and the overlay above.
+  `profiles/snapshots/<id>/`, optionally `profiles/<id>.test.yaml` (all R21), and the
+  overlay above (not in R21; see CONTRIBUTING.md).
   Never `registry.json`, `docs/discovery-contract.md` or anything else under
   `classes/` from this skill.
 - **Confirm with the maintainer**, who stands in for the author: show the
