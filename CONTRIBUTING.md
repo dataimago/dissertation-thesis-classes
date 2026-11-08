@@ -66,9 +66,9 @@ wants to contribute the result. By hand, the same rules apply:
    `_quarto-<id>.yml` the example keeps `thesis.profile: house` and the new id
    would be checked against the house book.
    The snapshots need a full TeX Live (`python tools/check_pdf.py ... --update-snapshots`).
-   If you cannot produce them, send the YAML and `.cfg` alone: the snapshot check
-   (T11) fails until the maintainer adds them in the re-push below, and that
-   failure is not a defect in your profile. Do not edit `registry.json`,
+   If you cannot produce them, send the YAML, the `.cfg` and the overlay (never leave the
+   overlay out): the snapshot check (T11) fails until the maintainer adds the
+   snapshots in the re-push below, and that failure is not a defect in your profile. Do not edit `registry.json`,
    `docs/`, the rest of `classes/`, or another institution's profile.
 7. Say in the pull request body that you contribute the profile with your
    consent, name the guide (title, issuer, version, date), and list the
@@ -106,7 +106,7 @@ contribution:
 4. **Open a same-repository pull request** from `contrib/<id>` to `main` whose
    body credits the author ("Contributed by @<username> in #<fork-pr>, with
    their consent") and keeps the contributor's commits (so the author line stays
-   theirs). Add a `Co-authored-by` trailer if you squash. Add the snapshots and test
+   theirs). Add a `Co-authored-by` trailer if you squash. Check that the overlay `_quarto-<id>.yml` is present (add it first if not), then add the snapshots and test
    config as a maintainer commit if the author could not (`python tools/check_pdf.py ... --update-snapshots`).
    This pull request gets the normal Grok review and the `House class` CI.
 5. **Close the fork pull request** with a comment linking to the new one and
