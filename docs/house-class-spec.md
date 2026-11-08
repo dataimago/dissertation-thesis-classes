@@ -1002,8 +1002,8 @@ Notes on the CU example:
 
 * One **synthetic** example book (`example/`): front matter, three chapters (one with
   a block quote, a footnote, a wide table, a figure with alt text, a figure that
-  creates a float page, display equations including `\mathbb`, `\mathcal`, a Quarto theorem div (`::: {#thm-...}`; the sample defines no `theorem` of its own)
-  from `amsthm`), a bibliography, one appendix, one landscape page, a list of figures
+  creates a float page, display equations including `\mathbb`, `\mathcal`, a Quarto theorem div (`::: {#thm-...}`; the sample defines no `theorem` of its own)),
+  a bibliography, one appendix, one landscape page, a list of figures
   and tables, an abbreviations list. No real prose. The book is the same for every
   profile; only `thesis.profile` changes.
 * CI runs the matrix `profile × engine`: `house`, `cu-boulder` × `lualatex`, `xelatex`.
