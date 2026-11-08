@@ -29,8 +29,8 @@ what differs when you run it inside this repository.
   `inferred` values only from a sample the institution published.
 - **Generate the extras CI wants.** The sample book picks its profile from an
   overlay named after it: create `classes/dataimago-thesis/example/_quarto-<id>.yml`
-  containing `thesis:` and `  profile: <id>` (plus `  institution: Example University` if the
-  profile sets no `institution.name`; a synthetic name only). After the profile validates:
+  containing `thesis:` and `  profile: <id>` (plus `  institution: <the profile's institution.name>`
+  if the profile sets one; otherwise the book's synthetic "Example University" stays). After the profile validates:
 
   ```sh
   texlua classes/dataimago-thesis/thesis-profile.lua profiles <id>                 # profiles/<id>.cfg
@@ -47,8 +47,8 @@ what differs when you run it inside this repository.
   R21; tolerances; copy `profiles/cu-boulder.test.yaml` and exempt nothing the guide
   does not exempt).
 - **Touch only the profile's files** (spec R21): `profiles/<id>.yaml`, `.cfg`,
-  `profiles/snapshots/<id>/`, optionally `profiles/<id>.test.yaml` (all R21), and the
-  overlay above (not in R21; see CONTRIBUTING.md).
+  `profiles/snapshots/<id>/`, optionally `profiles/<id>.test.yaml`, and the overlay
+  above (all R21).
   Never `registry.json`, `docs/discovery-contract.md` or any file under
   `classes/` other than that one overlay, from this skill.
 - **Confirm with the maintainer**, who stands in for the author: show the

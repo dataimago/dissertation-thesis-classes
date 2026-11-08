@@ -49,8 +49,8 @@ wants to contribute the result. By hand, the same rules apply:
 5. Validate and build (see the class README for the full commands). The sample
    book picks its profile from an overlay named after it, so a new profile needs
    `classes/dataimago-thesis/example/_quarto-<id>.yml` with two lines,
-   `thesis:` and `  profile: <id>` (add `  institution: Example University` if the profile sets no
-   `institution.name`; use a synthetic name, never a real one):
+   `thesis:` and `  profile: <id>`, plus `  institution: <the profile's institution.name>`
+   if the profile sets one (an institution's name, never a person's):
 
    ```sh
    texlua classes/dataimago-thesis/thesis-profile.lua profiles <id>       # writes profiles/<id>.cfg

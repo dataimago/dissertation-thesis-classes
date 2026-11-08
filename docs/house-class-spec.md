@@ -1031,7 +1031,9 @@ Notes on the CU example:
   creates a float page, display equations including `\mathbb`, `\mathcal`, a Quarto theorem div (`::: {#thm-...}`; the sample defines no `theorem` of its own)),
   a bibliography, one appendix, one landscape page, a list of figures
   and tables, an abbreviations list. No real prose. The book is the same for every
-  profile; only `thesis.profile` changes.
+  profile; only `thesis.profile` changes, through the overlay `_quarto-<id>.yml` (R21),
+plus `thesis.institution` set to the profile's `institution.name` when it has one
+(otherwise the book's synthetic "Example University" stays).
 * CI runs the matrix `profile × engine`: `house`, `cu-boulder` × `lualatex`, `xelatex`.
   (Tagging checks run on `lualatex` only.)
 
@@ -1063,9 +1065,11 @@ R20. Measurement tolerances live in the profile test config (`profiles/<id>.test
 not in the profile. **Reason:** tolerances are ours, the facts are the school's.
 
 R21. A profile PR changes only `profiles/<id>.yaml`, its `.cfg`, its snapshot images,
-the example book's overlay `classes/dataimago-thesis/example/_quarto-<id>.yml` (which sets
-`thesis.profile` and the profile's sample metadata; without it the example renders as the
-house book), and optionally its test config. CI MUST run the full matrix for the changed
+the example book's overlay `classes/dataimago-thesis/example/_quarto-<id>.yml`, and
+optionally its test config. The overlay sets `thesis.profile: <id>` and, when the profile
+sets `institution.name`, `thesis.institution` to that name (section 7.1); nothing else,
+so no titles, people's names or committee. Without it the example renders as the
+house book. CI MUST run the full matrix for the changed
 profile and the schema check for all. **Reason:** keeps contributions small and
 reviewable.
 
