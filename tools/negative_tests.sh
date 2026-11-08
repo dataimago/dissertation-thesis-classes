@@ -38,7 +38,12 @@ t16() {
      quarto render --to pdf --output-dir _build/noto-math >/dev/null 2>&1 || true)
   rm -f "$EX/_quarto-noto-math.yml"
   if [ ! -f "$EX/_build/noto-math/thesis.pdf" ]; then
-    echo "ok: the build itself failed on the broken math font (also red)"; rm -rf "$T"; return
+    if grep -qiE "math table|MATH table|not a math font|math font" "$EX/index.log" 2>/dev/null; then
+      echo "ok: the build itself stopped on the broken math font (red)"
+    else
+      echo "FAIL: the build failed, but not on the math font (see index.log); the negative test proved nothing"; status=1
+    fi
+    rm -rf "$T"; return
   fi
   res=$("$PY" "$ROOT/tools/check_pdf.py" --pdf "$EX/_build/noto-math/thesis.pdf" --profile noto-math --profiles-dir "$T/profiles" 2>&1)
   rc=$?
