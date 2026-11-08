@@ -255,6 +255,13 @@
   {\parindent\z@ \thesis@chalign \thesis@hfont{chapter}\interlinepenalty\@M
    \thesis@hcase{chapter}{#1}\par\nobreak\vskip 2\baselineskip}}
 
+%% LaTeX 2026-11 redefines \chapter with its heading templates (and a \secdef that intercepts it) when
+%% tagging is on, which would bypass \@makechapterhead. This class sets headings from the profile
+%% itself, so it restores the classic \chapter (without \secdef) on every kernel version.
+\renewcommand\chapter{\if@openright\cleardoublepage\else\clearpage\fi
+  \thispagestyle{plain}\global\@topnum\z@\@afterindentfalse
+  \@ifstar\@schapter{\@dblarg\@chapter}}
+
 \renewcommand\appendixname{\thesis@c{appendices.label}}
 \g@addto@macro\appendix{%
   \thesis@ifc{appendices.numbering}{roman}{\renewcommand\thechapter{\@Roman\c@chapter}}{%
