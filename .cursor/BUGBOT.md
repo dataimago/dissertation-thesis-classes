@@ -49,7 +49,8 @@ defects; do not turn style preferences or speculative redesigns into findings.
 
 ## P2 - class code
 
-- Builds under both LuaLaTeX and XeLaTeX (the dataimago chain uses xelatex).
+- Builds under both LuaLaTeX (the house default, for tagged PDF) and XeLaTeX
+  (supported, untagged); a tagging request under XeLaTeX warns, never fails.
 - One-argument `\author{Full Name}` as Quarto emits it.
 - Defines no environments Quarto also defines (for example `theorem`); does not
   redefine `\newtheorem`, `\em`, or kernel internals.
