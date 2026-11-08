@@ -84,7 +84,7 @@ channel), **drop** (not carried over).
 | C37 | Committee members printed on the title page (v1.14) | Replaced the signature page | **keep as profile data** | `frontmatter.committee.placement: title-page \| separate-page \| none` | Decision 3. |
 | C38 | Approval/signature page (`\th@Approvalpage`), disabled in v1.14 | Signature lines, date line, boilerplate | **keep as profile data** | `frontmatter.approval.enabled`, `frontmatter.approval.statement` | Other schools still require it; the CU profile sets `enabled: false`. |
 | C39 | Prologue order (title, approval, abstract, dedication, acknowledgments, ToC, LoT, LoF; roman numerals; arabic from chapter 1) | Fixed order | **rename** | `frontmatter.order[]` | Order varies by school. |
-| C40 | Lists: tables before figures (since v1.08); label rows "Chapter", "Figure", "Table" above entries | List layout | **keep** | `frontmatter.order` (lot before lof), `toc.columnLabels: true` | Guide-driven. |
+| C40 | Lists: tables before figures (since v1.08); label rows "Chapter", "Figure", "Table" above entries | List layout | **keep** | `frontmatter.order` (the CU profile puts `lot` before `lof`; the house default is `lof, lot`), `toc.columnLabels: true` | Guide-driven. |
 | C41 | `\appendix` wrapper: letters; adds an "Appendix" label to the ToC | Appendix handling | **keep** | `appendices.*` (see 3.9) | |
 | C42 | `index`, `part`, `twocolumn` made unavailable (warn) | Restrict features | **drop** | `part` and `index` pass through to the base class | Theses with parts and indexes exist; the profile says whether `part` is allowed (`headings.part.allowed`). |
 | C43 | Float placement parameters (`topfraction .4`, `textfraction .5`, ...) | Defaults | **keep as defaults** | Class defaults, not profile fields | Reasonable house default. |
@@ -382,9 +382,9 @@ Slots: `{title}` `{author}` `{authorInverted}` `{degreeName}` `{degreeAbbr}` `{f
 | **Title page** | `titlePage.layout[]` (ordered blocks: `title`, `byline`, `previousDegrees`, `statement`, `committee`, `date`), alignment, vertical spacing, case | Title; "by {author}"; the statement below; year |
 | Title-page statement | `titlePage.statement` | `A {documentType} submitted to the Faculty of the {graduateSchool} of the {institution} in partial fulfillment of the requirements for the degree of {degreeName} in {field}` |
 | **Copyright page** | `copyright.enabled`, `copyright.template`, position | `© {year} {author}. All rights reserved.` (SHOULD be offered; ProQuest supports registered copyright) |
-| **Approval / signature page** | `approval.enabled`, `approval.statement`, `approval.signatureLines` (from advisors+committee), `approval.dateLine`, `approval.irbLine` | `This {documentType} entitled: {title}, written by {author}, has been approved for the {department}` + signature lines + `The final copy of this {documentType} has been examined by the signatories, and we find that both the content and the form meet acceptable presentation standards of scholarly work in the above mentioned discipline.` |
-| **Committee page / block** | `committee.placement: title-page \| separate-page \| none`, `committee.heading`, `committee.format` (name, title, role, affiliation, order) | `Committee Members:` + `{advisorName}, Chair` + members |
-| **Abstract page** | `abstract.header` (template), `abstract.wordLimit`, `abstract.keywords: true\|false` | `{authorInverted} ({degreeAbbr}, {field})` / `{title}` / `{documentType} directed by {advisorTitle} {advisorName}` |
+| **Approval / signature page** | `approval.enabled`, `approval.statement`, `approval.signatureLines` (from advisors+committee), `approval.dateLine`, `approval.irbLine` | House fallback, written for the house: `Approved by the {documentType} committee, {department}, {institution}.` plus signature lines and a date line. A school's own sentences come from its guide, cited in its profile; never from a legacy class. |
+| **Committee page / block** | `committee.placement: title-page \| separate-page \| none`, `committee.heading`, `committee.format` (name, title, role, affiliation, order) | `Committee` heading, then `{name}, {title}` per member, chair first |
+| **Abstract page** | `abstract.header` (template), `abstract.wordLimit`, `abstract.keywords: true\|false` | House fallback: `{title}` / `{author}, {degreeAbbr}` / `{institution}, {year}` |
 | Dedication, acknowledgments | heading text, case, placement | |
 
 R15. The class MUST treat the school's word for the document (`documentType`) as a
@@ -727,16 +727,16 @@ Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.
 | `titlePage.case` | enum | `as-typed` | `upper` | |
 | `titlePage.previousDegrees` | bool | `false` | | |
 | `copyright.enabled` | bool | `true` | | |
-| `copyright.template` | template | `© {year} {author}` | | |
+| `copyright.template` | template | `© {year} {author}. All rights reserved.` | | |
 | `approval.enabled` | bool | `false` | | |
 | `approval.statement` | template | see 3.7 | | |
 | `approval.signatureLines` | enum | `advisors-and-committee` | | |
 | `approval.dateLine` | bool | `true` | | |
 | `approval.irbLine` | bool | `false` | | |
 | `committee.placement` | enum | `separate-page` (decision 3) | `title-page`, `separate-page`, `none` | |
-| `committee.heading` | string | `Committee Members` | | |
+| `committee.heading` | string | `Committee` | | |
 | `committee.format` | template | `{name}, {title}` | role appended for chair | |
-| `abstract.header` | template | `{authorInverted} ({degreeAbbr}, {field})` / `{title}` / `{documentType} directed by {advisorTitle} {advisorName}` | | |
+| `abstract.header` | template | `{title}` / `{author}, {degreeAbbr}` / `{institution}, {year}` | | |
 | `abstract.wordLimit` | int | none | | CI warning |
 | `dedication.heading` | string | none | | |
 | `acknowledgments.heading` | string | `Acknowledgments` | | |
@@ -859,9 +859,9 @@ frontmatter:
     case: as-typed
     previousDegrees: false
   copyright: { enabled: true, template: "© {year} {author}. All rights reserved." }
-  approval: { enabled: false }
-  committee: { placement: separate-page, heading: Committee Members, format: "{name}, {title}" }
-  abstract: { header: "{authorInverted} ({degreeAbbr}, {field})\n{title}\n{documentType} directed by {advisorTitle} {advisorName}" }
+  approval: { enabled: false, statement: "Approved by the {documentType} committee, {department}, {institution}.", signatureLines: advisors-and-committee, dateLine: true, irbLine: false }
+  committee: { placement: separate-page, heading: Committee, format: "{name}, {title}" }
+  abstract: { header: "{title}\n{author}, {degreeAbbr}\n{institution}, {year}" }
   acknowledgments: { heading: Acknowledgments }
   lists: { lot: { mode: auto }, lof: { mode: auto } }
 toc: { depth: 2, columnLabels: true, leaders: dots, bibliography: true, includesFrontmatter: after }
@@ -902,6 +902,7 @@ geometry:
 type:
   size: 11                       # registry classOptions: defaultstyle, 11pt
   footnoteSize: 9                # inferred: LaTeX \footnotesize at 11pt
+  minimumSize: 9                 # inferred: lowers the house floor of 10 to fit the footnotes
 spacing:
   body: { pitch: 24pt }          # inferred: stretch 1.771 on an 11pt base, near true double
   paragraph: { indent: 0.4in, skip: 0pt }
@@ -936,7 +937,6 @@ frontmatter:
   copyright: { enabled: false }
   approval:
     enabled: false               # removed in v1.14 (August 2020)
-    statement: "This {documentType} entitled: {title}, written by {author}, has been approved for the {department}"
     signatureLines: advisors-and-committee
     dateLine: true
     irbLine: true
@@ -952,7 +952,7 @@ floats: { captionPosition: { table: above, figure: below } }
 sources:
   geometry.margins.top: { inferred: true, from: "thesis.cls v1.14 geometry block", note: "page number in top header box; verify with sample-output.pdf" }
   # ... one entry per non-house field above, each {inferred: true, from: ..., note: ...}
-unstated: [type.main, type.sans, type.mono, type.math, type.emphasis, submission.pdfa, submission.links, accessibility.tagged]
+unstated: []   # left empty until the guide and the ETD instructions have been read (P2)
 ```
 
 Notes on the CU example:
@@ -968,7 +968,8 @@ Notes on the CU example:
 4. `acknowledgments.maxPages: 1` comes from a comment in the class's own `example/main.tex`
    (one page, "as required by the Grad School Specifications") **[inferred]**.
 5. `type.footnoteSize: 9` is the LaTeX `\footnotesize` for 11pt, not a stated rule.
-6. Fonts, emphasis, PDF/A, links and tagging are `unstated`: the 2010 class says nothing about them, and an old class's silence is not a decision in the guide (P2). The house defaults apply, so CU authors get tagged PDF and the house fonts.
+6. Fonts, emphasis, PDF/A, links and tagging are omitted, so the house defaults apply (tagged PDF, PDF/A `2b`, TeX Gyre). The 2010 class says nothing about them, but that is the class's silence, not the guide's, so `unstated` stays empty. The build step MUST read the guide and the school's ETD instructions and then either list these fields under `unstated` or set them with a citation (decision 2 notes that some libraries forbid PDF/A).
+7. CU's title-page statement, abstract header and committee heading are CU wording taken from how the class behaves; they are `inferred` and must be re-sourced from the guide. The house defaults do not reuse them.
 
 ---
 
