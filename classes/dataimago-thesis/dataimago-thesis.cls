@@ -270,8 +270,14 @@
 \g@addto@macro\appendix{%
   \thesis@ifc{appendices.numbering}{roman}{\renewcommand\thechapter{\@Roman\c@chapter}}{%
     \thesis@ifc{appendices.numbering}{arabic}{\renewcommand\thechapter{\@arabic\c@chapter}}{}}}
-%% appendices.divider: Quarto already writes one "Appendices" entry (\addcontentsline{toc}{part}{...}) for
-%% book.appendices; that entry is the divider, so the class adds none. divider: false cannot remove it.
+%% appendices.divider: Quarto writes one "Appendices" part entry (\addcontentsline{toc}{part}{Appendices})
+%% for book.appendices; that entry is the divider. With divider: false the class drops it from the
+%% contents (English title only; the per-appendix entries stay).
+\let\thesis@orig@lpart\l@part
+\ExplSyntaxOn
+\NewDocumentCommand\thesis@partunless{mmm}{\tl_if_in:nnF{#1}{Appendices}{\thesis@orig@lpart{#1}{#2}}}
+\ExplSyntaxOff
+\renewcommand*\l@part[2]{\thesis@ifon{appendices.divider}{\thesis@orig@lpart{#1}{#2}}{\thesis@partunless{#1}{#2}{}}}
 
 %% ------------------------------------------------------------------ page numbers
 \def\thesis@none{none}

@@ -255,6 +255,23 @@ function Pandoc(doc)
   for id, bl in pairs(lifted) do front[id] = pandoc.MetaBlocks(bl) end
   if next(front) then doc.meta["thesis-front"] = pandoc.MetaMap(front) end
 
+  -- bibliography: heading text and contents entry come from the profile (C17, 3.11)
+  local function untex(v) return (v:gsub("\\([%%#&$_{}])", "%1")) end
+  local bibhead = cfg["bibliography.heading"] and untex(cfg["bibliography.heading"])
+  local toc_bib = cfg["toc.bibliography"] ~= "false"
+  doc.blocks = doc.blocks:walk({
+    Header = function(h)
+      if h.level == 1 and h.identifier == "references" then
+        if bibhead and bibhead ~= "" and pandoc.utils.stringify(h.content) ~= bibhead then
+          h.content = pandoc.Inlines({ pandoc.Str(bibhead) })
+        end
+        if toc_bib then h.classes = h.classes:filter(function(c) return c ~= "unlisted" end)
+        elseif not h.classes:includes("unlisted") then h.classes:insert("unlisted") end
+        return h
+      end
+    end,
+  })
+
   doc.meta.indent = true
   return doc
 end

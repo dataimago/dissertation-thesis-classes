@@ -30,6 +30,3 @@ This page is turned sideways, the way a school might ask for a wide table.
 ## References and the rest
 
 The model of @eq-estimator is the one from @marsh2021. Nothing else is needed here.
-
-::: {#refs}
-:::

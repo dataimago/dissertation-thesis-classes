@@ -15,6 +15,7 @@ book:
     - chapters/01-intro.qmd
     - chapters/02-methods.qmd
     - chapters/03-results.qmd
+    - chapters/references.qmd
   appendices:
     - chapters/appendix-a.qmd
 
