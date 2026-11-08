@@ -62,7 +62,7 @@ classes/<institution-id>/          a vendored or legacy per-institution class (c
   guidelines starting at the house profile (`generated`). The hub reads a byte-identical copy; see `CLAUDE.md` for
   keeping it in step.
 - **Level-3 generated apps** — the per-user dissertation repo's PDF build
-  (`build-thesis.yml`, Quarto + XeLaTeX) pulls the selected class from here: for `shipped`, the house class bundle
+  (`build-thesis.yml`, Quarto + LuaLaTeX, XeLaTeX as the fallback) pulls the selected class from here: for `shipped`, the house class bundle
   (`classes/dataimago-thesis/`) and the institution's `.cfg` (`profiles/`), which
   live in different directories.
 - **The author's AI (the Level-3 author harness)** — consults the discovery
