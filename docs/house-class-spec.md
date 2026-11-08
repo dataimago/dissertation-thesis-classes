@@ -1062,9 +1062,12 @@ Notes on the CU example:
 R20. Measurement tolerances live in the profile test config (`profiles/<id>.test.yaml`),
 not in the profile. **Reason:** tolerances are ours, the facts are the school's.
 
-R21. A profile PR changes only `profiles/<id>.yaml`, its `.cfg`, its snapshot images, and
-optionally its test config. CI MUST run the full matrix for the changed profile and
-the schema check for all. **Reason:** keeps contributions small and reviewable.
+R21. A profile PR changes only `profiles/<id>.yaml`, its `.cfg`, its snapshot images,
+the example book's overlay `classes/dataimago-thesis/example/_quarto-<id>.yml` (which sets
+`thesis.profile` and the profile's sample metadata; without it the example renders as the
+house book), and optionally its test config. CI MUST run the full matrix for the changed
+profile and the schema check for all. **Reason:** keeps contributions small and
+reviewable.
 
 ---
 

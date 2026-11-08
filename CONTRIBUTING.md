@@ -61,10 +61,10 @@ wants to contribute the result. By hand, the same rules apply:
 6. Open a pull request that changes only the profile's files (spec R21):
    `profiles/<id>.yaml`, its generated `profiles/<id>.cfg`, the first-page
    snapshots `profiles/snapshots/<id>/` and, optionally, `profiles/<id>.test.yaml`,
-   plus the one-file overlay from step 5. R21 does not list the overlay; it is
-   needed because `render.sh` sets only `QUARTO_PROFILE`, so without
-   `_quarto-<id>.yml` the example keeps `thesis.profile: house` and the new id
-   would be checked against the house book.
+   and the example overlay `classes/dataimago-thesis/example/_quarto-<id>.yml`
+   from step 5. `render.sh` sets only `QUARTO_PROFILE`, so without the overlay
+   the example keeps `thesis.profile: house` and the new id would be checked
+   against the house book.
    The snapshots need a full TeX Live (`python tools/check_pdf.py ... --update-snapshots`).
    If you cannot produce them, send the YAML, the `.cfg` and the overlay (never leave the
    overlay out): the snapshot check (T11) fails until the maintainer adds the
