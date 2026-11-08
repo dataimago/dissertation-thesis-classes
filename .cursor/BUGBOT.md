@@ -27,9 +27,9 @@ defects; do not turn style preferences or speculative redesigns into findings.
 
 ## P1 - contract
 
-- `registry.json`, `docs/discovery-contract.md`, and the house-class spec
-  (`docs/house-class-spec.md`) move together. A change to one that makes the
-  others false is a finding.
+- `registry.json` and `docs/discovery-contract.md` move together, and so does
+  `docs/house-class-spec.md` once it is in the tree. A change to one that makes
+  another false is a finding.
 - A breaking registry change (renamed or removed field, changed meaning of
   `mode`/`status`, removed mode) needs a `schemaVersion` bump.
 - dissertation-ai vendors a **byte-identical copy** of `registry.json` and
@@ -39,7 +39,7 @@ defects; do not turn style preferences or speculative redesigns into findings.
 - Every `available` class keeps a buildable synthetic `example/` and records
   `engine`, `documentclass`, and `classOptions`.
 
-## P2 - institution profiles (per the spec)
+## P2 - institution profiles (when `profiles/` is in the diff)
 
 - Every value that differs from the house value cites the guide's page or
   section in `sources`, or is marked `inferred`.
@@ -49,7 +49,11 @@ defects; do not turn style preferences or speculative redesigns into findings.
 
 ## P2 - class code
 
-- Builds under both LuaLaTeX (the house default, for tagged PDF) and XeLaTeX
+- Each class builds with the `engine` its `registry.json` entry records. The
+  legacy `cu-boulder` class is third-party and XeLaTeX; do not hold it to the
+  house-class rules below.
+- For the house class (`dataimago-thesis.cls`, once it is in the tree): builds
+  under both LuaLaTeX (the house default, for tagged PDF) and XeLaTeX
   (supported, untagged); a tagging request under XeLaTeX warns, never fails.
 - One-argument `\author{Full Name}` as Quarto emits it.
 - Defines no environments Quarto also defines (for example `theorem`); does not

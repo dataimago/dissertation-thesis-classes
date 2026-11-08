@@ -31,8 +31,10 @@ name: Grok 4.6 PR Review
 # "## No actionable findings" — a green check over zero changes reviewed.
 #
 # Activation requires the CURSOR_API_KEY repository secret (maintainer-minted;
-# cursor.com dashboard -> API keys). Absent the secret, the job no-ops green —
-# a green check is NOT evidence a review happened; confirm a comment was posted.
+# cursor.com dashboard -> API keys). Absent the secret, the review job warns
+# and the comment job posts "Grok 4.6 PR Review: NOT RUN"; a real review posts
+# "Grok 4.6 PR Review (first-party pool, xhigh)" and replaces that notice. A
+# green check, or a marked comment, is not proof of review: read the heading.
 
 on:
   pull_request:
@@ -99,7 +101,15 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          RULES=$(cat .cursor/BUGBOT.md)
+          # Rules from the BASE commit: a PR must not weaken the rules it is
+          # reviewed against. The head copy is used only when base has none
+          # (the PR that adds the rules file).
+          RULES_PATH=.cursor/BUGBOT.md
+          if git cat-file -e "${BASE_SHA}:${RULES_PATH}" 2>/dev/null; then
+            RULES=$(git show "${BASE_SHA}:${RULES_PATH}")
+          else
+            RULES=$(cat "$RULES_PATH")
+          fi
           # SUPPLY THE DIFF (see header). Written to a file rather than inlined so
           # a large diff cannot blow the argument limit, and truncated LOUDLY
           # rather than silently. NO `|| true`: a swallowed diff failure hands the
@@ -153,6 +163,14 @@ jobs:
             --trust \
             --model cursor-grok-4.6-xhigh \
             --output-format text > composer-review.md
+          # The key sits in this step's env beside a --trust agent; a
+          # prompt-injected diff could make it print the key, and the comment
+          # job publishes this file verbatim. Refuse to hand it on if so.
+          if grep -qF -- "$CURSOR_API_KEY" composer-review.md; then
+            : > composer-review.md
+            echo "::error::the review output contained CURSOR_API_KEY; nothing was published. Rotate the key." >&2
+            exit 1
+          fi
           cat composer-review.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Hand the review to the comment job (artifact, not a token)
@@ -232,7 +250,7 @@ jobs:
           # --paginate: the list endpoint returns 30 comments a page, oldest
           # first, so a busy thread would hide the marker past page one.
           EXISTING=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
-            --jq '.[] | select(.body | startswith("<!-- composer-review -->")) | .id' | tail -n 1)
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- composer-review -->"))) | .id' | tail -n 1)
           if [ -n "$EXISTING" ]; then
             gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${EXISTING}" -F body=@body.md >/dev/null
           else
