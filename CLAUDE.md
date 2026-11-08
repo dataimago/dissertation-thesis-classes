@@ -23,6 +23,16 @@ author's manuscript prose** — only classes, macros, and synthetic samples.
 - Record the engine (`xelatex` for the dataimago thesis chain), `documentclass`
   name, and `classOptions` so a build can be reconstructed.
 
+## Profiles from guides
+
+A profile (`profiles/<id>.yaml`) is converted from an institution's formatting
+guide with the `thesis-format` skill; `CONTRIBUTING.md` says how a contribution
+arrives (a fork pull request) and how a maintainer re-pushes it to a same-repo
+branch for review. The canonical copy of the skill is in
+`dissertation-app-template`; `.claude/skills/thesis-format/` here points to it
+and adds only what differs in this repository. Never add a profile value the
+guide does not state: list the field under `unstated`.
+
 ## SECURITY — privacy invariant
 
 Never add real manuscript prose, unpublished claims, or an identifiable author's
