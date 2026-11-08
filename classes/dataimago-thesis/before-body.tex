@@ -1,0 +1,18 @@
+$-- before-body.tex (dataimago-thesis)
+$-- Part of the dataimago-thesis class bundle (house class, step 2).
+$-- Copyright 2026 dataimago. Distributed under the LaTeX Project Public License
+$-- 1.3c or later (https://www.latex-project.org/lppl/). Maintainer: dataimago.
+$-- Version: 2026/11/08 v0.1.0. Quarto partial: inlined into the main .tex file, so it
+$-- carries a version comment and \typeout line instead of \ProvidesFile.
+$-- Replaces Quarto's before-body.tex: hands the abstract and the prose the Lua filter lifted
+$-- (R8) to the class, which prints every front-matter page in profile order, then \mainmatter.
+$if(abstract)$
+\thesisabstract{$abstract$}
+$endif$
+$if(thesis-front.dedication)$\thesisfront{dedication}{$thesis-front.dedication$}$endif$
+$if(thesis-front.acknowledgments)$\thesisfront{acknowledgments}{$thesis-front.acknowledgments$}$endif$
+$if(thesis-front.preface)$\thesisfront{preface}{$thesis-front.preface$}$endif$
+$if(thesis-front.abbreviations)$\thesisfront{abbreviations}{$thesis-front.abbreviations$}$endif$
+$if(thesis-front.symbols)$\thesisfront{symbols}{$thesis-front.symbols$}$endif$
+\thesisfrontmatter
+\mainmatter

@@ -1,0 +1,194 @@
+name: House class (dataimago-thesis)
+
+# Renders the synthetic example book once per profile x engine and runs the checks of
+# docs/house-class-spec.md section 7 (schema, fonts, geometry, page labels, minimum text size, ...).
+# LuaLaTeX is the house engine (tagged PDF); XeLaTeX is supported and untagged.
+# The full matrix runs for the profiles a PR changes and for every profile when the class,
+# the example, the tools or this workflow change; the nightly run covers everything (decision 6).
+# Fonts are installed here, never committed. veraPDF is optional (T14 is skipped when absent).
+
+on:
+  pull_request:
+    paths:
+      - "classes/dataimago-thesis/**"
+      - "profiles/**"
+      - "tools/**"
+      - "tests/**"
+      - ".github/workflows/house-class.yml"
+  push:
+    branches: [main]
+    paths:
+      - "classes/dataimago-thesis/**"
+      - "profiles/**"
+      - "tools/**"
+      - "tests/**"
+      - ".github/workflows/house-class.yml"
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: house-class-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  QUARTO_VERSION: 1.11.9
+
+jobs:
+  plan:
+    name: Plan the matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      profiles: ${{ steps.plan.outputs.profiles }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Choose profiles
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -eu
+          ALL=$(ls profiles/*.yaml | grep -v '\.test\.yaml$' | xargs -n1 basename | sed 's/\.yaml$//' | sort)
+          PICK="$ALL"
+          if [ "$EVENT" = pull_request ]; then
+            CHANGED=$(git diff --name-only "$BASE_SHA"...HEAD)
+            if echo "$CHANGED" | grep -qE '^(classes/dataimago-thesis/|tools/|tests/|\.github/workflows/house-class\.yml|profiles/profile\.schema\.json|profiles/house\.)'; then
+              PICK="$ALL"
+            else
+              PICK=""
+              for id in $ALL; do
+                if echo "$CHANGED" | grep -qE "^profiles/($id\.(yaml|cfg|test\.yaml)|snapshots/$id/)"; then PICK="$PICK $id"; fi
+              done
+            fi
+          fi
+          JSON=$(printf '%s\n' $PICK | grep -v '^$' | sed 's/.*/"&"/' | paste -sd, - || true)
+          echo "profiles=[$JSON]" >> "$GITHUB_OUTPUT"
+          echo "Profiles: [$JSON]" >> "$GITHUB_STEP_SUMMARY"
+
+  profiles:
+    name: Schema, sources and cfg drift (T1, T19a)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - uses: quarto-dev/quarto-actions/setup@8a96df13519ee81fd526f2dfca5962811136661b
+        with:
+          version: ${{ env.QUARTO_VERSION }}
+      - run: pip install -r tools/requirements.txt
+      - name: Check every profile
+        run: python tools/check_profile.py
+
+  build:
+    name: ${{ matrix.profile }} / ${{ matrix.engine }}
+    needs: [plan, profiles]
+    if: needs.plan.outputs.profiles != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: ${{ fromJSON(needs.plan.outputs.profiles) }}
+        engine: [lualatex, xelatex]
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - uses: quarto-dev/quarto-actions/setup@8a96df13519ee81fd526f2dfca5962811136661b
+        with:
+          version: ${{ env.QUARTO_VERSION }}
+      - name: System packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends perl fontconfig poppler-utils qpdf
+      - name: Cache TeX Live
+        id: tl-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ~/texlive
+          key: texlive-2026-${{ runner.os }}-${{ hashFiles('tools/texlive-packages.txt', 'tools/install-texlive.sh') }}
+      - name: Install TeX Live
+        if: steps.tl-cache.outputs.cache-hit != 'true'
+        run: tools/install-texlive.sh
+      - name: Put TeX Live on PATH and register its fonts with fontconfig
+        run: |
+          BIN=$(ls -d "$HOME"/texlive/bin/*)
+          echo "$BIN" >> "$GITHUB_PATH"
+          mkdir -p "$HOME/.config/fontconfig/conf.d"
+          cp "$HOME/texlive/texmf-var/fonts/conf/texlive-fontconfig.conf" "$HOME/.config/fontconfig/conf.d/09-texlive.conf"
+          fc-cache -f
+          fc-list | grep -i "TeX Gyre Termes" | head -3
+      - name: Python tools
+        run: pip install -r tools/requirements.txt
+      - name: Render the example
+        run: classes/dataimago-thesis/example/render.sh "${{ matrix.profile }}" "${{ matrix.engine }}"
+      - name: Check the PDF
+        run: |
+          OUT=classes/dataimago-thesis/example/_build/${{ matrix.profile }}-${{ matrix.engine }}
+          SNAP=""
+          if [ "${{ matrix.engine }}" = lualatex ]; then SNAP="--snapshots profiles/snapshots/${{ matrix.profile }}"; fi
+          python tools/check_pdf.py --pdf "$OUT/thesis.pdf" --profile "${{ matrix.profile }}" --engine "${{ matrix.engine }}" --release $SNAP
+      - name: Keep the PDF
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pdf-${{ matrix.profile }}-${{ matrix.engine }}
+          path: classes/dataimago-thesis/example/_build/${{ matrix.profile }}-${{ matrix.engine }}/thesis.pdf
+          if-no-files-found: ignore
+          retention-days: 7
+
+  negative:
+    name: Negative tests (T16, T17)
+    needs: [plan, profiles]
+    if: needs.plan.outputs.profiles != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - uses: quarto-dev/quarto-actions/setup@8a96df13519ee81fd526f2dfca5962811136661b
+        with:
+          version: ${{ env.QUARTO_VERSION }}
+      - name: "System packages (apt's Noto Sans Math 2.001 has no MATH table, which is the point of T16)"
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends perl fontconfig poppler-utils qpdf fonts-noto-core
+      - name: Cache TeX Live
+        id: tl-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ~/texlive
+          key: texlive-2026-${{ runner.os }}-${{ hashFiles('tools/texlive-packages.txt', 'tools/install-texlive.sh') }}
+      - name: Install TeX Live
+        if: steps.tl-cache.outputs.cache-hit != 'true'
+        run: tools/install-texlive.sh
+      - name: Put TeX Live on PATH and register its fonts with fontconfig
+        run: |
+          BIN=$(ls -d "$HOME"/texlive/bin/*)
+          echo "$BIN" >> "$GITHUB_PATH"
+          mkdir -p "$HOME/.config/fontconfig/conf.d"
+          cp "$HOME/texlive/texmf-var/fonts/conf/texlive-fontconfig.conf" "$HOME/.config/fontconfig/conf.d/09-texlive.conf"
+          fc-cache -f
+      - run: pip install -r tools/requirements.txt
+      - name: Run the negative tests
+        run: tools/negative_tests.sh all

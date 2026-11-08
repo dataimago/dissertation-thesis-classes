@@ -1,0 +1,10 @@
+# Negative test profile for T16 (never shipped, not in profiles/). It names a math font that has
+# no OpenType MATH table (apt's Noto Sans Math 2.001), so the build falls back silently to Latin
+# Modern Math. tools/negative_tests.sh builds it and requires check_pdf.py to turn red.
+schemaVersion: 1
+id: noto-math
+extends: house
+guide: { title: "negative test only", retrieved: unretrieved }
+type: { math: Noto Sans Math }
+sources:
+  type.math: { inferred: true, from: "spec M2 / T16", note: "deliberately broken math font" }

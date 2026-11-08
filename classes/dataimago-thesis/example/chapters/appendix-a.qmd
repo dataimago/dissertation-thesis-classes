@@ -1,0 +1,9 @@
+# Notes on the synthetic data {#sec-appendix-a}
+
+The data are made up. This appendix exists so that appendix numbering, the appendix entry in the
+contents and the placement relative to the bibliography can be checked.
+
+| Item | Value |
+|:--|--:|
+| Inputs drawn | 1000 |
+| Noise level | 0.1 |

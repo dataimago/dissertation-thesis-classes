@@ -1,0 +1,64 @@
+# Synthetic example book for the dataimago-thesis class. Every name and sentence here is
+# invented. Render with ./render.sh <profile> <engine> (see README.md in this directory).
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "A Synthetic Study of Imaginary Systems"
+  author: "Ada Q. Example"
+  date: "2027-05-01"
+  output-file: thesis
+  chapters:
+    - index.qmd
+    - chapters/00-front.qmd
+    - chapters/01-intro.qmd
+    - chapters/02-methods.qmd
+    - chapters/03-results.qmd
+  appendices:
+    - chapters/appendix-a.qmd
+
+bibliography: references.bib
+lang: en-US
+
+thesis:
+  profile: house
+  year: 2027
+  type: dissertation
+  author-family: Example
+  author-given: Ada Q.
+  degree:
+    name: Doctor of Philosophy
+    abbreviation: Ph.D.
+    field: Applied Studies
+  department: Department of Applied Studies
+  institution: Example University
+  graduate-school: Graduate School
+  advisors:
+    - { name: Jordan Reader, title: Professor, role: chair }
+  committee:
+    - { name: Sam Placeholder, title: Associate Professor }
+    - { name: Riley Sample, title: Professor }
+  previous-degrees:
+    - "B.A., Imaginary College, 2019"
+  keywords: [measurement, synthetic example]
+
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: dataimago-thesis
+    pdf-engine: lualatex
+    template-partials:
+      - ../doc-class.tex
+      - ../title.tex
+      - ../before-body.tex
+      - ../toc.tex
+      - ../fonts.latex
+      - ../font-settings.latex
+    filters:
+      - ../thesis-divs.lua
+    keep-tex: true
+    latex-auto-install: false
+    latex-max-runs: 6
+    fig-pos: H

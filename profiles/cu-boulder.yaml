@@ -1,0 +1,95 @@
+# University of Colorado Boulder Graduate School, as the legacy class v1.14
+# (classes/cu-boulder/, a feature reference only) and its sample-output.pdf show it.
+# NOTE: the Graduate School's guide text was NOT read for this profile. Every value
+# is inferred from the legacy class's behavior or measured on sample-output.pdf, and
+# is marked so in `sources`. A human must re-source each one from the guide
+# (docs/house-class-spec.md section 6.6) before this profile counts as conforming.
+schemaVersion: 1
+id: cu-boulder
+extends: house
+institution: { name: University of Colorado, graduateSchool: Graduate School }
+guide:
+  title: "Specifications for Preparation of Master's Thesis and Doctoral Dissertations"
+  issuer: "University of Colorado Boulder Graduate School"
+  version: "April 2010 (the legacy class header also cites a May 2020 revision)"
+  retrieved: unretrieved
+geometry:
+  margins: { top: 1.15in, bottom: 1in, inside: 1in, outside: 1in }
+  headerFooter: { numberDistance: 0.9in }
+type:
+  size: 11
+  footnoteSize: 9
+  minimumSize: 9
+spacing:
+  body: { pitch: 24pt }
+  paragraph: { indent: 0.4in, skip: 0pt }
+  toc: double
+  lists: double
+headings:
+  chapter: { size: 12 }
+  section: { size: 12 }
+  subsection: { size: 11 }
+  subsubsection: { size: 11, weight: bold }
+  part: { allowed: false }
+numbering: { depth: 3 }
+pagenumber:
+  front: { hideOn: [title, abstract, dedication] }
+  position: top-right
+  chapterFirstPage: hide
+frontmatter:
+  order: [title, abstract, dedication, acknowledgments, toc, lot, lof]
+  titlePage:
+    layout: [title, byline, previousDegrees, statement, date, committee]
+    statement: "A {documentType} submitted to the Faculty of the Graduate School of the {institution} in partial fulfillment of the requirements for the degree of {degreeName}\n{department}"
+    previousDegrees: true
+  copyright: { enabled: false }
+  approval: { enabled: false, irbLine: true }
+  committee: { placement: title-page, heading: "Committee Members", format: "{name}" }
+  abstract:
+    header: "{authorInverted} ({degreeAbbr}, {field})\n{title}\n{documentType} directed by {advisorTitle} {advisorName}"
+  acknowledgments: { heading: Acknowledgements, maxPages: 1 }
+appendices: { divider: true }
+sources:
+  institution.name: { inferred: true, from: "legacy class title-page wording", note: "the school's wording says University of Colorado without Boulder; used only as the {institution} default" }
+  geometry.margins.top: { inferred: true, from: "sample-output.pdf pages 8-10", note: "first body baseline at 93.6pt with a 11pt topskip; the spec sketch said 0.9in, which does not reproduce the sample" }
+  geometry.headerFooter.numberDistance: { inferred: true, from: "sample-output.pdf", note: "page-number baseline measured at 64.8pt (0.9in) from the top edge" }
+  type.size: { inferred: true, from: "registry classOptions (11pt)", note: "sample body text is 10.9pt" }
+  type.footnoteSize: { inferred: true, from: "LaTeX footnotesize at 11pt", note: "not a stated rule" }
+  type.minimumSize: { inferred: true, from: "type.footnoteSize", note: "lowers the house floor of 10 so the 9pt footnotes pass" }
+  spacing.body: { inferred: true, from: "sample-output.pdf page 8", note: "baseline pitch measured at 24.0pt" }
+  spacing.paragraph.indent: { inferred: true, from: "sample-output.pdf page 8", note: "first-line indent measured at 28.8pt (0.4in)" }
+  spacing.toc: { inferred: true, from: "sample-output.pdf pages 5-7", note: "contents entries are double spaced" }
+  spacing.lists: { inferred: true, from: "sample-output.pdf pages 6-7", note: "list of tables and figures are double spaced" }
+  headings.chapter.size: { inferred: true, from: "sample-output.pdf page 8", note: "chapter heading set at 12pt bold" }
+  headings.section.size: { inferred: true, from: "sample-output.pdf page 9", note: "same as the house value; listed only because the legacy class graded sizes" }
+  headings.subsection.size: { inferred: true, from: "sample-output.pdf", note: "11pt, the body size" }
+  headings.subsubsection.size: { inferred: true, from: "sample-output.pdf", note: "11pt, the body size" }
+  headings.subsubsection.weight: { inferred: true, from: "sample-output.pdf", note: "bold at level 4, which the sample numbers" }
+  headings.part.allowed: { inferred: true, from: "legacy class", note: "the class makes part unavailable" }
+  numbering.depth: { inferred: true, from: "legacy class", note: "level 4 (####) is numbered, so depth 3" }
+  pagenumber.front.hideOn: { inferred: true, from: "sample-output.pdf pages 1-4", note: "no number on the title, abstract and dedication pages; the sample shows ii on the abstract page, so this is a judgment call" }
+  pagenumber.position: { inferred: true, from: "sample-output.pdf", note: "top right, aligned to the right text margin" }
+  pagenumber.chapterFirstPage: { inferred: true, from: "sample-output.pdf pages 4-8", note: "no number on chapter-style first pages" }
+  frontmatter.order: { inferred: true, from: "sample-output.pdf pages 1-7", note: "tables before figures" }
+  frontmatter.titlePage.layout: { inferred: true, from: "sample-output.pdf page 1", note: "committee block at the foot of the title page" }
+  frontmatter.titlePage.statement: { inferred: true, from: "sample-output.pdf page 1", note: "wording uses the school name without Boulder; {documentType} replaces the class's fixed word thesis (decision 8)" }
+  frontmatter.titlePage.previousDegrees: { inferred: true, from: "sample-output.pdf page 1", note: "previous degrees shown" }
+  frontmatter.copyright.enabled: { inferred: true, from: "sample-output.pdf", note: "no copyright page" }
+  frontmatter.approval.irbLine: { inferred: true, from: "legacy class", note: "the class prints an IRB line when the approval page exists" }
+  frontmatter.committee.placement: { inferred: true, from: "sample-output.pdf page 1", note: "committee on the title page since class v1.14" }
+  frontmatter.committee.heading: { inferred: true, from: "sample-output.pdf page 1", note: "heading text" }
+  frontmatter.committee.format: { inferred: true, from: "sample-output.pdf page 1", note: "names only; the chair is marked by role" }
+  frontmatter.abstract.header: { inferred: true, from: "sample-output.pdf page 2", note: "three header lines" }
+  frontmatter.acknowledgments.heading: { inferred: true, from: "sample-output.pdf page 4", note: "British spelling as printed" }
+  frontmatter.acknowledgments.maxPages: { inferred: true, from: "legacy example comment", note: "one page" }
+  appendices.divider: { inferred: true, from: "sample-output.pdf page 5", note: "single Appendix entry in the contents" }
+unstated:
+  - type.main
+  - type.sans
+  - type.mono
+  - type.math
+  - type.emphasis
+  - submission.pdfa
+  - submission.links
+  - accessibility.tagged
+  - accessibility.pdfua

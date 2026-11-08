@@ -1,0 +1,30 @@
+# Introduction {#sec-intro}
+
+This chapter introduces a synthetic problem. Imagine a family of systems that each turn a
+number into another number, with some noise added on the way. The study asks how well one can
+recover the input from the output.[^1] The sentences here are filler written for this example,
+and they say nothing about any real field.
+
+[^1]: A footnote with a few words, so that the footnote size and spacing can be checked.
+
+## Motivation {#sec-motivation}
+
+A short second section, so that the contents list has more than one level. The argument is
+easy to state and easy to doubt, which is what a synthetic example needs. A reader who followed
+@quill2019 would expect a plain answer, and the next chapter gives a plain answer.
+
+> A block quote is set single spaced in the house profile and, where a guide asks for it, in
+> others. This one is invented, like everything else in the book, and runs onto a second line.
+
+### A deeper heading {#sec-deeper}
+
+Text under a third-level heading.
+
+#### A fourth-level heading {#sec-fourth}
+
+Text under a fourth-level heading, which the CU profile numbers and the house profile does not.
+
+## Plan of the book
+
+Chapter 2 describes the method, chapter 3 reports the results, and the appendix collects a
+table that is wider than the page needs. See also @marsh2021.

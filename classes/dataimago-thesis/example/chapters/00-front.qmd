@@ -1,0 +1,16 @@
+# Front matter {.unnumbered}
+
+::: {.dedication}
+For the imaginary readers of this synthetic book.
+:::
+
+::: {.acknowledgments}
+The author thanks nobody in particular. This page exists so that the class has an
+acknowledgments page to typeset, in the position the profile gives it.
+:::
+
+::: {.abbreviations}
+**ADC**: analog to digital converter, a made-up component.
+
+**SNR**: signal to noise ratio, a real term used in a made-up setting.
+:::

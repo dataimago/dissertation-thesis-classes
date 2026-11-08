@@ -1,0 +1,79 @@
+# The neutral dataimago default profile. No institutional guide stands behind
+# it: these are house choices (docs/house-class-spec.md section 6.5), so there
+# is no `sources` map. Every other profile extends this one.
+schemaVersion: 1
+id: house
+institution:
+  name: ""
+  graduateSchool: Graduate School
+geometry:
+  paper: letter
+  sides: one
+  margins: { top: 1in, bottom: 1in, inside: 1in, outside: 1in }
+  binding: { gutter: 0in, side: left }
+  chapterOpening: { extraTop: 0in }
+  headerFooter: { numberDistance: 0.5in }
+type:
+  size: 12
+  main: TeX Gyre Termes
+  sans: TeX Gyre Heros
+  mono: TeX Gyre Cursor
+  math: TeX Gyre Termes Math
+  fallback: []
+  emphasis: italic
+  footnoteSize: 10
+  captionSize: 10
+  minimumSize: 10
+spacing:
+  body: double
+  paragraph: { indent: 0.5in, skip: 0pt }
+  blockQuotes: single
+  footnotes: single
+  captions: single
+  tables: single
+  bibliography: { within: single, between: 1em }
+  toc: single-within
+  lists: single-within
+  abstract: double
+  code: single
+headings:
+  chapter: { label: chapter-number, align: center, case: as-typed, size: 14, weight: bold, newPage: any }
+  section: { align: left, size: 12, weight: bold, case: as-typed }
+  subsection: { align: left, size: 12, weight: bold, case: as-typed }
+  subsubsection: { align: left, size: 12, weight: normal, case: as-typed }
+  level4: { style: block }
+  part: { allowed: true }
+numbering: { chapter: arabic, depth: 2, floats: per-chapter, footnotes: continuous, equations: per-chapter }
+pagenumber:
+  front: { style: roman, titleCounts: true, titleShown: false, hideOn: [title, committee, copyright] }
+  main: { style: arabic, start: 1 }
+  position: bottom-center
+  chapterFirstPage: show
+  runningHead: none
+frontmatter:
+  order: [title, committee, copyright, abstract, acknowledgments, dedication, preface, toc, lof, lot, abbreviations, symbols]
+  titlePage:
+    layout: [title, byline, statement, date]
+    byline: "by {author}"
+    statement: "A {documentType} submitted to the Faculty of the {graduateSchool} of the {institution} in partial fulfillment of the requirements for the degree of {degreeName} in {field}"
+    date: year
+    case: as-typed
+    previousDegrees: false
+  copyright: { enabled: true, template: "© {year} {author}. All rights reserved." }
+  approval: { enabled: false, statement: "Approved by the {documentType} committee, {department}, {institution}.", signatureLines: advisors-and-committee, dateLine: true, irbLine: false }
+  committee: { placement: separate-page, heading: Committee, format: "{name}, {title}" }
+  abstract: { header: "{title}\n{author}, {degreeAbbr}\n{institution}, {year}", keywords: false }
+  dedication: { heading: "" }
+  acknowledgments: { heading: Acknowledgments }
+  lists: { lot: { mode: auto, numberFirstPage: auto }, lof: { mode: auto, numberFirstPage: auto } }
+  titlesCase: as-typed
+toc: { depth: 2, columnLabels: true, leaders: dots, bibliography: true, includesFrontmatter: after }
+appendices: { numbering: alpha, label: Appendix, divider: false, placement: after-bibliography }
+landscape: { pageNumber: upright-page }
+floats: { captionPosition: { table: above, figure: below }, labelSeparator: ". " }
+bibliography: { heading: Bibliography, hangingIndent: 0.5in }
+submission: { pdfa: 4f, embedFonts: true, bookmarkDepth: 2, bookmarksOpen: false, links: hidden }
+accessibility: { tagged: "on", altTextEnforcement: error, pdfua: auto }
+limits: {}
+sources:
+  submission.pdfa: { inferred: true, from: "build spike, TeX Live 2026 (2026-11-08)", note: "PDF/A-2b cannot be combined with tagging and PDF/UA-2: tagging forces PDF 2.0 and the kernel reports 'PDF version 2.0 is too high for standard pdf/A-2B'. a-4f with ua-2 builds without warnings, so the house default is 4f (decision 2). a-2b still works untagged, or with ua-1 at PDF 1.7." }
