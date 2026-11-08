@@ -47,7 +47,7 @@ channel), **drop** (not carried over).
 |---|---|---|---|---|---|
 | C1 | Base class `report`, forced `letterpaper,oneside,onecolumn` | One-sided report, chapters as top level | **rename** | Base is `\LoadClass{book}` (it has `\frontmatter`/`\mainmatter`/`\backmatter`, which Quarto books emit). `book` defaults to `twoside`, so the class MUST pass `oneside` unless `geometry.sides: two`; the default lives in `geometry.sides` (house `one`). Paper from `geometry.paper`. | Quarto books emit `\chapter`, `\appendix`, `\mainmatter`; paper size varies by country (A4). Hard-coding letter blocks non-US use. |
 | C2 | Warn-and-ignore options: `titlepage`, `notitlepage`, `twoside`, `twocolumn`, `landscape`, `legalpaper`, `a4paper`, `a5paper`, `b5paper`, `executivepaper`, `letterpaper`, `onecolumn`, `oneside` | Emit class warnings | **drop** | Replace with profile-driven `geometry.paper` / `geometry.sides`; `twocolumn`, `notitlepage` stay unsupported and raise an error naming the option | Silent-ish warnings are noise; the profile is the single place paper and sides are chosen. |
-| C3 | Pass-through options `fleqn leqno openbib draft final openright openany 10pt 11pt 12pt` | Forwarded to `book` | **keep** (subset) | `draft`, `final`, `fleqn`, `leqno`, `openbib`, `openany`, `openright` pass through; type size comes from the profile (`type.size`), with `10pt/11pt/12pt` still accepted as an override | Authors expect these; `11pt` is how CU is invoked today. |
+| C3 | Pass-through options `fleqn leqno openbib draft final openright openany 10pt 11pt 12pt` | Forwarded to `book` | **keep** (subset) | `draft`, `final`, `fleqn`, `leqno`, `openbib` pass through to `book`. `openany`/`openright` are NOT author options: the class sends the resolved `headings.chapter.newPage` value to `book`, and an author `classoption` for either warns and is ignored (R11); type size comes from the profile (`type.size`), with `10pt/11pt/12pt` still accepted as an override | Authors expect these; `11pt` is how CU is invoked today. |
 | C4 | Style presets `defaultstyle`, `modernstyle`, `typewriterstyle` | Bundles of heading/numbering flags | **drop**, flags kept individually | Express as profile fields under `headings.*` and `numbering.*` | Presets hide what each flag does; a guide is converted field by field. |
 | C5 | `consecutivenumbering` | Figure/table/equation numbers continue across chapters | **rename** | `numbering.floats: per-chapter \| continuous` | Guides state this; make it data. |
 | C6 | `inlineh4`, `nonumh4` | Level-4 heading inline or unnumbered | **rename** | `headings.level4.style: inline \| block`, `headings.level4.numbered` | Same. |
@@ -224,8 +224,8 @@ R10. Unsupported Quarto keys MUST be detected, not silently ignored: if `geometr
 emptied partials cannot see these keys, so they are not the place for the warning. **Reason:** an author changing `fontsize` and seeing nothing happen
 is the worst failure mode.
 
-R11. `classoption` MAY carry only the pass-through options of C3, plus
-`profile=<id>`; `openany`/`openright` in `classoption` warn and defer to `headings.chapter.newPage`. **Reason:** one way to select the profile; the `thesis.profile` key
+R11. `classoption` MAY carry only the pass-through options of C3 (`draft`, `final`, `fleqn`, `leqno`, `openbib`, and a type size), plus
+`profile=<id>`; `openany`/`openright` in `classoption` warn and are ignored; the class passes the resolved `headings.chapter.newPage` to `book`. **Reason:** one way to select the profile; the `thesis.profile` key
 is rendered into the same option by `doc-class.tex`.
 
 R12. The partials, filter, class, `.cfg` files, and a sample `_quarto.yml` SHOULD ship
@@ -327,7 +327,7 @@ not a profile field, until 6.4 gains a field for it. 6.4 is the schema; 6.4 wins
 | `spacing.captions` | single | Exception. |
 | `spacing.tables` | single | Exception; also table body font size. |
 | `spacing.bibliography` | single within entries, one blank line between | Exception. |
-| `spacing.headings` | space before/after per level | |
+| `spacing.headings` | space before/after per level (class default for now; no profile field until a guide needs one) | |
 | `spacing.toc`, `spacing.lists` | single within entries, space between | Guides differ; CU double-spaces the lists. |
 | `spacing.abstract` | double | |
 | `spacing.code` | single | Code blocks (Quarto) are not prose. |
@@ -465,7 +465,7 @@ See section 10 for links.
 | S1 | The PDF MUST embed every font (subset is fine); CI fails on any font with `emb = no`. | ProQuest rule; unembedded fonts lose characters in print. |
 | S2 | The PDF MUST NOT contain Type 3 fonts. CI fails on `type = Type 3`. | ProQuest rule (renders poorly). Type 3 fonts creep in via bitmap fonts and some plot output. |
 | S3 | The PDF MUST be unencrypted with no restrictions on printing, copying or modification. | ProQuest rule. |
-| S4 | Profile field `submission.pdfa` in {`none`, `1b`, `2b`, `3b`, `4`}; house default `2b` (see Q2). | Schools differ; a level is a profile fact. |
+| S4 | Profile field `submission.pdfa` in {`none`, `1b`, `2b`, `3b`, `4`, `4f`}; house default `2b`, falling back to `4f` per decision 2. `2b` maps to `pdfstandard=a-2b`, `4` to `a-4`, `4f` to `a-4f` (the `f` level allows embedded files). The enum is the same in 6.4. | Schools differ; a level is a profile fact. |
 | S5 | If `pdfa != none`, the class MUST set it via `\DocumentMetadata{pdfstandard=...}`, which also embeds an output intent. CI validates with veraPDF where available (T14). `pdfstandard` is built from BOTH fields as a list: the PDF/A entry from `submission.pdfa` (omitted if `none`) plus the UA entry from the resolved `accessibility.pdfua` (omitted if `none`); for example `pdfstandard={a-2b, ua-2}`. | The kernel's PDF management is the supported path. **[verify]** which levels/combinations the pinned TeX Live accepts together with tagging and `lualatex`. |
 | S6 | Bookmarks MUST be generated from the ToC to the profile's depth (`submission.bookmarkDepth`, house 2), with open state per profile. | Not a ProQuest rule; a navigation and accessibility baseline, cheap with `hyperref`. |
 | S7 | PDF metadata MUST be set from the document: Title, Author, Subject (degree and institution), Keywords, Creator, language. No default "Untitled" or empty values; CI reads them with `pdfinfo`/`exiftool`. | Archives index these. |
@@ -565,7 +565,8 @@ MUST degrade to a warning (not a failure) and the metadata/bookmark/PDF-A items 
   **Reason:** LaTeX cannot parse YAML. CI regenerates and fails on drift between
   the two files.
 * A JSON Schema (`profiles/profile.schema.json`) validates every profile in CI.
-  The tool for the generator and schema check is the build step's choice.
+  The YAML-to-`.cfg` generator is written in Lua (decision 11) so it runs inside Quarto with no
+  extra runtime; only the schema-check tool in CI is the build step's choice.
 * `schemaVersion` is part of every profile and bumps on breaking changes.
 
 ### 6.2 Rules
@@ -674,8 +675,8 @@ default when a field is omitted. "length" means a number with a unit.
 
 (House fonts are free, widely packaged TeX Gyre fonts with a math companion that has a
 MATH table, replacing the Noto default. Verified 2026-11-08: `TeX Gyre Termes Math`
-ships in TeX Live 2026 and has the table; CI still checks it with `pdffonts`. See open
-question 5.)
+ships in TeX Live 2026 and has the table; CI still checks it with `pdffonts`. See
+decision 5.)
 
 #### `spacing`
 
@@ -693,7 +694,6 @@ question 5.)
 | `toc` | enum | `single-within` | `single`, `double`, `single-within` | |
 | `abstract` | enum | `double` | | |
 | `code` | enum | `single` | | |
-| `headings.before`, `.after` | map level→length | house table | | `titlesec` |
 
 #### `headings` and `numbering`
 
@@ -769,7 +769,6 @@ Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.
 | `leaders` | enum | `dots` | `dots`, `none` | |
 | `bibliography` | bool | `true` | | ToC entry for the bibliography |
 | `includesFrontmatter` | enum | `after` | `after`, `all`, `none` | |
-| `indent` | map level→length | house table | | |
 
 #### `appendices`, `landscape`, `floats`, `bibliography`
 
@@ -1003,7 +1002,7 @@ Notes on the CU example:
 
 * One **synthetic** example book (`example/`): front matter, three chapters (one with
   a block quote, a footnote, a wide table, a figure with alt text, a figure that
-  creates a float page, display equations including `\mathbb`, `\mathcal`, a theorem
+  creates a float page, display equations including `\mathbb`, `\mathcal`, a Quarto theorem div (`::: {#thm-...}`; the sample defines no `theorem` of its own)
   from `amsthm`), a bibliography, one appendix, one landscape page, a list of figures
   and tables, an abbreviations list. No real prose. The book is the same for every
   profile; only `thesis.profile` changes.
