@@ -43,7 +43,7 @@
       "conformsTo": "CU Boulder Graduate School Specifications (April 2010)",
       "license": "unstated (third party)",
       "status": "legacy",
-      "notes": "Unlicensed feature reference for the house class (University of Colorado Boulder, kept in the tree). Never offered to authors and never fetched by a build: its institution's shipped option is the cu-boulder profile above."
+      "notes": "Unlicensed feature reference for the house class (University of Colorado Boulder, kept in the tree). Never offered to authors and never fetched by a build: the institution's shipped option is the `profiles` entry with id cu-boulder (class dataimago-thesis)."
     }
   ],
   "profiles": [

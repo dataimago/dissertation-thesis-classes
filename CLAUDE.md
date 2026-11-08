@@ -54,4 +54,4 @@ class or profile machinery — not their writing.
 - Level-3 generated apps' `build-thesis.yml` fetches the selected class: for
   `shipped`, the class bundle (`classes/dataimago-thesis/`) **and** the profile's
   `.cfg` (`profiles/`).
-- The Level-3 author harness uses `docs/discovery-contract.md` to use/adapt/draft.
+- The Level-3 author harness uses `docs/discovery-contract.md` to use a shipped profile, adapt the house profile, or vendor a class.
