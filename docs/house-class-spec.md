@@ -152,8 +152,8 @@ visible to partials in the pinned Quarto version.
 | Department | `thesis.department` | `institution.department` | MUST | `\thesisdepartment{}` |
 | Institution | `thesis.institution` | `institution.name` | MUST | `\thesisinstitution{}` |
 | Graduate school | `thesis.graduate-school` | **not in spec**; profile default `institution.graduateSchool` | SHOULD | `\thesisgradschool{}` |
-| Advisor(s) | `thesis.advisors[]` = `{name, title, role, affiliation}` (`role: chair` or `co-chair`) | `advisors.chair.name` (title and role not in spec) | MUST | `\thesisaddadvisor{name}{title}{role}` per entry |
-| Committee | `thesis.committee[]` = `{name, title, role, affiliation}` (`role` optional, e.g. `member`, `external`) | `advisors.committee[]` | MUST | `\thesisaddmember{...}` per entry |
+| Advisor(s) | `thesis.advisors[]` = `{name, title, role, affiliation}` (`role: chair` or `co-chair`) | `advisors.chair.name` (title and role not in spec) | MUST | `\thesisaddadvisor{name}{title}{role}{affiliation}` per entry |
+| Committee | `thesis.committee[]` = `{name, title, role, affiliation}` (`role` optional, e.g. `member`, `external`) | `advisors.committee[]` | MUST | `\thesisaddmember{name}{title}{role}{affiliation}` per entry |
 | Previous degrees | `thesis.previous-degrees[]` | none | MAY | `\thesisaddprevious{}` |
 | IRB protocol | `thesis.irb-protocol` | none | MAY | `\thesisirb{}` |
 | Keywords | `thesis.keywords[]` (or Pandoc `keywords`) | none | SHOULD | PDF metadata and ProQuest form |
@@ -197,6 +197,8 @@ and unchanged. `chapters/00-front.qmd` stays in `book.chapters` so HTML still ge
 filter removes it. **Reason:** one markdown source builds both the website and the PDF. The
 filter ships with the class files in this registry (R12); the build step writes it, and this
 spec only fixes its contract.
+
+R9a. Optional prose pages (`dedication`, `acknowledgments`, `preface`, `abbreviations`, `symbols`) are omitted when their lifted metadata is empty, even if listed in `frontmatter.order` (the same idea as lists with `mode: auto`). **Reason:** an author who writes no dedication must not get a blank page.
 
 ### 2.4 Partials overridden
 
@@ -390,7 +392,7 @@ metadata and never contains institution names.
 
 Slots: `{title}` `{author}` `{authorInverted}` `{degreeName}` `{degreeAbbr}` `{field}`
 `{documentType}` `{department}` `{institution}` `{graduateSchool}` `{year}`
-`{date}` `{advisorName}` `{advisorTitle}` `{irb}`.
+`{date}` `{advisorName}` `{advisorTitle}` `{irb}`; per-member slots (in `committee.format`): `{name}` `{title}` `{role}` `{affiliation}`.
 
 | Page | Fields | House wording template |
 |---|---|---|
@@ -468,7 +470,7 @@ See section 10 for links.
 | S4 | Profile field `submission.pdfa` in {`none`, `1b`, `2b`, `3b`, `4`, `4f`}; house default `2b`, falling back to `4f` per decision 2. `2b` maps to `pdfstandard=a-2b`, `4` to `a-4`, `4f` to `a-4f` (the `f` level allows embedded files). The enum is the same in 6.4. | Schools differ; a level is a profile fact. |
 | S5 | If `pdfa != none`, the class MUST set it via `\DocumentMetadata{pdfstandard=...}`, which also embeds an output intent. CI validates with veraPDF where available (T14). `pdfstandard` is built from BOTH fields as a list: the PDF/A entry from `submission.pdfa` (omitted if `none`) plus the UA entry from the resolved `accessibility.pdfua` (omitted if `none`); for example `pdfstandard={a-2b, ua-2}`. | The kernel's PDF management is the supported path. **[verify]** which levels/combinations the pinned TeX Live accepts together with tagging and `lualatex`. |
 | S6 | Bookmarks MUST be generated from the ToC to the profile's depth (`submission.bookmarkDepth`, house 2), with open state per profile. | Not a ProQuest rule; a navigation and accessibility baseline, cheap with `hyperref`. |
-| S7 | PDF metadata MUST be set from the document: Title, Author, Subject (degree and institution), Keywords, Creator, language. No default "Untitled" or empty values; CI reads them with `pdfinfo`/`exiftool`. | Archives index these. |
+| S7 | PDF metadata MUST be set from the document: Title, Author, Subject (degree and institution), Keywords, Creator, language. No default "Untitled" or empty values, except that Keywords is omitted (not empty) when `thesis.keywords` is absent; CI reads them with `pdfinfo`/`exiftool`. | Archives index these. |
 | S8 | Links: `submission.links: hidden \| boxes \| color`, house `hidden` (no borders, no color; text remains clickable). | Print and submission checks often object to colored link boxes; the profile may require color. |
 | S9 | Page size MUST equal the profile's paper size to the nearest 0.1 pt tolerance; CI measures with `pdfinfo`. | Catches stray `geometry`. |
 | S10 | File size SHOULD stay below the school/ProQuest limit (`submission.maxMB`); CI warns. | Upload limits. |
@@ -489,8 +491,8 @@ See section 10 for links.
 ### 4.3 Link style
 
 R18. `hyperref` is loaded once, by the class, with `pdftitle`, `pdfauthor`,
-`pdfsubject`, `pdfkeywords`, `bookmarksnumbered=true`, `pdfusetitle`; per S8 for
-colors. Quarto's `colorlinks`, `linkcolor`, `urlcolor` are unsupported (R10).
+`pdfsubject`, `pdfkeywords`, `bookmarksnumbered=true`, `pdfusetitle`, `pdfdisplaydoctitle=true` (A6); per S8 for
+colors. Quarto's `colorlinks`, `linkcolor`, `urlcolor`, `citecolor` are unsupported (R10).
 **Reason:** one owner; Pandoc's template also loads hyperref.
 
 ### 4.4 Math font
@@ -550,7 +552,7 @@ without tagging.** Reason: tagging and automatic MathML work only on LuaLaTeX.
 
 R19. The class MUST build under both engines; with XeLaTeX, `accessibility.tagged`
 MUST degrade to a warning (not a failure) and the metadata/bookmark/PDF-A items still apply.
-**Reason:** keeps old setups working while the tagged path matures.
+On XeLaTeX the class MUST never pass `tagging=on`, and the class MUST fall back to setting language, PDF/A and bookmarks without tagging. **[verify]** that `\DocumentMetadata` (with `pdfstandard` but no tagging) runs on XeLaTeX; if it does not, `doc-class.tex` omits it there, the class sets language, bookmarks and metadata through `hyperref`, and PDF/A is then not guaranteed on XeLaTeX (a warning says so). **Reason:** keeps old setups working while the tagged path matures.
 
 ---
 
@@ -691,7 +693,8 @@ decision 5.)
 | `tables` | enum | `single` | | |
 | `bibliography.within` | enum | `single` | | |
 | `bibliography.between` | length | `1em` | | `\bibitemsep` |
-| `toc` | enum | `single-within` | `single`, `double`, `single-within` | |
+| `toc` | enum | `single-within` | `single`, `double`, `single-within`; the ToC only | |
+| `lists` | enum | `single-within` | `single`, `double`, `single-within`; applies to LoT, LoF and the other lists (CU: `double`) | |
 | `abstract` | enum | `double` | | |
 | `code` | enum | `single` | | |
 
@@ -1024,7 +1027,7 @@ Notes on the CU example:
 | T9 | **Page numbering** | extract page labels (`pdfinfo`/`qpdf --show-pages` or PyPDF) | front matter not roman; main not starting at 1 |
 | T10 | **Wording** | Compare the rendered title page text to the template filled with the sample metadata | different |
 | T11 | **First-pages snapshot** | Render pages 1-8 at 80 dpi to PNG; compare to the committed snapshot with a perceptual diff (tolerance per page) | difference above threshold. Snapshots are updated deliberately in a PR. |
-| T12 | **Metadata and bookmarks** | `pdfinfo` Title/Author/Subject/Keywords/Lang; count of bookmarks and their depth | missing or wrong |
+| T12 | **Metadata and bookmarks** | `pdfinfo` Title/Author/Subject/Lang, and Keywords when `thesis.keywords` is set; count of bookmarks and their depth | missing or wrong |
 | T13 | **Security** | `qpdf --show-encryption` | encrypted |
 | T14 | **PDF/A** (optional but on by default when `pdfa != none`) | veraPDF with the profile matching the level; the job is skipped if veraPDF is not installed | any failure |
 | T15 | **Tagging** (lualatex, `tagged: on`) | structure tree present (`qpdf --show-object` on StructTreeRoot or `pdfinfo` "Tagged: yes"); alt text on every Figure element; optional veraPDF PDF/UA profile | missing |
