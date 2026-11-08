@@ -620,12 +620,14 @@
         \definecolor{thesislink}{HTML}{\thesis@c{submission.linkColor}}%
         \hypersetup{colorlinks=true,linkcolor=thesislink,citecolor=thesislink,urlcolor=thesislink,filecolor=thesislink}}{%
         \hypersetup{hidelinks}}}%
-    \hypersetup{bookmarksnumbered=true,pdfdisplaydoctitle=true,%
-      bookmarksopen=\thesis@c{submission.bookmarksOpen}}%
+    \edef\thesis@hyopts{bookmarksnumbered=true,pdfdisplaydoctitle=true,bookmarksopen=\thesis@c{submission.bookmarksOpen}}%
+    \expandafter\hypersetup\expandafter{\thesis@hyopts}%
     \thesis@setslots
     \hypersetup{pdfsubject={\thesis@m{degree}, \thesis@m{field}, \thesisslot{institution}, \thesisslot{year}}}%
     \ifx\thesis@pdfkeywords\@empty\else\hypersetup{pdfkeywords={\thesis@pdfkeywords}}\fi
-    \IfPackageLoadedTF{bookmark}{\bookmarksetup{depth=\thesis@c{submission.bookmarkDepth},open=\thesis@c{submission.bookmarksOpen}}}{}%
+    \IfPackageLoadedTF{bookmark}{%
+      \edef\thesis@bmopts{depth=\thesis@c{submission.bookmarkDepth},open=\thesis@c{submission.bookmarksOpen}}%
+      \expandafter\bookmarksetup\expandafter{\thesis@bmopts}}{}%
   }{}}
 \AddToHook{begindocument/before}{%
   \setcounter{secnumdepth}{\thesis@c{numbering.depth}}%
