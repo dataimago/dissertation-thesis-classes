@@ -35,8 +35,12 @@ what differs when you run it inside this repository.
   ```sh
   texlua classes/dataimago-thesis/thesis-profile.lua profiles <id>                 # profiles/<id>.cfg
   python tools/check_profile.py <id>
-  classes/dataimago-thesis/example/render.sh <id> lualatex                         # and xelatex
-  python tools/check_pdf.py --pdf <built pdf> --profile <id> --update-snapshots profiles/snapshots/<id>   # first-page snapshots
+  classes/dataimago-thesis/example/render.sh <id> lualatex
+  python tools/check_pdf.py --pdf classes/dataimago-thesis/example/_build/<id>-lualatex/thesis.pdf \
+    --profile <id> --engine lualatex --update-snapshots profiles/snapshots/<id>      # snapshots come from the LuaLaTeX PDF only
+  classes/dataimago-thesis/example/render.sh <id> xelatex
+  python tools/check_pdf.py --pdf classes/dataimago-thesis/example/_build/<id>-xelatex/thesis.pdf \
+    --profile <id> --engine xelatex                                                  # check only; no snapshots
   ```
 
   and, only if the defaults do not fit, add `profiles/<id>.test.yaml` (optional per
