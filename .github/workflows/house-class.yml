@@ -149,7 +149,10 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: pdf-${{ matrix.profile }}-${{ matrix.engine }}
-          path: classes/dataimago-thesis/example/_build/${{ matrix.profile }}-${{ matrix.engine }}/thesis.pdf
+          path: |
+            classes/dataimago-thesis/example/_build/${{ matrix.profile }}-${{ matrix.engine }}/thesis.pdf
+            classes/dataimago-thesis/example/thesis.tex
+            classes/dataimago-thesis/example/thesis.log
           if-no-files-found: ignore
           retention-days: 7
 

@@ -143,7 +143,7 @@ def main():
     # ---- page labels (T9) and page index helpers
     labels = reader.page_labels
     texts = [doc[i].get_text() for i in range(n)]
-    first_main = next((i for i, t in enumerate(texts) if re.search(r"^(Chapter 1|Front matter)\s*$", t, re.M)), None)
+    first_main = next((i for i, t in enumerate(texts) if re.search(r"^(Chapter\s+1|Front matter)\s*$", t, re.M)), None)
 
     def roman(k):
         vals = [(10, "x"), (9, "ix"), (5, "v"), (4, "iv"), (1, "i")]

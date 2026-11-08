@@ -60,5 +60,6 @@ format:
       - ../thesis-divs.lua
     keep-tex: true
     latex-auto-install: false
+    latex-clean: false
     latex-max-runs: 6
     fig-pos: H
