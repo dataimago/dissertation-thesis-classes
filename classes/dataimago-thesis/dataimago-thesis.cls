@@ -432,8 +432,11 @@
 \newcommand\thesis@require[3]{% macro-name key file
   \edef\thesis@tmpa{\thesis@m{#1}}\ifx\thesis@tmpa\@empty
     \thesis@err{The #2 is missing}{Set it in #3 (the thesis class cannot build a title page without it).}\fi}
+\let\thesis@kerneltitle\@title\let\thesis@kernelauthor\@author % the kernel's "no \title given" defaults
 \newcommand\thesis@checkfields{%
+  \ifx\@title\thesis@kerneltitle\thesis@err{book.title is missing}{Set `title:` under `book:` in _quarto.yml.}\fi
   \ifx\@title\@empty\thesis@err{book.title is missing}{Set `title:` under `book:` in _quarto.yml.}\fi
+  \ifx\@author\thesis@kernelauthor\thesis@err{book.author is missing}{Set `author:` under `book:` in _quarto.yml.}\fi
   \ifx\@author\@empty\thesis@err{book.author is missing}{Set `author:` under `book:` in _quarto.yml.}\fi
   \thesis@require{degree}{thesis.degree.name}{_quarto.yml}%
   \thesis@require{department}{thesis.department}{_quarto.yml}%

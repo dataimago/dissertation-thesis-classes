@@ -42,6 +42,7 @@ local function read_cfg(id)
     if f then
       local cfg = {}
       for line in f:lines() do
+        -- the final } is the pattern's own, so the captured value excludes it
         local k, v = line:match("^\\ThesisCfg{([^}]*)}{(.*)}$")
         if k then cfg[k] = v end
       end

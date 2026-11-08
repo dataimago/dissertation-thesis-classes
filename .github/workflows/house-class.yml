@@ -133,7 +133,7 @@ jobs:
           mkdir -p "$HOME/.config/fontconfig/conf.d"
           cp "$HOME/texlive/texmf-var/fonts/conf/texlive-fontconfig.conf" "$HOME/.config/fontconfig/conf.d/09-texlive.conf"
           fc-cache -f
-          fc-list | grep -i "TeX Gyre Termes" | head -3
+          fc-list | grep -m3 -i "TeX Gyre Termes"
       - name: Python tools
         run: pip install -r tools/requirements.txt
       - name: Render the example
