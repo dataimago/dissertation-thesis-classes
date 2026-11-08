@@ -642,8 +642,9 @@ default when a field is omitted. "length" means a number with a unit.
 | `minimumSize` | number (pt) | `10` | | CI floor |
 
 (House fonts are free, widely packaged TeX Gyre fonts with a math companion that has a
-MATH table, replacing the Noto default. **[verify]** that `TeX Gyre Termes Math` ships
-with the pinned TeX Live and has the table. See open question 5.)
+MATH table, replacing the Noto default. Verified 2026-11-08: `TeX Gyre Termes Math`
+ships in TeX Live 2026 and has the table; CI still checks it with `pdffonts`. See open
+question 5.)
 
 #### `spacing`
 
