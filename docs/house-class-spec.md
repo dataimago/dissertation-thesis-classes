@@ -169,8 +169,9 @@ visible to partials in the pinned Quarto version.
 R5. Required fields missing at build time MUST produce one error that names the
 `_quarto.yml` key, not the LaTeX macro. **Reason:** authors never see the macro layer.
 
-R6. Prose fields (abstract, dedication, acknowledgments) are markdown in files,
-never YAML strings. **Reason:** the maintainer round-trips prose in a separate agent;
+R6. The abstract is the author's Pandoc `abstract:` field in `index.qmd` (the one
+supported channel). Dedication and acknowledgments are markdown divs in files, never YAML
+strings; and no prose of any kind is stored in this registry. **Reason:** the maintainer round-trips prose in a separate agent;
 words live in MD/MDX files, and the privacy invariant keeps prose out of this repo.
 
 R7. The spec fields marked "not in spec" are gaps in `dataimago-spec.yaml`
@@ -184,12 +185,13 @@ and the spec does not collect.
 R8. A small Pandoc Lua filter (shipped beside the class) MUST turn the divs
 `.dedication`, `.acknowledgments`, `.preface`, `.abbreviations`, `.symbols` into
 the matching LaTeX environments, and MUST pass through unchanged for HTML output.
-**Reason:** one markdown source builds both the website and the PDF. The filter is
-build code and belongs to `-build`; this spec only fixes its contract.
+**Reason:** one markdown source builds both the website and the PDF. The filter ships
+with the class files in this registry (R12); the build step writes it, and this spec only
+fixes its contract.
 
-R9. The filter MUST move these divs into the position the profile's
+R9. For PDF output the filter MUST move these divs into the position the profile's
 `frontmatter.order` dictates, wherever the author placed them in the book.
-**Reason:** authors write chapters in file order; schools order the front matter.
+**Reason:** authors write chapters in file order; schools order the front matter. HTML keeps source order (R8).
 
 ### 2.4 Partials overridden
 
@@ -576,8 +578,8 @@ P5. A profile contains facts about a guide only: no manuscript content, no autho
 no names of real people. **Reason:** the registry's privacy invariant; MIT license
 (section 8).
 
-P6. Profile inheritance: a profile MAY declare `extends: house` (the default and
-only allowed base). A profile MUST NOT extend a non-house profile. **Reason:** one
+P6. Profile inheritance: every profile except `house` itself extends `house` (`extends: house`, the default and
+only allowed base); `id: house` is the root and has no `extends`. A profile MUST NOT extend a non-house profile. **Reason:** one
 level keeps defaults traceable.
 
 ### 6.3 Top-level shape
@@ -618,13 +620,13 @@ default when a field is omitted. "length" means a number with a unit.
 | Field | Type | Default | Allowed | Maps to |
 |---|---|---|---|---|
 | `id` | string | required | `[a-z0-9-]+`, equals file name | `profile=<id>` class option |
-| `extends` | string | `house` | `house` | loader |
+| `extends` | string | `house` (absent in `id: house`, the root) | `house` | loader |
 | `institution.name` | string | required | | `{institution}` default |
 | `institution.graduateSchool` | string | `Graduate School` | | `{graduateSchool}` default |
 | `institution.short` | string | | | docs only |
 | `guide.title` | string | required (except `house`) | | `sources` base |
 | `guide.issuer`, `guide.version`, `guide.date`, `guide.url` | string | | date ISO 8601 | docs |
-| `guide.retrieved` | date | required | ISO 8601 | docs |
+| `guide.retrieved` | date | required (except `house`) | ISO 8601 | docs |
 
 #### `geometry`
 
@@ -876,6 +878,11 @@ limits: {}
 
 ### 6.6 Worked example 2: `profiles/cu-boulder.yaml` (values only)
 
+**Non-normative shape sketch. Do not copy this file into `profiles/`.** Its values come from
+the legacy class, not the guide, and `sources` is abbreviated to one entry; the real profile needs
+one `sources` entry per non-house path and guide-read decisions for `submission.*`,
+`accessibility.*` and `type.*`.
+
 Source: the CU Boulder class v1.14 as it implements the Graduate School
 "Specifications for Preparation of Master's Thesis and Doctoral Dissertations" (April 2010,
 as the class header cites; v1.14 mentions a May 2020 revision). The maintainer's
@@ -894,6 +901,7 @@ guide:
   title: "Specifications for Preparation of Master's Thesis and Doctoral Dissertations"
   issuer: "University of Colorado Boulder Graduate School"
   version: "April 2010 (class header also cites rev. May 2020)"
+  retrieved: "(set when the guide is read)"
 geometry:
   paper: letter
   sides: one
@@ -929,7 +937,7 @@ pagenumber:
 frontmatter:
   order: [title, abstract, dedication, acknowledgments, toc, lot, lof]
   titlePage:
-    layout: [title, byline, previousDegrees, statement, committee]
+    layout: [title, byline, previousDegrees, statement, date, committee]
     byline: "by {author}"
     statement: "A {documentType} submitted to the Faculty of the Graduate School of the {institution} in partial fulfillment of the requirements for the degree of {degreeName} {department}"
     date: year
@@ -964,7 +972,8 @@ Notes on the CU example:
    CU dissertations will say "dissertation". **That is a deliberate deviation. [inferred]** The
    Graduate School's text must be checked (decision 8).
 3. `titlePage.statement` in the class ends with `{degreeName}`, then designation+department
-   and year on separate lines; the `layout` blocks above reproduce that.
+   and year on separate lines; the `layout` blocks above (`statement`, then `date` with
+   `titlePage.date: year`, then `committee`) reproduce that.
 4. `acknowledgments.maxPages: 1` comes from a comment in the class's own `example/main.tex`
    (one page, "as required by the Grad School Specifications") **[inferred]**.
 5. `type.footnoteSize: 9` is the LaTeX `\footnotesize` for 11pt, not a stated rule.
