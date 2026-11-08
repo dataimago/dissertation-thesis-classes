@@ -169,7 +169,9 @@ visible to partials in the pinned Quarto version.
 | Draft marking | `thesis.draft: true` | none | MAY | `draft` option and a "DRAFT" footer; MUST fail CI if set on a release build |
 
 R5. A field marked plain **MUST** in the table above that is missing at build time MUST
-produce one error that names the `_quarto.yml` key, not the LaTeX macro. A field marked
+produce one error that names the author-facing key and the file it belongs in, not the
+LaTeX macro: `abstract:` in `index.qmd` for the abstract (R6), and `_quarto.yml` for the
+`book.*` and `thesis.*` keys. A field marked
 **MUST (default …)** (`thesis.year`, `thesis.type`, `lang`, `thesis.profile`) never errors:
 when unset it takes the stated default, and the build logs one `quarto.log.info` line naming
 the key and the value used. **Reason:** authors never see the macro layer, and a valid
@@ -230,6 +232,8 @@ quoted in the docs **[verify]** against the pinned version.
 R10. Unsupported Quarto keys MUST be detected, not silently ignored: if `geometry`,
 `mainfont`, `sansfont`, `monofont` (replaced by `type.mono`), `mathfont`, `fontsize`, `linestretch`, `papersize`,
 `toc`, `lof`, `lot` (replaced by `frontmatter.order`), `toc-depth` (replaced by `toc.depth`),
+`documentclass` when it is anything other than `dataimago-thesis` (the replaced `doc-class.tex`
+always loads the house class; the institution is chosen by `thesis.profile`),
 `colorlinks`, `linkcolor`, `urlcolor` or `citecolor` is set, the Lua filter (the one of R8) MUST read it from `doc.meta` and warn through
 `quarto.log.warning`, naming the key and the profile field that replaces it. The class and the
 emptied partials cannot see these keys, so they are not the place for the warning. **Reason:** an author changing `fontsize` and seeing nothing happen
@@ -1043,7 +1047,7 @@ Notes on the CU example:
 | T6 | **Page-number position** | `pdftotext -bbox` finds the number's box; compare with `pagenumber.position` and `geometry.headerFooter.numberDistance` | outside 2pt |
 | T7 | **Line pitch** | From `pdftotext -bbox`, median baseline distance on a body page | differs from `spacing.body` by more than 0.5pt |
 | T8 | **Front-matter order** | `pdftotext` of pages 1-N for the profile's heading strings | order differs from `frontmatter.order` |
-| T9 | **Page numbering** | extract page labels (`pdfinfo`/`qpdf --show-pages` or PyPDF) | front matter not roman; main not starting at 1 |
+| T9 | **Page numbering** | extract page labels (`pdfinfo`/`qpdf --show-pages` or PyPDF) | the labels disagree with the profile: front-matter style vs `pagenumber.front.style` (including `none`), whether the title page counts vs `pagenumber.front.titleCounts`, and the main matter's style and first number vs `pagenumber.main.style` / `pagenumber.main.start` |
 | T10 | **Wording** | Compare the rendered title page text to the template filled with the sample metadata | different |
 | T11 | **First-pages snapshot** | Render pages 1-8 at 80 dpi to PNG; compare to the committed snapshot with a perceptual diff (tolerance per page) | difference above threshold. Snapshots are updated deliberately in a PR. |
 | T12 | **Metadata and bookmarks** | `pdfinfo` Title/Author/Subject/Lang, and Keywords when `thesis.keywords` is set; count of bookmarks and their depth | missing or wrong |
