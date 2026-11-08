@@ -46,7 +46,11 @@ wants to contribute the result. By hand, the same rules apply:
    another institution's profile.
 4. Fill `guide:` (`title`, `retrieved`, and `issuer`, `version`, `date`, `url` if
    known). Use `retrieved: unretrieved` only if you did not read the guide.
-5. Validate and build (see the class README for the full commands):
+5. Validate and build (see the class README for the full commands). The sample
+   book picks its profile from an overlay named after it, so a new profile needs
+   `classes/dataimago-thesis/example/_quarto-<id>.yml` with two lines,
+   `thesis:` and `  profile: <id>` (add `  institution: Example University` if the profile sets no
+   `institution.name`; use a synthetic name, never a real one):
 
    ```sh
    texlua classes/dataimago-thesis/thesis-profile.lua profiles <id>       # writes profiles/<id>.cfg
@@ -56,12 +60,14 @@ wants to contribute the result. By hand, the same rules apply:
 
 6. Open a pull request that changes only the profile's files (spec R21):
    `profiles/<id>.yaml`, its generated `profiles/<id>.cfg`, the first-page
-   snapshots `profiles/snapshots/<id>/` and, optionally, `profiles/<id>.test.yaml`.
+   snapshots `profiles/snapshots/<id>/` and, optionally, `profiles/<id>.test.yaml`,
+   plus the one-file overlay from step 5 (R21 does not list it, but neither the
+   build nor CI selects a new profile without it).
    The snapshots need a full TeX Live (`python tools/check_pdf.py ... --update-snapshots`).
    If you cannot produce them, send the YAML and `.cfg` alone: the snapshot check
    (T11) fails until the maintainer adds them in the re-push below, and that
    failure is not a defect in your profile. Do not edit `registry.json`,
-   `docs/`, `classes/` or another institution's profile.
+   `docs/`, the rest of `classes/`, or another institution's profile.
 7. Say in the pull request body that you contribute the profile with your
    consent, name the guide (title, issuer, version, date), and list the
    `inferred` and `unstated` fields.
@@ -79,7 +85,7 @@ contribution:
 1. **Check consent.** The fork pull request body (or the thread) says the author
    contributes the profile; if it does not, ask before doing anything else.
 2. **Check privacy**, reading the diff (it should be the profile's files only: `profiles/<id>.yaml`,
-   `.cfg`, and perhaps snapshots and a test config): no manuscript content, no names or emails, no
+   `.cfg`, the overlay `classes/dataimago-thesis/example/_quarto-<id>.yml`, and perhaps snapshots and a test config): no manuscript content, no names or emails, no
    `inferred` value drawn from the contributor's own work, no quote over one short line, no
    local paths. If a line fails, ask the contributor to remove it, or remove it
    in the re-push commit and say so in the pull request. Do not run anything

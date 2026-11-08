@@ -27,7 +27,10 @@ what differs when you run it inside this repository.
   consent to ask for. The privacy rules still apply (CONTRIBUTING.md,
   "Privacy"): facts about the guide only, no manuscript content, no names, and
   `inferred` values only from a sample the institution published.
-- **Generate the extras CI wants.** After the profile validates:
+- **Generate the extras CI wants.** The sample book picks its profile from an
+  overlay named after it: create `classes/dataimago-thesis/example/_quarto-<id>.yml`
+  containing `thesis:` and `  profile: <id>` (plus `  institution: Example University` if the
+  profile sets no `institution.name`; a synthetic name only). After the profile validates:
 
   ```sh
   texlua classes/dataimago-thesis/thesis-profile.lua profiles <id>                 # profiles/<id>.cfg
@@ -39,8 +42,9 @@ what differs when you run it inside this repository.
   and add `profiles/<id>.test.yaml` (tolerances; copy `profiles/cu-boulder.test.yaml`
   and exempt nothing the guide does not exempt).
 - **Touch only the profile's files** (spec R21): `profiles/<id>.yaml`, `.cfg`,
-  `profiles/snapshots/<id>/`, `profiles/<id>.test.yaml`. Never `registry.json`,
-  `docs/discovery-contract.md` or `classes/` from this skill.
+  `profiles/snapshots/<id>/`, `profiles/<id>.test.yaml`, and the overlay above.
+  Never `registry.json`, `docs/discovery-contract.md` or anything else under
+  `classes/` from this skill.
 - **Confirm with the maintainer**, who stands in for the author: show the
   checklist (inferred, unstated, cannot be expressed) and change nothing they
   have not accepted. Commit on a branch and open a pull request; the maintainer
