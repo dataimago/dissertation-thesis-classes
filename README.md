@@ -78,7 +78,9 @@ thesis document" — not anyone's dissertation.)
 ## Contributing a class
 
 For an institution without a class of its own, add `profiles/<id>.yaml` (and its
-compiled `.cfg`) and append a `profiles` entry to `registry.json`. For an
+compiled `.cfg`) and append a `profiles` entry to `registry.json` with
+`status: generated` and `mode: generated`; review promotes it to
+`status: available`, `mode: shipped`. For an
 author's own class (`vendored`), add `classes/<institution-id>/` with the `.cls`
 (+ macros + a synthetic `example/`) and a `README.md`, and append a `classes`
 entry. See `docs/discovery-contract.md`.

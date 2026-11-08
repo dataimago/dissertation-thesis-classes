@@ -86,8 +86,10 @@ author ─────┤
 2. It validates by compiling the synthetic `example/` with the new profile (never
    the author's prose).
 3. The result may be contributed back, with consent, as a new
-   `profiles/<id>.yaml` (+ compiled `.cfg`), flagged for human review before it
-   becomes `shipped` for that institution.
+   `profiles/<id>.yaml` (+ compiled `.cfg`) and a `profiles` entry with
+   `status: generated` and `mode: generated`. The hub does not offer it. Human
+   review promotes it to `status: available`, `mode: shipped`, which is the
+   point at which it becomes `shipped` for that institution.
 
 ### `shipped` is never the framework default
 
