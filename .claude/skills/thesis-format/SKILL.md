@@ -49,8 +49,8 @@ what differs when you run it inside this repository.
 - **Touch only the profile's files** (spec R21): `profiles/<id>.yaml`, `.cfg`,
   `profiles/snapshots/<id>/`, optionally `profiles/<id>.test.yaml` (all R21), and the
   overlay above (not in R21; see CONTRIBUTING.md).
-  Never `registry.json`, `docs/discovery-contract.md` or anything else under
-  `classes/` from this skill.
+  Never `registry.json`, `docs/discovery-contract.md` or any file under
+  `classes/` other than that one overlay, from this skill.
 - **Confirm with the maintainer**, who stands in for the author: show the
   checklist (inferred, unstated, cannot be expressed) and change nothing they
   have not accepted. Commit on a branch and open a pull request; the maintainer

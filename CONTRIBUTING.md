@@ -101,8 +101,8 @@ contribution:
    git diff --name-only origin/main...contrib/<id>          # HARD STOP unless every path is profiles/<id>.yaml, profiles/<id>.cfg,
                                                             # classes/dataimago-thesis/example/_quarto-<id>.yml, profiles/<id>.test.yaml
                                                             # or profiles/snapshots/<id>/...; otherwise do not push, ask the contributor
-   git show origin/main:classes/dataimago-thesis/thesis-profile.lua > "$TMPDIR/thesis-profile.lua"   # the generator from main, not the fork
-   texlua "$TMPDIR/thesis-profile.lua" profiles <id>        # regenerate the .cfg from the YAML
+   git show origin/main:classes/dataimago-thesis/thesis-profile.lua > /tmp/thesis-profile-main.lua   # the generator from main, not the fork
+   texlua /tmp/thesis-profile-main.lua profiles <id>        # regenerate the .cfg from the YAML
    git status --short profiles/                             # if the .cfg changed, commit it as a maintainer commit
    git push -u origin contrib/<id>
    ```
