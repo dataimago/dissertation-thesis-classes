@@ -16,9 +16,11 @@ institution. Converting a guide means filling in a profile, not writing a class.
 stay in force unchanged: the three modes (`shipped`, `vendored`, `generated`) keep their
 current meanings, the registry unit is a class per institution, and the engine is
 `xelatex`. The following are targets that take effect only when that step lands, together
-with a `schemaVersion` bump and a matching dissertation-ai `registry:sync` PR: the new
-mode meanings in F12, the `profiles/` directory, the house class entry, the
-`engineFallback` field, and the LuaLaTeX default.
+with a `schemaVersion` bump and a matching dissertation-ai PR that runs `registry:sync`
+AND updates the onboarding interview's words for the modes (`dissertation.yaml`, the
+`classFile` question), since `registry:sync` copies only `registry.json`: the new mode
+meanings in F12, the `profiles/` directory, the house class entry, the `engineFallback`
+field, and the LuaLaTeX default.
 
 **Reading rules.** MUST / SHOULD / MAY carry their RFC 2119 meaning. Each requirement
 has a one-line reason. Items marked **[inferred]** were not stated by a source and
@@ -106,7 +108,7 @@ channel), **drop** (not carried over).
 | F9 | `include-in-header: text: \usepackage{dataimago}` | Package load | **drop** | None; the class is loaded by `doc-class.tex` | Known failure: file injection of a `.sty` truncates `index.tex`. |
 | F10 | `fig-pos: H`, `keep-tex: true`, `pdf-engine: xelatex` | Quarto knobs | **keep `fig-pos`, `keep-tex`**; engine see section 5 | | |
 | F11 | `build-thesis.yml`: installs Noto from apt, replaces Noto Sans Math 2.001 with 3.000, `tlmgr install ...`, renders, commits PDF, checks `pdffonts` for LatinModernMath | CI | **keep and generalize** | Per-profile CI in this repo (section 7); the template's workflow adds the same `pdffonts` check for the profile's math font | The math-font fallback is silent. |
-| F12 | `THESIS-CLS-README.md` modes (`shipped`, `vendored`, `generated`) | Author docs | **rename** | `shipped` = house class + the institution's profile; `generated` = house profile adapted from the guide; `vendored` unchanged (author's own class) | `wi-20261108-house-class-registry`. |
+| F12 | `THESIS-CLS-README.md` modes (`shipped`, `vendored`, `generated`) | Author docs | **rename** | `shipped` = house class + the institution's profile; `generated` = house profile adapted from the guide; `vendored` unchanged (author's own class). After the registry step, CU's shipped option is `dataimago-thesis` + `profiles/cu-boulder.yaml`; `classes/cu-boulder/thesis.cls` stays in the tree with `status: legacy` (an unlicensed feature reference the hub never offers). `id: house` is the starting profile for `generated`, never a shipped option, so `shipped` is still never the framework default (discovery contract). The registry step also updates the hub interview's mode words. | `wi-20261108-house-class-registry`. |
 
 ---
 
@@ -225,6 +227,7 @@ quoted in the docs **[verify]** against the pinned version.
 
 R10. Unsupported Quarto keys MUST be detected, not silently ignored: if `geometry`,
 `mainfont`, `sansfont`, `monofont` (replaced by `type.mono`), `mathfont`, `fontsize`, `linestretch`, `papersize`,
+`toc`, `lof`, `lot` (replaced by `frontmatter.order`), `toc-depth` (replaced by `toc.depth`),
 `colorlinks`, `linkcolor`, `urlcolor` or `citecolor` is set, the Lua filter (the one of R8) MUST read it from `doc.meta` and warn through
 `quarto.log.warning`, naming the key and the profile field that replaces it. The class and the
 emptied partials cannot see these keys, so they are not the place for the warning. **Reason:** an author changing `fontsize` and seeing nothing happen
@@ -320,7 +323,7 @@ not a profile field, until 6.4 gains a field for it. 6.4 is the schema; 6.4 wins
 | SHOULD: footnote and caption sizes | Guides give minimum sizes (e.g. 10pt footnotes). |
 | SHOULD: heading sizes per level | Often a rule. |
 | MAY: `type.emphasis` (italic, bold) | CU made `\emph` bold in the 1990s. |
-| MUST: minimum size check: no text smaller than `type.minimumSize` in CI | Many guides set a floor. |
+| MUST: minimum size check: no text smaller than `type.minimumSize` in CI (T19) | Many guides set a floor. |
 
 ### 3.3 Spacing
 
@@ -1047,8 +1050,9 @@ Notes on the CU example:
 | T14 | **PDF/A** (optional but on by default when `pdfa != none`) | veraPDF with the profile matching the level; the job is skipped if veraPDF is not installed | any failure |
 | T15 | **Tagging** (lualatex, `tagged: on`) | structure tree present (`qpdf --show-object` on StructTreeRoot or `pdfinfo` "Tagged: yes"); alt text on every Figure element; optional veraPDF PDF/UA profile | missing |
 | T16 | **Math font check** | run once with a deliberately broken math font in a negative test; CI MUST turn red | the check does not catch it |
-| T17 | **Unsupported keys** | negative test: set `geometry:`, `mainfont:`, `monofont:` and `linkcolor:` in `_quarto.yml`; the Lua filter MUST log a `quarto.log.warning` for each, naming the replacing profile field (R10) | no warning |
+| T17 | **Unsupported keys** | negative test: set `geometry:`, `mainfont:`, `monofont:`, `linkcolor:`, `toc: false` and `toc-depth:` in `_quarto.yml`; the Lua filter MUST log a `quarto.log.warning` for each, naming the replacing profile field (R10) | no warning |
 | T18 | **Size** | file size under `submission.maxMB` | warning |
+| T19 | **Minimum text size** | extract every text span with its font size from the sample PDF (e.g. PyMuPDF `page.get_text("dict")`); every span's size MUST be at least `type.minimumSize`, within the profile's tolerance (R20) | fail |
 
 R20. Measurement tolerances live in the profile test config (`profiles/<id>.test.yaml`),
 not in the profile. **Reason:** tolerances are ours, the facts are the school's.
