@@ -2,9 +2,7 @@
 
 | | |
 |---|---|
-| Status | **Accepted 2026-11-08.** The maintainer took every recommendation in section 9. Class code starts after this merges. |
-| Work item | `wi-20261108-house-class-spec` (parent `wi-20261108-house-thesis-class`) |
-| Unblocks | `-build`, then `-registry`, `-templates`, `-guidelines` |
+| Status | **Accepted 2026-11-08.** The maintainer took every recommendation in section 9. |
 | Class name | `dataimago-thesis.cls` (LPPL 1.3c, new code) |
 | Profiles | `profiles/<id>.yaml` (MIT), one per institution |
 | Date | 2026-11-08 |
@@ -13,6 +11,15 @@
 So the registry's unit is ONE well-built class plus a small, checkable PROFILE per
 institution. Converting a guide means filling in a profile, not writing a class.
 
+**Status of this contract.** This spec describes the TARGET. Until the registry step
+(`wi-20261108-house-class-registry`) lands, `registry.json` and `docs/discovery-contract.md`
+stay in force unchanged: the three modes (`shipped`, `vendored`, `generated`) keep their
+current meanings, the registry unit is a class per institution, and the engine is
+`xelatex`. The following are targets that take effect only when that step lands, together
+with a `schemaVersion` bump and a matching dissertation-ai `registry:sync` PR: the new
+mode meanings in F12, the `profiles/` directory, the house class entry, the
+`engineFallback` field, and the LuaLaTeX default.
+
 **Reading rules.** MUST / SHOULD / MAY carry their RFC 2119 meaning. Each requirement
 has a one-line reason. Items marked **[inferred]** were not stated by a source and
 need a human check. Items marked **[verify]** are claims about tool behavior that the
@@ -20,7 +27,7 @@ build step must confirm against the pinned versions before relying on them.
 
 **Contents:** 1 Inventory · 2 Quarto integration · 3 What a profile covers ·
 4 Submission · 5 Accessibility and engine · 6 Profile format · 7 Testing ·
-8 Licensing · 9 Open questions · 10 Sources
+8 Licensing · 9 Decisions · 10 Sources
 
 ---
 
@@ -46,7 +53,7 @@ channel), **drop** (not carried over).
 | C6 | `inlineh4`, `nonumh4` | Level-4 heading inline or unnumbered | **rename** | `headings.level4.style: inline \| block`, `headings.level4.numbered` | Same. |
 | C7 | `centerh1`, `chapleft` (both set the same flag, oddly) | Center or left-align section headings | **rename** | `headings.section.align`, `headings.chapter.align` (independent) | One flag for two options is a bug; separate fields. |
 | C8 | `chapup` | All-caps chapter and list titles | **rename** | `headings.chapter.case: as-typed \| upper`, `frontmatter.titlesCase` | Guides state caps for chapter titles and list headings separately. |
-| C9 | `emph2underline` | `\emph` underlined instead of bold | **drop**, as an option | `type.emphasis: italic \| bold \| underline`, default `italic` | CU's default turns `\emph` into bold, which breaks Quarto `*emphasis*` expectations; italic is the house default. |
+| C9 | `emph2underline` | `\emph` underlined instead of bold | **drop**, as an option | `type.emphasis: italic \| bold`, default `italic`. Underline is not supported. | CU's default turns `\emph` into bold, which breaks Quarto `*emphasis*` expectations; italic is the house default. Underline had no mechanism that avoids redefining `\em` (C16). |
 | C10 | `plainhead`, `fixedheadsize`, hidden `varheadsize` | Non-bold headings, normalsize headings, graded heading sizes | **rename** | `headings.<level>.weight`, `.size` | Per-level data. |
 | C11 | `numberchapteronly`, `allheadings`, `typewriterstyle` numbering variants | Roman chapter numerals, no section numbers, numbering to level 5 | **rename** | `numbering.chapter: arabic \| roman`, `numbering.depth` (0-5) | Same. |
 | C12 | `\doublespacing`, `\singlespacing`, `\setstretch`, `singlespace`, `doublespace`, `spacing{}` | Custom spacing engine that does NOT use `setspace.sty` (redefines `\@setsize`) | **drop** the engine, **keep** the environments | Use `setspace`; keep `singlespace`, `doublespace`, `spacing` env names; line stretch from `spacing.body` | Reimplementing spacing breaks packages that load `setspace` (v1.10 already patched one clash). Env names are what authors type. |
@@ -55,32 +62,32 @@ channel), **drop** (not carried over).
 | C15 | `\AtBeginDocument` geometry (topmargin -0.30in, textheight 9.10in, footskip 0, page number in header box) | 1in margins, number at top | **rename** | `geometry.*` through the `geometry` package, page number position from `pagenumber.*` | Raw length surgery is unreadable; guides state margins, not `\topmargin`. |
 | C16 | `\EmphReset`, `ulem` loaded with `ULforem,normalbf` | Underline for emphasis, forces `\em` redefinitions | **drop** | none | Redefining `\em` globally conflicts with Pandoc/Quarto output and `hyperref`. |
 | C17 | Bibliography wrapper (single-spaced, `\ULforem`, adds a `part`-level ToC entry) | Bibliography handling | **keep** (reworked) | `spacing.bibliography`, `toc.bibliography: true`; ToC entry via `\addcontentsline`, not `part` | Quarto/Pandoc emits `natbib` or `biblatex` bibliographies; the class must not wrap `thebibliography` only. |
-| C18 | Redefined `\newtheorem` that keeps theorems upright; wrapper names `th@...` | Non-italic theorems | **drop** | Load `amsthm`; `theorems.bodyFont: upright \| italic`; do NOT redefine `\newtheorem` | The redefinition forces authors' own `\newtheorem` through CU's wrapper. |
+| C18 | Redefined `\newtheorem` that keeps theorems upright; wrapper names `th@...` | Non-italic theorems | **drop** | Load `amsthm`; theorem styles are the author's; do NOT redefine `\newtheorem` | The redefinition forces authors' own `\newtheorem` through CU's wrapper. |
 | C19 | `macros.tex`: `\newtheorem{theorem}{Theorem}` plus calculus shortcuts (`\diff`, `\twovec`, `\twochoices`, ...) | Companion macros, `\input` by the example | **drop** | Not shipped. The class defines no theorem environments. Shortcuts stay in the author's own macros. | Predefining `theorem` collides with Quarto's `theorem` cross-reference environments and with `amsthm` (the known clash). Domain macros are not a class concern. |
 | C20 | `\title{}` | Stores title | **keep** | Standard `\title`, fed by Quarto | |
 | C21 | `\author{first}{last}` (TWO arguments) | Stores "First Last" and "Last, First" | **rename** | Standard one-argument `\author{Full Name}` (Quarto emits this); optional `thesis.author-family` / `thesis.author-given` give the inverted form for the abstract header | Quarto writes `\author{...}` with one argument; the two-argument form fails to build. Name splitting is a content matter, supplied explicitly. |
 | C22 | `\degree{long}{short}` | Full degree name and "abbr, subject" | **rename** | Metadata `thesis.degree.name` ("Doctor of Philosophy"), `thesis.degree.abbreviation` ("Ph.D."), `thesis.degree.field` | Three facts in two arguments; split them. |
 | C23 | `\dept{designation}{name}` | "Department of" + "Rocket Science" | **rename** | `thesis.department` (full string, "Department of Rocket Science") | The designation split exists only for CU's line breaks. |
-| C24 | `\advisor{title}{name}` | Advisor with title ("Prof.") | **rename** | `thesis.advisors[]` (`name`, `title`, `role`) | Co-chairs exist; a list is general. |
-| C25 | `\reader`, `\readerThree`...`\readerSix` | Up to 5 further committee members | **rename** | `thesis.committee[]` (`name`, `title`, `role`) | Unbounded list, not numbered macros. |
-| C26 | `\otherdegrees{...}` | Prior degrees on the title page | **keep** | `thesis.previousDegrees[]`, shown if the profile's title page includes them | CU-specific but cheap. |
-| C27 | `\degreeyear{}` | Year (default: current year) | **rename** | `thesis.year` (`degreeYear`); default from `date` | Explicit beats `\year`. |
-| C28 | `\IRBprotocol{}` | Prints an IRB protocol line on the approval page | **keep** | `thesis.irbProtocol`, shown where the profile places it | Real requirement at some schools. |
+| C24 | `\advisor{title}{name}` | Advisor with title ("Prof.") | **rename** | `thesis.advisors[]` (`{name, title, role, affiliation}`, see 2.2) | Co-chairs exist; a list is general. |
+| C25 | `\reader`, `\readerThree`...`\readerSix` | Up to 5 further committee members | **rename** | `thesis.committee[]` (`{name, title, role, affiliation}`, see 2.2) | Unbounded list, not numbered macros. |
+| C26 | `\otherdegrees{...}` | Prior degrees on the title page | **keep** | `thesis.previous-degrees[]`, shown if `frontmatter.titlePage.previousDegrees` is true | CU-specific but cheap. |
+| C27 | `\degreeyear{}` | Year (default: current year) | **rename** | `thesis.year`; default from `date` | Explicit beats `\year`. |
+| C28 | `\IRBprotocol{}` | Prints an IRB protocol line on the approval page | **keep** | `thesis.irb-protocol`, shown on the approval page when `frontmatter.approval.irbLine` is true | Real requirement at some schools. |
 | C29 | `\abstract[long\|short]{}` | Abstract page with header lines (Last, First (degree) / Title / "Thesis directed by ...") | **rename** | Pandoc/Quarto `abstract:`; header block is `frontmatter.abstract.header` in the profile | Quarto's native field. |
 | C30 | `\dedication[title]{}`, `\acknowledgements{}` | Optional pages | **rename** | Markdown divs `.dedication`, `.acknowledgments` (see 2.3) | Prose belongs in markdown, not in a macro argument. |
-| C31 | `\ToCisShort`, `\LoFisShort`, `\LoTisShort` | Put a page number on a one-page list | **rename** | `frontmatter.lists.<list>.numberFirstPage` (bool). Derive the default automatically: if a list fits one page, number it per profile. | A human toggle for something the class can detect after pass two. Keep the three names as deprecated aliases for the CU profile only. |
+| C31 | `\ToCisShort`, `\LoFisShort`, `\LoTisShort` | Put a page number on a one-page list | **rename** | `frontmatter.lists.<list>.numberFirstPage: auto \| show \| hide`; `auto` shows the number when the list fits one page. | A human toggle for something the class can detect after pass two. Keep the three names as deprecated aliases for the CU profile only. |
 | C32 | `\emptyLoF`, `\emptyLoT` | Suppress a list | **rename** | `frontmatter.lists.<list>.mode: always \| auto \| never`; `auto` omits a list with no entries | `auto` is what authors want; no macro. |
-| C33 | `\SuspendPrologue` | Skip all prologue pages | **rename** | `thesis.frontmatter: full \| none` (for per-chapter test builds) | Useful in CI snapshots of single chapters. |
+| C33 | `\SuspendPrologue` | Skip all prologue pages | **rename** | metadata `thesis.frontmatter: full \| none` (for per-chapter test builds) | Useful in CI snapshots of single chapters. |
 | C34 | `\OnePageChapter`, `\forcepageno` | Force a page number on the first page of a one-page chapter | **keep** | `\forcepageno`; `\OnePageChapter` as deprecated alias | The rule is profile-driven (`pagenumber.chapterFirstPage`). |
-| C35 | Chapter first page unnumbered (`thispagestyle{empty}`) | Per-guide rule | **rename** | `pagenumber.chapterFirstPage: show \| hide` | Varies by guide. |
+| C35 | Chapter first page unnumbered (`thispagestyle{empty}`) | Per-guide rule | **rename** | `pagenumber.chapterFirstPage: show \| bottom-center \| hide` | Varies by guide. |
 | C36 | Title page: hard-coded "A thesis submitted to the Faculty of the Graduate School of the University of Colorado in partial fulfillment ..." (lines ~1035-1036) | Fixed wording | **rename** | `frontmatter.titlePage.statement` template with `{documentType}`, `{graduateSchool}`, `{institution}`, `{degreeName}` slots | The block hard-codes the institution and says "thesis" even for dissertations. Wording is the main thing that varies by school. |
-| C37 | Committee members printed on the title page (v1.14) | Replaced the signature page | **keep as profile data** | `frontmatter.titlePage.committee: \| title-page \| separate-page \| none` | Maintainer open question 3. |
-| C38 | Approval/signature page (`\th@Approvalpage`), disabled in v1.14 | Signature lines, date line, boilerplate | **keep as profile data** | `frontmatter.approvalPage.enabled`, signature wording template | Other schools still require it; the CU profile sets `enabled: false`. |
+| C37 | Committee members printed on the title page (v1.14) | Replaced the signature page | **keep as profile data** | `frontmatter.committee.placement: title-page \| separate-page \| none` | Decision 3. |
+| C38 | Approval/signature page (`\th@Approvalpage`), disabled in v1.14 | Signature lines, date line, boilerplate | **keep as profile data** | `frontmatter.approval.enabled`, `frontmatter.approval.statement` | Other schools still require it; the CU profile sets `enabled: false`. |
 | C39 | Prologue order (title, approval, abstract, dedication, acknowledgments, ToC, LoT, LoF; roman numerals; arabic from chapter 1) | Fixed order | **rename** | `frontmatter.order[]` | Order varies by school. |
-| C40 | Lists: tables before figures (since v1.08); label rows "Chapter", "Figure", "Table" above entries | List layout | **keep** | `frontmatter.lists.order`, `toc.columnLabels: true` | Guide-driven. |
+| C40 | Lists: tables before figures (since v1.08); label rows "Chapter", "Figure", "Table" above entries | List layout | **keep** | `frontmatter.order` (lot before lof), `toc.columnLabels: true` | Guide-driven. |
 | C41 | `\appendix` wrapper: letters; adds an "Appendix" label to the ToC | Appendix handling | **keep** | `appendices.*` (see 3.9) | |
 | C42 | `index`, `part`, `twocolumn` made unavailable (warn) | Restrict features | **drop** | `part` and `index` pass through to the base class | Theses with parts and indexes exist; the profile says whether `part` is allowed (`headings.part.allowed`). |
-| C43 | Float placement parameters (`topfraction .4`, `textfraction .5`, ...) | Defaults | **keep as defaults** | `floats.*` optional | Reasonable house default. |
+| C43 | Float placement parameters (`topfraction .4`, `textfraction .5`, ...) | Defaults | **keep as defaults** | Class defaults, not profile fields | Reasonable house default. |
 | C44 | List label and margin overrides (`(1)`, `(a)`...) | CU list style | **drop** | House uses `enumitem`; labels not institution-specific | Rarely stated in guides. |
 | C45 | Status messages via `\typeout`, `\ClassError` messages naming CU commands | Developer UX | **keep idea** | Errors name the missing metadata field and the `_quarto.yml` key | Helps authors and the AI. |
 
@@ -90,12 +97,12 @@ channel), **drop** (not carried over).
 |---|---|---|---|---|---|
 | F1 | Loads `book` with `oneside,12pt`, passes all options through | Base | **rename** | Same base choice as C1; sidedness/size from profile | One model for both classes. |
 | F2 | `geometry` with `margin=1in` set in the class; Quarto `geometry:` key must not be set (option clash) | Margins | **keep rule** | Class is the only owner of `geometry`; document that `geometry:` in `_quarto.yml` is unsupported | Known failure (`Option clash for package geometry`). |
-| F3 | `\onehalfspacing` | 1.5 spacing | **rename** | House default `spacing.body: 2.0` (double); guide-overridable | Most guides say double. |
+| F3 | `\onehalfspacing` | 1.5 spacing | **rename** | House default `spacing.body: double`; guide-overridable | Most guides say double. |
 | F4 | `\thesistitle{title}{author}{institution}{program}{year}` | Title page macro with 5 positional arguments | **drop** | Title page generated from metadata | Positional macros are not Quarto-native and the name collides with nothing useful. |
 | F5 | `\signaturepage{...}`, `\sigline{...}` | Signature page and line | **rename** | Generated approval page with signature lines from `thesis.committee[]` | Same data, no macro. |
 | F6 | `abstract` environment (`\newenvironment`, centered bold heading) | Abstract | **keep** | `abstract` environment retained for raw LaTeX users; Quarto's `abstract:` renders through it | Prior fix: `\renewenvironment{abstract}` fails on a `book` base. |
-| F7 | `dataimago.sty`: `fontspec`, `\parindent 0`, `\parskip 0.6em` | Sans-serif look, block paragraphs | **drop** | Not loaded. Paragraph style from `spacing.paragraph` (`indent` default) | Block paragraphs plus double spacing is non-standard for theses and conflicts with most guides. |
-| F8 | `mainfont`/`sansfont`/`mathfont: Noto Sans (Math)` in `_quarto.yml` | Fonts set by Quarto | **rename** | Fonts come from the profile (`type.*`); the Quarto font keys are unsupported and ignored | One owner for fonts (see 2.4). |
+| F7 | `dataimago.sty`: `fontspec`, `\parindent 0`, `\parskip 0.6em` | Sans-serif look, block paragraphs | **drop** | Not loaded. Paragraph style from `spacing.paragraph.indent` and `.skip` | Block paragraphs plus double spacing is non-standard for theses and conflicts with most guides. |
+| F8 | `mainfont`/`sansfont`/`mathfont: Noto Sans (Math)` in `_quarto.yml` | Fonts set by Quarto | **rename** | Fonts come from the profile (`type.*`); the Quarto font keys are unsupported; the class warns per R10 | One owner for fonts (see 2.4). |
 | F9 | `include-in-header: text: \usepackage{dataimago}` | Package load | **drop** | None; the class is loaded by `doc-class.tex` | Known failure: file injection of a `.sty` truncates `index.tex`. |
 | F10 | `fig-pos: H`, `keep-tex: true`, `pdf-engine: xelatex` | Quarto knobs | **keep `fig-pos`, `keep-tex`**; engine see section 5 | | |
 | F11 | `build-thesis.yml`: installs Noto from apt, replaces Noto Sans Math 2.001 with 3.000, `tlmgr install ...`, renders, commits PDF, checks `pdffonts` for LatinModernMath | CI | **keep and generalize** | Per-profile CI in this repo (section 7); the template's workflow adds the same `pdffonts` check for the profile's math font | The math-font fallback is silent. |
@@ -145,8 +152,8 @@ visible to partials in the pinned Quarto version.
 | Department | `thesis.department` | `institution.department` | MUST | `\thesisdepartment{}` |
 | Institution | `thesis.institution` | `institution.name` | MUST | `\thesisinstitution{}` |
 | Graduate school | `thesis.graduate-school` | **not in spec**; profile default `institution.graduateSchool` | SHOULD | `\thesisgradschool{}` |
-| Advisor(s) | `thesis.advisors[]` = `{name, title, role}` (`role: chair` or `co-chair`) | `advisors.chair.name` (title and role not in spec) | MUST | `\thesisaddadvisor{name}{title}{role}` per entry |
-| Committee | `thesis.committee[]` = `{name, title, affiliation}` | `advisors.committee[]` | MUST | `\thesisaddmember{...}` per entry |
+| Advisor(s) | `thesis.advisors[]` = `{name, title, role, affiliation}` (`role: chair` or `co-chair`) | `advisors.chair.name` (title and role not in spec) | MUST | `\thesisaddadvisor{name}{title}{role}` per entry |
+| Committee | `thesis.committee[]` = `{name, title, role, affiliation}` (`role` optional, e.g. `member`, `external`) | `advisors.committee[]` | MUST | `\thesisaddmember{...}` per entry |
 | Previous degrees | `thesis.previous-degrees[]` | none | MAY | `\thesisaddprevious{}` |
 | IRB protocol | `thesis.irb-protocol` | none | MAY | `\thesisirb{}` |
 | Keywords | `thesis.keywords[]` (or Pandoc `keywords`) | none | SHOULD | PDF metadata and ProQuest form |
@@ -155,6 +162,7 @@ visible to partials in the pinned Quarto version.
 | Dedication | markdown div `::: {.dedication}` | none (prose) | MAY | `dedication` environment |
 | Acknowledgments | markdown div `::: {.acknowledgments}` | none (prose) | MAY | `acknowledgments` environment |
 | Preface, list of abbreviations, symbols | markdown divs `.preface`, `.abbreviations`, `.symbols` | none | MAY | corresponding environments (3.6) |
+| Front matter on/off | `thesis.frontmatter`: `full` \| `none` (default `full`) | none | MAY | `\thesisfrontmatter` is skipped when `none` |
 | Profile id | `thesis.profile` (default `house`) | derived from `institution.name` via `registry.json` | MUST (default) | selects `profiles/<id>` config file |
 | Draft marking | `thesis.draft: true` | none | MAY | `draft` option and a "DRAFT" footer; MUST fail CI if set on a release build |
 
@@ -214,7 +222,7 @@ is rendered into the same option by `doc-class.tex`.
 
 R12. The partials, filter, class, `.cfg` files, and a sample `_quarto.yml` SHOULD ship
 as one directory the template copies in whole (a Quarto format extension is an
-option; see open question 7). **Reason:** the template should not hand-assemble a dozen files.
+option; see decision 7). **Reason:** the template should not hand-assemble a dozen files.
 
 ### 2.5 What the author writes in `_quarto.yml`
 
@@ -292,7 +300,7 @@ section 6; this section says WHAT must be expressible and why.
 | MUST: `type.math` resolves to a font with a real OpenType MATH table (section 4.4) or `latex-default` (Latin Modern Math). | The silent fallback. |
 | SHOULD: footnote and caption sizes | Guides give minimum sizes (e.g. 10pt footnotes). |
 | SHOULD: heading sizes per level | Often a rule. |
-| MAY: `type.emphasis` (italic, bold, underline) | CU asked for bold/underline in the 1990s. |
+| MAY: `type.emphasis` (italic, bold) | CU made `\emph` bold in the 1990s. |
 | MUST: minimum size check: no text smaller than `type.minimumSize` in CI | Many guides set a floor. |
 
 ### 3.3 Spacing
@@ -338,7 +346,7 @@ compute the factor from the font's single pitch.
 | MUST: which front-matter pages show a number (title, copyright, abstract, dedication) | Per-guide. |
 | MUST: main-matter style (`arabic`) and start (1) | |
 | MUST: position (`top-right`, `top-center`, `bottom-center`, `bottom-right`) and distance from the edge | CU puts it at the top right. |
-| MUST: chapter-opening pages: `show` or `hide` the number, or move it to the bottom | CU hides it. |
+| MUST: chapter-opening pages (and chapter-style front-matter pages such as the ToC): `show` the number at the normal position, move it to `bottom-center`, or `hide` it | CU hides it. |
 | SHOULD: running heads (`none` by default) | Rare in theses. |
 
 ### 3.6 Front matter order and contents
@@ -349,12 +357,20 @@ R14. `frontmatter.order` is an ordered list drawn from a closed vocabulary:
 `glossary`. A page absent from the list is not printed. **Reason:** order is
 the most common difference after margins; a closed vocabulary is checkable.
 
+R14a. The placement fields MUST agree with `order`, and CI (T1) checks it:
+`committee.placement: separate-page` requires `committee` in `order`;
+`title-page` or `none` requires it absent, and the `committee` block in
+`titlePage.layout` is allowed only for `title-page`. `approval.enabled: true` requires
+`approval` in `order`, and `copyright.enabled: true` requires `copyright`. Lists are
+ordered by `order` alone (there is no separate list-order field). **Reason:** two fields
+for one fact drift apart.
+
 For each entry the profile gives: heading text, numbering (roman/none), whether it
 appears in the ToC, whether it starts a new page, single or double spacing.
 
 ### 3.7 Front-matter pages and their wording
 
-Wording is a profile TEMPLATE with named slots. The class fills slots from section 2
+Wording is a profile TEMPLATE with named slots. Paths in the table below are relative to `frontmatter` (so `committee.placement` is `frontmatter.committee.placement`). The class fills slots from section 2
 metadata and never contains institution names.
 
 Slots: `{title}` `{author}` `{authorInverted}` `{degreeName}` `{degreeAbbr}` `{field}`
@@ -514,7 +530,7 @@ without tagging.** Reason: tagging and automatic MathML work only on LuaLaTeX.
 | Slower builds (LuaLaTeX is slower than XeLaTeX on large books, plus font cache on first run) | Cache `~/.texlive*/texmf-var` in CI. |
 | Needs a current TeX Live (tagging code is in rapid development; TinyTeX must be current) | CI pins the TeX Live year; the template's `tlmgr` step updates. |
 | Some XeLaTeX-only packages (`xeCJK`, `xunicode`) | Use `luatexja` or `fontspec` fallbacks for CJK. |
-| The CU class and `build-thesis.yml` use XeLaTeX today | The legacy CU class stays XeLaTeX (its registry entry says so). The house class builds under both; the registry entry for the house class records `engine: lualatex`, `engineFallback: xelatex`. |
+| The CU class and `build-thesis.yml` use XeLaTeX today | The legacy CU class stays XeLaTeX (its registry entry says so). The house class builds under both; once the registry step lands (see Status of this contract), the registry entry for the house class records `engine: lualatex`, `engineFallback: xelatex`. |
 | Existing authors whose chapters include XeLaTeX-specific raw LaTeX | Document in the migration notes; CI builds the sample under both engines. |
 
 R19. The class MUST build under both engines; with XeLaTeX, `accessibility.tagged`
@@ -636,7 +652,7 @@ default when a field is omitted. "length" means a number with a unit.
 | `mono` | string | `TeX Gyre Cursor` | | `\setmonofont` |
 | `math` | string | `TeX Gyre Termes Math` | must have a MATH table, or `latex-default` | `\setmathfont` |
 | `fallback` | list | `[]` | font names | `luaotfload` fallbacks |
-| `emphasis` | enum | `italic` | `italic`, `bold`, `underline` | `\emph` |
+| `emphasis` | enum | `italic` | `italic`, `bold` | `\emph` |
 | `footnoteSize` | number (pt) | `10` | | footnote size |
 | `captionSize` | number (pt) | `10` | | |
 | `minimumSize` | number (pt) | `10` | | CI floor |
@@ -690,19 +706,21 @@ question 5.)
 | `front.style` | enum | `roman` | `roman`, `arabic`, `none` | `\pagenumbering` |
 | `front.titleCounts` | bool | `true` | | |
 | `front.titleShown` | bool | `false` | | |
-| `front.hideOn` | list | `[title, copyright]` | front page ids | |
+| `front.hideOn` | list | `[title, committee, copyright]` | page ids from R14; the number is hidden on the first page of each | |
 | `main.style` | enum | `arabic` | | |
 | `main.start` | int | `1` | | |
 | `position` | enum | `bottom-center` | `top-right`, `top-center`, `top-left`, `bottom-center`, `bottom-right` | page style |
-| `chapterFirstPage` | enum | `show-bottom-center` | `show`, `show-bottom-center`, `hide` | |
+| `chapterFirstPage` | enum | `show` | `show`, `bottom-center`, `hide` | |
 | `runningHead` | enum | `none` | `none`, `chapter` | |
 
 #### `frontmatter`
 
+Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.committee.placement`).
+
 | Field | Type | House | Allowed | Maps to |
 |---|---|---|---|---|
-| `order` | list | `[title, copyright, abstract, acknowledgments, dedication, toc, lof, lot]` | closed vocabulary (R14) | `\thesisfrontmatter` |
-| `titlePage.layout` | list | `[title, byline, statement, committee, date]` | | |
+| `order` | list | `[title, committee, copyright, abstract, acknowledgments, dedication, toc, lof, lot]` | closed vocabulary (R14); must agree with R14a | `\thesisfrontmatter` |
+| `titlePage.layout` | list | `[title, byline, statement, date]` | blocks as in 3.7; `committee` only if `committee.placement: title-page` | |
 | `titlePage.statement` | template string | see 3.7 | slots | |
 | `titlePage.byline` | template string | `by {author}` | | |
 | `titlePage.date` | enum | `year` | `year`, `month-year`, `none` | |
@@ -715,18 +733,16 @@ question 5.)
 | `approval.signatureLines` | enum | `advisors-and-committee` | | |
 | `approval.dateLine` | bool | `true` | | |
 | `approval.irbLine` | bool | `false` | | |
-| `committee.placement` | enum | `separate-page` (Q3) | `title-page`, `separate-page`, `none` | |
+| `committee.placement` | enum | `separate-page` (decision 3) | `title-page`, `separate-page`, `none` | |
 | `committee.heading` | string | `Committee Members` | | |
 | `committee.format` | template | `{name}, {title}` | role appended for chair | |
 | `abstract.header` | template | `{authorInverted} ({degreeAbbr}, {field})` / `{title}` / `{documentType} directed by {advisorTitle} {advisorName}` | | |
 | `abstract.wordLimit` | int | none | | CI warning |
-| `abstract.firstPageNumber` | enum | `show` | `show`, `hide` | |
 | `dedication.heading` | string | none | | |
 | `acknowledgments.heading` | string | `Acknowledgments` | | |
 | `acknowledgments.maxPages` | int | none | | CI warning |
-| `lists.lot.mode`, `.lof.mode` | enum | `auto` | `always`, `auto`, `never` | |
-| `lists.order` | list | `[lof, lot]` | | |
-| `lists.<list>.numberFirstPage` | enum | `auto` | | |
+| `lists.lot.mode`, `lists.lof.mode` | enum | `auto` | `always`, `auto`, `never` | |
+| `lists.<list>.numberFirstPage` | enum | `auto` | `auto`, `show`, `hide` | |
 | `titlesCase` | enum | `as-typed` | `upper` | |
 
 #### `toc`
@@ -828,15 +844,15 @@ headings:
   part: { allowed: true }
 numbering: { chapter: arabic, depth: 3, floats: per-chapter, footnotes: continuous, equations: per-chapter }
 pagenumber:
-  front: { style: roman, titleCounts: true, titleShown: false, hideOn: [title, copyright] }
+  front: { style: roman, titleCounts: true, titleShown: false, hideOn: [title, committee, copyright] }
   main: { style: arabic, start: 1 }
   position: bottom-center
-  chapterFirstPage: show-bottom-center
+  chapterFirstPage: show
   runningHead: none
 frontmatter:
-  order: [title, copyright, abstract, acknowledgments, dedication, toc, lof, lot]
+  order: [title, committee, copyright, abstract, acknowledgments, dedication, toc, lof, lot]
   titlePage:
-    layout: [title, byline, statement, committee, date]
+    layout: [title, byline, statement, date]
     byline: "by {author}"
     statement: "A {documentType} submitted to the Faculty of the {graduateSchool} of the {institution} in partial fulfillment of the requirements for the degree of {degreeName} in {field}"
     date: year
@@ -845,9 +861,9 @@ frontmatter:
   copyright: { enabled: true, template: "© {year} {author}. All rights reserved." }
   approval: { enabled: false }
   committee: { placement: separate-page, heading: Committee Members, format: "{name}, {title}" }
-  abstract: { header: "{authorInverted} ({degreeAbbr}, {field})\n{title}\n{documentType} directed by {advisorTitle} {advisorName}", firstPageNumber: show }
+  abstract: { header: "{authorInverted} ({degreeAbbr}, {field})\n{title}\n{documentType} directed by {advisorTitle} {advisorName}" }
   acknowledgments: { heading: Acknowledgments }
-  lists: { lot: { mode: auto }, lof: { mode: auto }, order: [lof, lot] }
+  lists: { lot: { mode: auto }, lof: { mode: auto } }
 toc: { depth: 2, columnLabels: true, leaders: dots, bibliography: true, includesFrontmatter: after }
 appendices: { numbering: alpha, label: Appendix, divider: false, placement: after-bibliography }
 landscape: { pageNumber: upright-page }
@@ -885,9 +901,6 @@ geometry:
   headerFooter: { numberDistance: 0.7in }                            # inferred
 type:
   size: 11                       # registry classOptions: defaultstyle, 11pt
-  main: latex-default            # Computer Modern; the class sets no font
-  math: latex-default
-  emphasis: italic               # the class makes \emph bold (defaultstyle); not a guide rule, see open question 10
   footnoteSize: 9                # inferred: LaTeX \footnotesize at 11pt
 spacing:
   body: { pitch: 24pt }          # inferred: stretch 1.771 on an 11pt base, near true double
@@ -908,7 +921,7 @@ headings:
   part: { allowed: false }
 numbering: { chapter: arabic, depth: 4, floats: per-chapter, footnotes: continuous, equations: per-chapter }
 pagenumber:
-  front: { style: roman, titleCounts: true, titleShown: false, hideOn: [title] }
+  front: { style: roman, titleCounts: true, titleShown: false, hideOn: [title, abstract, dedication] }   # inferred; chapter-style pages follow chapterFirstPage
   main: { style: arabic, start: 1 }
   position: top-right
   chapterFirstPage: hide
@@ -930,19 +943,16 @@ frontmatter:
   committee: { placement: title-page, heading: "Committee Members", format: "{name}" }
   abstract:
     header: "{authorInverted} ({degreeAbbr}, {field})\n{title}\n{documentType} directed by {advisorTitle} {advisorName}"
-    firstPageNumber: hide
   acknowledgments: { heading: Acknowledgements, maxPages: 1 }
-  lists: { lot: { mode: auto }, lof: { mode: auto }, order: [lot, lof] }
+  lists: { lot: { mode: auto }, lof: { mode: auto } }
 toc: { depth: 2, columnLabels: true, leaders: dots, bibliography: true, includesFrontmatter: after }
 appendices: { numbering: alpha, label: Appendix, divider: true, placement: after-bibliography }
 bibliography: { heading: Bibliography }
 floats: { captionPosition: { table: above, figure: below } }
-submission: { pdfa: none }       # the class does not address submission format
-accessibility: { tagged: off }   # the class does not address accessibility
 sources:
   geometry.margins.top: { inferred: true, from: "thesis.cls v1.14 geometry block", note: "page number in top header box; verify with sample-output.pdf" }
   # ... one entry per non-house field above, each {inferred: true, from: ..., note: ...}
-unstated: [submission.pdfa, accessibility.tagged, type.main]
+unstated: [type.main, type.sans, type.mono, type.math, type.emphasis, submission.pdfa, submission.links, accessibility.tagged]
 ```
 
 Notes on the CU example:
@@ -952,12 +962,13 @@ Notes on the CU example:
    difference is a profile fact.
 2. The class says "thesis" for dissertations too. The profile uses `{documentType}`, so
    CU dissertations will say "dissertation". **That is a deliberate deviation. [inferred]** The
-   Graduate School's text must be checked (open question 8).
+   Graduate School's text must be checked (decision 8).
 3. `titlePage.statement` in the class ends with `{degreeName}`, then designation+department
    and year on separate lines; the `layout` blocks above reproduce that.
 4. `acknowledgments.maxPages: 1` comes from a comment in the class's own `example/main.tex`
    (one page, "as required by the Grad School Specifications") **[inferred]**.
 5. `type.footnoteSize: 9` is the LaTeX `\footnotesize` for 11pt, not a stated rule.
+6. Fonts, emphasis, PDF/A, links and tagging are `unstated`: the 2010 class says nothing about them, and an old class's silence is not a decision in the guide (P2). The house defaults apply, so CU authors get tagged PDF and the house fonts.
 
 ---
 
@@ -983,7 +994,7 @@ Notes on the CU example:
 | T3 | **Fonts** | `pdffonts` | any `emb = no`; any Type 3; `LatinModernMath` when `type.math` is not `latex-default`; the profile's main and math font missing |
 | T4 | **Page size** | `pdfinfo -box` for each page | any page not equal to the paper (and landscape swap) |
 | T5 | **Margins, measured** | Rasterize pages (`pdftoppm`) and measure the ink bounding box per page; compare with `geometry.margins` plus gutter | any ink inside a margin by more than 1pt, on body pages; known exempt: page numbers, figures set to bleed (none in the sample) |
-| T6 | **Page-number position** | `pdftotext -bbox` finds the number's box; compare with `pagenumber.position` and `numberDistance` | outside 2pt |
+| T6 | **Page-number position** | `pdftotext -bbox` finds the number's box; compare with `pagenumber.position` and `geometry.headerFooter.numberDistance` | outside 2pt |
 | T7 | **Line pitch** | From `pdftotext -bbox`, median baseline distance on a body page | differs from `spacing.body` by more than 0.5pt |
 | T8 | **Front-matter order** | `pdftotext` of pages 1-N for the profile's heading strings | order differs from `frontmatter.order` |
 | T9 | **Page numbering** | extract page labels (`pdfinfo`/`qpdf --show-pages` or PyPDF) | front matter not roman; main not starting at 1 |
@@ -1034,11 +1045,11 @@ of this design. **Reason:** keeps the name `dataimago-thesis` meaningful.
 
 ---
 
-## 9. Open questions for the maintainer
+## 9. Decisions (2026-11-08)
 
 **Decided 2026-11-08: the maintainer accepted every recommendation below as written.** Item 9 adds fields to the spec schema; if that schema belongs to the L1 package, the change goes through the design agent.
 
-| # | Question | Recommendation |
+| # | Question | Decision |
 |---|---|---|
 | 1 | **Engine.** LuaLaTeX default (tagging, MathML) or XeLaTeX (what CU and `build-thesis.yml` use)? | **LuaLaTeX default, XeLaTeX supported without tagging** (5.3). The cost is a current TeX Live and slower builds. The template's workflow changes in `-templates`. |
 | 2 | **PDF/A level.** ProQuest does not require PDF/A; its guide offers it as a route to embedded fonts, and some libraries tell authors not to use it. Which default? | **`2b` for the house profile**, `none` allowed per profile, and a spike in `-build` to confirm it combines with tagging on the pinned TeX Live; if not, use `4` (the tagging project's PDF/A-4 path, PDF 2.0). Schools override. |
