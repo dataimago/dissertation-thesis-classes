@@ -129,6 +129,9 @@
 \ifLuaTeX\else
   \thesis@ifc{accessibility.tagged}{on}{\thesis@warn{accessibility.tagged is on, but XeLaTeX cannot tag PDFs; building an untagged PDF. Use LuaLaTeX for tagged output (PDF/UA)}}{}
 \fi
+\ifLuaTeX\else
+  \thesis@ifc{submission.pdfa}{none}{}{\thesis@warn{submission.pdfa is \thesis@c{submission.pdfa}, but PDF/A is not guaranteed on XeLaTeX (veraPDF finds file-trailer problems); use LuaLaTeX for a validated PDF/A file}}
+\fi
 %% M4: warn at load when the math font lacks an OpenType MATH table (LuaTeX only;
 %% XeLaTeX cannot inspect the font table, so CI's pdffonts check is the guard there).
 \ifLuaTeX

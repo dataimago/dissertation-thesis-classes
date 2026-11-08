@@ -378,7 +378,11 @@ def main():
             if not r.stdout.startswith("PASS"):
                 d = run(["verapdf", "--flavour", fl, "--format", "text", "-v", a.pdf]).stdout
                 bad.append(f"{fl}: " + " | ".join(l.strip() for l in d.splitlines()[1:6]))
-        rec(f"T14 veraPDF ({', '.join(flavours)})", not bad, "; ".join(bad))
+        if bad and a.engine != "lualatex":
+            # R19: PDF/A is not guaranteed on XeLaTeX (xdvipdfmx writes no file ID for PDF/A-4; rules 6.1.3-4/-5)
+            print(f"WARN T14 veraPDF ({', '.join(flavours)}) on {a.engine}: " + "; ".join(bad) + " (not guaranteed on XeLaTeX)")
+        else:
+            rec(f"T14 veraPDF ({', '.join(flavours)})", not bad, "; ".join(bad))
     elif flavours and os.environ.get("REQUIRE_VERAPDF"):
         rec("T14 veraPDF", False, "veraPDF is required (REQUIRE_VERAPDF) but not installed")
     else:
