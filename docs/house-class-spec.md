@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | **Draft for maintainer review.** No class code is written until this is merged. |
+| Status | **Accepted 2026-11-08.** The maintainer took every recommendation in section 9. Class code starts after this merges. |
 | Work item | `wi-20261108-house-class-spec` (parent `wi-20261108-house-thesis-class`) |
 | Unblocks | `-build`, then `-registry`, `-templates`, `-guidelines` |
 | Class name | `dataimago-thesis.cls` (LPPL 1.3c, new code) |
@@ -1035,13 +1035,15 @@ of this design. **Reason:** keeps the name `dataimago-thesis` meaningful.
 
 ## 9. Open questions for the maintainer
 
+**Decided 2026-11-08: the maintainer accepted every recommendation below as written.** Item 9 adds fields to the spec schema; if that schema belongs to the L1 package, the change goes through the design agent.
+
 | # | Question | Recommendation |
 |---|---|---|
 | 1 | **Engine.** LuaLaTeX default (tagging, MathML) or XeLaTeX (what CU and `build-thesis.yml` use)? | **LuaLaTeX default, XeLaTeX supported without tagging** (5.3). The cost is a current TeX Live and slower builds. The template's workflow changes in `-templates`. |
 | 2 | **PDF/A level.** ProQuest does not require PDF/A; its guide offers it as a route to embedded fonts, and some libraries tell authors not to use it. Which default? | **`2b` for the house profile**, `none` allowed per profile, and a spike in `-build` to confirm it combines with tagging on the pinned TeX Live; if not, use `4` (the tagging project's PDF/A-4 path, PDF 2.0). Schools override. |
 | 3 | **Committee: title page or separate page by default?** CU (since 2020) puts it on the title page; many schools use a signature page. | **House default: separate committee page** (unnumbered, after the title page), because it also serves as the signature page when `approval.enabled`. CU profile uses `title-page`. |
 | 4 | **House paper size and margins.** Letter and 1in on all sides, or 1.5in binding? | **Letter, 1in, no gutter**; the gutter is a profile field. |
-| 5 | **House fonts.** TeX Gyre (free, with a math companion that has a MATH table) or keep Noto Sans? | **TeX Gyre Termes** (Times-like serif, math: Termes Math) for body and math. Noto Sans body is unusual for a thesis and caused the math trap. **[verify]** the font ships with TeX Live. |
+| 5 | **House fonts.** TeX Gyre (free, with a math companion that has a MATH table) or keep Noto Sans? | **TeX Gyre Termes** (Times-like serif, math: Termes Math) for body and math. Noto Sans body is unusual for a thesis and caused the math trap. Verified 2026-11-08: `texgyretermes-math.otf` ships in TeX Live 2026 (`tex-gyre-math`) and has an OpenType MATH table. |
 | 6 | **Profile CI cost.** Full matrix per profile × engine on every PR? | Run the full matrix only for changed profiles and the class; nightly for all. |
 | 7 | **Delivery shape.** Plain files copied into the template, or a Quarto format extension (`_extensions/dataimago/thesis`, `format: dataimago-thesis-pdf`)? | **Plain files first** (matches the current registry model: fetch files). Revisit an extension after the first conversions. |
 | 8 | **CU `thesis` wording.** The class says "thesis" for doctoral dissertations too. Reproduce the wording, or use `{documentType}`? | **Use `{documentType}`**; the build step checks against the Graduate School's guide and the sample PDF and records the result in `sources`. |
