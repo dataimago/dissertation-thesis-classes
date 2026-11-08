@@ -45,9 +45,9 @@ channel), **drop** (not carried over).
 
 | # | Feature / command (CU) | What it does | Decision | House form | Why |
 |---|---|---|---|---|---|
-| C1 | Base class `report`, forced `letterpaper,oneside,onecolumn` | One-sided report, chapters as top level | **rename** | `book`-compatible chapter model on `report`-like structure; paper and sidedness from profile (`geometry.paper`, `geometry.sides`) | Quarto books emit `\chapter`, `\appendix`, `\mainmatter`; paper size varies by country (A4). Hard-coding letter blocks non-US use. |
+| C1 | Base class `report`, forced `letterpaper,oneside,onecolumn` | One-sided report, chapters as top level | **rename** | Base is `\LoadClass{book}` (it has `\frontmatter`/`\mainmatter`/`\backmatter`, which Quarto books emit). `book` defaults to `twoside`, so the class MUST pass `oneside` unless `geometry.sides: two`; the default lives in `geometry.sides` (house `one`). Paper from `geometry.paper`. | Quarto books emit `\chapter`, `\appendix`, `\mainmatter`; paper size varies by country (A4). Hard-coding letter blocks non-US use. |
 | C2 | Warn-and-ignore options: `titlepage`, `notitlepage`, `twoside`, `twocolumn`, `landscape`, `legalpaper`, `a4paper`, `a5paper`, `b5paper`, `executivepaper`, `letterpaper`, `onecolumn`, `oneside` | Emit class warnings | **drop** | Replace with profile-driven `geometry.paper` / `geometry.sides`; `twocolumn`, `notitlepage` stay unsupported and raise an error naming the option | Silent-ish warnings are noise; the profile is the single place paper and sides are chosen. |
-| C3 | Pass-through options `fleqn leqno openbib draft final openright openany 10pt 11pt 12pt` | Forwarded to `report` | **keep** (subset) | `draft`, `final`, `fleqn`, `leqno`, `openbib`, `openany`, `openright` pass through; type size comes from the profile (`type.size`), with `10pt/11pt/12pt` still accepted as an override | Authors expect these; `11pt` is how CU is invoked today. |
+| C3 | Pass-through options `fleqn leqno openbib draft final openright openany 10pt 11pt 12pt` | Forwarded to `book` | **keep** (subset) | `draft`, `final`, `fleqn`, `leqno`, `openbib`, `openany`, `openright` pass through; type size comes from the profile (`type.size`), with `10pt/11pt/12pt` still accepted as an override | Authors expect these; `11pt` is how CU is invoked today. |
 | C4 | Style presets `defaultstyle`, `modernstyle`, `typewriterstyle` | Bundles of heading/numbering flags | **drop**, flags kept individually | Express as profile fields under `headings.*` and `numbering.*` | Presets hide what each flag does; a guide is converted field by field. |
 | C5 | `consecutivenumbering` | Figure/table/equation numbers continue across chapters | **rename** | `numbering.floats: per-chapter \| continuous` | Guides state this; make it data. |
 | C6 | `inlineh4`, `nonumh4` | Level-4 heading inline or unnumbered | **rename** | `headings.level4.style: inline \| block`, `headings.level4.numbered` | Same. |
@@ -95,14 +95,14 @@ channel), **drop** (not carried over).
 
 | # | Feature / command | What it does | Decision | House form | Why |
 |---|---|---|---|---|---|
-| F1 | Loads `book` with `oneside,12pt`, passes all options through | Base | **rename** | Same base choice as C1; sidedness/size from profile | One model for both classes. |
+| F1 | Loads `book` with `oneside,12pt`, passes all options through | Base | **rename** | Same base (`book`) as C1; `oneside` default and size from the profile (`geometry.sides`, `type.size`) | One model for both classes. |
 | F2 | `geometry` with `margin=1in` set in the class; Quarto `geometry:` key must not be set (option clash) | Margins | **keep rule** | Class is the only owner of `geometry`; document that `geometry:` in `_quarto.yml` is unsupported | Known failure (`Option clash for package geometry`). |
 | F3 | `\onehalfspacing` | 1.5 spacing | **rename** | House default `spacing.body: double`; guide-overridable | Most guides say double. |
 | F4 | `\thesistitle{title}{author}{institution}{program}{year}` | Title page macro with 5 positional arguments | **drop** | Title page generated from metadata | Positional macros are not Quarto-native and the name collides with nothing useful. |
-| F5 | `\signaturepage{...}`, `\sigline{...}` | Signature page and line | **rename** | Generated approval page with signature lines from `thesis.committee[]` | Same data, no macro. |
-| F6 | `abstract` environment (`\newenvironment`, centered bold heading) | Abstract | **keep** | `abstract` environment retained for raw LaTeX users; Quarto's `abstract:` renders through it | Prior fix: `\renewenvironment{abstract}` fails on a `book` base. |
+| F5 | `\signaturepage{...}`, `\sigline{...}` | Signature page and line | **rename** | Generated `approval` page (its own `frontmatter.order` entry) with signature lines built from `thesis.advisors[]` and `thesis.committee[]`, when `frontmatter.approval.enabled` | Same data, no macro. |
+| F6 | `abstract` environment (`\newenvironment`, centered bold heading) | Abstract | **keep** | The class defines `abstract` with `\newenvironment` (`book` has none; `\renewenvironment` fails with `Environment abstract undefined`); Quarto's `abstract:` renders through it | Prior fix recorded in the `thesis-build` skill. |
 | F7 | `dataimago.sty`: `fontspec`, `\parindent 0`, `\parskip 0.6em` | Sans-serif look, block paragraphs | **drop** | Not loaded. Paragraph style from `spacing.paragraph.indent` and `.skip` | Block paragraphs plus double spacing is non-standard for theses and conflicts with most guides. |
-| F8 | `mainfont`/`sansfont`/`mathfont: Noto Sans (Math)` in `_quarto.yml` | Fonts set by Quarto | **rename** | Fonts come from the profile (`type.*`); the Quarto font keys are unsupported; the class warns per R10 | One owner for fonts (see 2.4). |
+| F8 | `mainfont`/`sansfont`/`mathfont: Noto Sans (Math)` in `_quarto.yml` | Fonts set by Quarto | **rename** | Fonts come from the profile (`type.*`); the Quarto font keys are unsupported; the Lua filter warns per R10 and the font partials are emptied so Pandoc does not apply them | One owner for fonts (see 2.4). |
 | F9 | `include-in-header: text: \usepackage{dataimago}` | Package load | **drop** | None; the class is loaded by `doc-class.tex` | Known failure: file injection of a `.sty` truncates `index.tex`. |
 | F10 | `fig-pos: H`, `keep-tex: true`, `pdf-engine: xelatex` | Quarto knobs | **keep `fig-pos`, `keep-tex`**; engine see section 5 | | |
 | F11 | `build-thesis.yml`: installs Noto from apt, replaces Noto Sans Math 2.001 with 3.000, `tlmgr install ...`, renders, commits PDF, checks `pdffonts` for LatinModernMath | CI | **keep and generalize** | Per-profile CI in this repo (section 7); the template's workflow adds the same `pdffonts` check for the profile's math font | The math-font fallback is silent. |
@@ -182,16 +182,21 @@ and the spec does not collect.
 
 ### 2.3 Dedication, acknowledgments, and other prose environments
 
-R8. A small Pandoc Lua filter (shipped beside the class) MUST turn the divs
-`.dedication`, `.acknowledgments`, `.preface`, `.abbreviations`, `.symbols` into
-the matching LaTeX environments, and MUST pass through unchanged for HTML output.
-**Reason:** one markdown source builds both the website and the PDF. The filter ships
-with the class files in this registry (R12); the build step writes it, and this spec only
-fixes its contract.
+R8. A Pandoc Lua filter (shipped with the class files, R12) MUST, for PDF output, lift
+the divs `.dedication`, `.acknowledgments`, `.preface`, `.abbreviations`, `.symbols` out of
+the body into document metadata (for example `thesis-front.dedication`), and remove them from
+the body. A host chapter (such as `chapters/00-front.qmd`) left with no other content is
+dropped from the body and from the ToC. `before-body.tex` / `\thesisfrontmatter` prints each
+from that metadata, once, in the position `frontmatter.order` dictates. **Reason:**
+`before-body.tex` is emitted before `$body$`, so content left in a chapter would print after
+the front matter and `\mainmatter`, or twice. The abstract needs no lifting: it is already
+metadata (`$abstract$`).
 
-R9. For PDF output the filter MUST move these divs into the position the profile's
-`frontmatter.order` dictates, wherever the author placed them in the book.
-**Reason:** authors write chapters in file order; schools order the front matter. HTML keeps source order (R8).
+R9. For HTML output the filter MUST leave the divs and the host chapter in source order
+and unchanged. `chapters/00-front.qmd` stays in `book.chapters` so HTML still gets it; the PDF
+filter removes it. **Reason:** one markdown source builds both the website and the PDF. The
+filter ships with the class files in this registry (R12); the build step writes it, and this
+spec only fixes its contract.
 
 ### 2.4 Partials overridden
 
@@ -206,16 +211,17 @@ quoted in the docs **[verify]** against the pinned version.
 |---|---|---|---|
 | `doc-class.tex` | **replace** | Emits `\DocumentMetadata{...}` (when tagging is on) BEFORE `\documentclass`, then `\documentclass[<options>]{dataimago-thesis}` with the profile id and engine-relevant options | `\DocumentMetadata` must precede `\documentclass` (tagging docs). Replacing this partial drops `font-size`, `paper-size`, `classoption` handling (Quarto docs say so), so the class MUST re-implement the ones it supports. |
 | `title.tex` | **replace** | `\title{$title$}`, `\author{$for(author)$$author$$sep$ \and $endfor$}`, `\date{$date$}`, then the `\thesis...` setters from `$thesis.*$` | Keeps the one-argument `\author`; sets every metadata field in one place. |
-| `before-body.tex` | **replace** | Calls `\thesisfrontmatter` (title, copyright, approval, committee, abstract, dedication, acknowledgments, preface, ToC, lists, in profile order), then `\mainmatter` | Quarto's default prints `\maketitle` and the abstract itself; the class owns the order. |
+| `before-body.tex` | **replace** | Calls `\thesisfrontmatter` (title, copyright, approval, committee, abstract, dedication, acknowledgments, preface, ToC, lists, in profile order), then `\mainmatter`. The dedication, acknowledgments and similar pages are read from the metadata the filter lifted (R8), never from `$body$`. | Quarto's default prints `\maketitle` and the abstract itself; the class owns the order. |
 | `toc.tex` | **replace with empty** | Suppresses Quarto's own ToC and lists | The class prints them in `frontmatter.order`. Avoids a doubled ToC. |
 | `after-body.tex` | keep (empty) | | Nothing to add; the class handles back matter itself. |
 | `pandoc.tex` | **keep**; if it loads `geometry`/`hyperref`/fonts, neutralize through class hooks, not by editing it | | Required by Quarto; Pandoc features (highlighting, tables, citations) need it. |
-| font and geometry sub-partials (names **[verify]**) | **replace with empty** | Fonts and geometry belong to the profile | The `Option clash for package geometry` failure and the Noto fallback both came from two owners. |
+| font and geometry sub-partials (names **[verify]**) | **replace with empty** so Pandoc applies none of those keys; the warning comes from the Lua filter (R10), not from these partials | Fonts and geometry belong to the profile | The `Option clash for package geometry` failure and the Noto fallback both came from two owners. |
 
 R10. Unsupported Quarto keys MUST be detected, not silently ignored: if `geometry`,
 `mainfont`, `sansfont`, `mathfont`, `fontsize`, `linestretch`, `papersize`,
-`colorlinks`, `linkcolor`, `urlcolor` or `citecolor` is set, the class MUST emit a warning that names the key and the profile
-field that replaces it. **Reason:** an author changing `fontsize` and seeing nothing happen
+`colorlinks`, `linkcolor`, `urlcolor` or `citecolor` is set, the Lua filter (the one of R8) MUST read it from `doc.meta` and warn through
+`quarto.log.warning`, naming the key and the profile field that replaces it. The class and the
+emptied partials cannot see these keys, so they are not the place for the warning. **Reason:** an author changing `fontsize` and seeing nothing happen
 is the worst failure mode.
 
 R11. `classoption` MAY carry only the pass-through options of C3, plus
@@ -271,7 +277,8 @@ format:
 ```
 
 Abstract goes in `index.qmd` front matter (`abstract:`); dedication and
-acknowledgments are divs in `chapters/00-front.qmd` (listed in `book.chapters`). The YAML
+acknowledgments are divs in `chapters/00-front.qmd`. That file stays in `book.chapters` so the
+HTML book has it; for PDF the filter lifts the divs into metadata and drops the file (R8, R9). The YAML
 carries only the profile id (`thesis.profile`); the profile's values live in
 `profiles/cu-boulder.yaml`, compiled to `cu-boulder.cfg` beside the class.
 
@@ -367,7 +374,9 @@ R14a. The placement fields MUST agree with `order`, and CI (T1) checks it:
 `committee.placement: separate-page` requires `committee` in `order`;
 `title-page` or `none` requires it absent, and the `committee` block in
 `titlePage.layout` is allowed only for `title-page`. `approval.enabled: true` requires
-`approval` in `order`, and `copyright.enabled: true` requires `copyright`. Lists are
+`approval` in `order` (a separate page that carries the signature lines, date lines and IRB
+line; the `committee` page lists the committee only, with no signatures), and
+`copyright.enabled: true` requires `copyright`. Lists are
 ordered by `order` alone (there is no separate list-order field). **Reason:** two fields
 for one fact drift apart.
 
@@ -457,7 +466,7 @@ See section 10 for links.
 | S2 | The PDF MUST NOT contain Type 3 fonts. CI fails on `type = Type 3`. | ProQuest rule (renders poorly). Type 3 fonts creep in via bitmap fonts and some plot output. |
 | S3 | The PDF MUST be unencrypted with no restrictions on printing, copying or modification. | ProQuest rule. |
 | S4 | Profile field `submission.pdfa` in {`none`, `1b`, `2b`, `3b`, `4`}; house default `2b` (see Q2). | Schools differ; a level is a profile fact. |
-| S5 | If `pdfa != none`, the class MUST set it via `\DocumentMetadata{pdfstandard=...}`, which also embeds an output intent. CI validates with veraPDF where available (7.5). | The kernel's PDF management is the supported path. **[verify]** which levels/combinations the pinned TeX Live accepts together with tagging and `lualatex`. |
+| S5 | If `pdfa != none`, the class MUST set it via `\DocumentMetadata{pdfstandard=...}`, which also embeds an output intent. CI validates with veraPDF where available (T14). `pdfstandard` is built from BOTH fields as a list: the PDF/A entry from `submission.pdfa` (omitted if `none`) plus the UA entry from the resolved `accessibility.pdfua` (omitted if `none`); for example `pdfstandard={a-2b, ua-2}`. | The kernel's PDF management is the supported path. **[verify]** which levels/combinations the pinned TeX Live accepts together with tagging and `lualatex`. |
 | S6 | Bookmarks MUST be generated from the ToC to the profile's depth (`submission.bookmarkDepth`, house 2), with open state per profile. | Not a ProQuest rule; a navigation and accessibility baseline, cheap with `hyperref`. |
 | S7 | PDF metadata MUST be set from the document: Title, Author, Subject (degree and institution), Keywords, Creator, language. No default "Untitled" or empty values; CI reads them with `pdfinfo`/`exiftool`. | Archives index these. |
 | S8 | Links: `submission.links: hidden \| boxes \| color`, house `hidden` (no borders, no color; text remains clickable). | Print and submission checks often object to colored link boxes; the profile may require color. |
@@ -780,9 +789,11 @@ Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.
 
 #### `submission`, `accessibility`, `limits`
 
+**Composition rule.** The class builds `\DocumentMetadata{pdfstandard={...}}` as one list from `submission.pdfa` (PDF/A entry, unless `none`) and the resolved `accessibility.pdfua` (UA entry, unless `none`). `auto` resolves to `ua-2` when the engine is lualatex and `accessibility.tagged` is `on`, otherwise `none`. If the build spike finds that PDF/A-2b cannot be combined with tagging and UA-2 on the pinned TeX Live, the house `submission.pdfa` becomes `4f`, and the spike's result is recorded in a `sources` note on that field.
+
 | Field | Type | House | Allowed | Maps to |
 |---|---|---|---|---|
-| `submission.pdfa` | enum | `2b` | `none`, `1b`, `2b`, `3b`, `4` | `\DocumentMetadata{pdfstandard=...}` |
+| `submission.pdfa` | enum | `2b` | `none`, `1b`, `2b`, `3b`, `4`, `4f` | PDF/A entry of `pdfstandard` (rule below) |
 | `submission.embedFonts` | bool | `true` | MUST be true | CI |
 | `submission.bookmarkDepth` | int | `2` | 0-4 | `hyperref` `bookmarksdepth` |
 | `submission.bookmarksOpen` | bool | `false` | | |
@@ -791,7 +802,7 @@ Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.
 | `submission.maxMB` | number | none | | CI warning |
 | `accessibility.tagged` | enum | `on` | `on`, `off` | `\DocumentMetadata{tagging=...}` |
 | `accessibility.altTextEnforcement` | enum | `error` | `error`, `warn`, `off` | filter |
-| `accessibility.pdfua` | enum | `auto` | `auto`, `ua-1`, `ua-2`, `none` | `pdfstandard` |
+| `accessibility.pdfua` | enum | `auto` | `auto`, `ua-1`, `ua-2`, `none`; `auto` = `ua-2` when the engine is lualatex and `accessibility.tagged` is `on`, else `none` | UA entry of `pdfstandard` (rule below) |
 | `limits.pages` | int | none | | CI warning |
 | `limits.abstractWords` | int | none | | CI warning |
 
@@ -1019,7 +1030,7 @@ Notes on the CU example:
 | T14 | **PDF/A** (optional but on by default when `pdfa != none`) | veraPDF with the profile matching the level; the job is skipped if veraPDF is not installed | any failure |
 | T15 | **Tagging** (lualatex, `tagged: on`) | structure tree present (`qpdf --show-object` on StructTreeRoot or `pdfinfo` "Tagged: yes"); alt text on every Figure element; optional veraPDF PDF/UA profile | missing |
 | T16 | **Math font check** | run once with a deliberately broken math font in a negative test; CI MUST turn red | the check does not catch it |
-| T17 | **Unsupported keys** | negative test: set `geometry:`, `mainfont:` and `linkcolor:` in `_quarto.yml`; the build MUST warn per R10 | no warning |
+| T17 | **Unsupported keys** | negative test: set `geometry:`, `mainfont:` and `linkcolor:` in `_quarto.yml`; the Lua filter MUST log a `quarto.log.warning` for each, naming the replacing profile field (R10) | no warning |
 | T18 | **Size** | file size under `submission.maxMB` | warning |
 
 R20. Measurement tolerances live in the profile test config (`profiles/<id>.test.yaml`),
@@ -1066,8 +1077,8 @@ of this design. **Reason:** keeps the name `dataimago-thesis` meaningful.
 | # | Question | Decision |
 |---|---|---|
 | 1 | **Engine.** LuaLaTeX default (tagging, MathML) or XeLaTeX (what CU and `build-thesis.yml` use)? | **LuaLaTeX default, XeLaTeX supported without tagging** (5.3). The cost is a current TeX Live and slower builds. The template's workflow changes in `-templates`. |
-| 2 | **PDF/A level.** ProQuest does not require PDF/A; its guide offers it as a route to embedded fonts, and some libraries tell authors not to use it. Which default? | **`2b` for the house profile**, `none` allowed per profile, and a spike in `-build` to confirm it combines with tagging on the pinned TeX Live; if not, use `4` (the tagging project's PDF/A-4 path, PDF 2.0). Schools override. |
-| 3 | **Committee: title page or separate page by default?** CU (since 2020) puts it on the title page; many schools use a signature page. | **House default: separate committee page** (unnumbered, after the title page), because it also serves as the signature page when `approval.enabled`. CU profile uses `title-page`. |
+| 2 | **PDF/A level.** ProQuest does not require PDF/A; its guide offers it as a route to embedded fonts, and some libraries tell authors not to use it. Which default? | **`2b` for the house profile**, `none` allowed per profile, and a spike in `-build` to confirm it combines with tagging on the pinned TeX Live; if not, use `4f` (the tagging project's PDF/A-4 path, PDF 2.0), recording the spike's result in `sources`. Schools override. |
+| 3 | **Committee: title page or separate page by default?** CU (since 2020) puts it on the title page; many schools use a signature page. | **House default: separate committee page (unnumbered, after the title page); signatures, when a school requires them, go on the separate approval page.** CU profile uses `title-page`. |
 | 4 | **House paper size and margins.** Letter and 1in on all sides, or 1.5in binding? | **Letter, 1in, no gutter**; the gutter is a profile field. |
 | 5 | **House fonts.** TeX Gyre (free, with a math companion that has a MATH table) or keep Noto Sans? | **TeX Gyre Termes** (Times-like serif, math: Termes Math) for body and math. Noto Sans body is unusual for a thesis and caused the math trap. Verified 2026-11-08: `texgyretermes-math.otf` ships in TeX Live 2026 (`tex-gyre-math`) and has an OpenType MATH table. |
 | 6 | **Profile CI cost.** Full matrix per profile × engine on every PR? | Run the full matrix only for changed profiles and the class; nightly for all. |
