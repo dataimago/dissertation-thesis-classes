@@ -17,6 +17,7 @@ t17() {
     quarto render --to pdf --output-dir _build/t17 \
       -M geometry:margin=1in -M mainfont:Nonexistent -M monofont:Nonexistent -M linkcolor:red 2>&1 || true)
   rm -f "$EX/_quarto-t17.yml"
+  [ -f "$EX/_build/t17/thesis.pdf" ] || { echo "FAIL: an unsupported key broke the build instead of being ignored (index.log)"; status=1; }
   for key in geometry mainfont monofont linkcolor toc toc-depth; do
     echo "$out" | grep -q "dataimago-thesis: '$key' is ignored; set " || { echo "FAIL: no warning for '$key'"; status=1; }
   done

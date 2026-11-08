@@ -67,6 +67,9 @@ local REPLACED = {
 -- is not reported. Anything the author changes is.
 local QUARTO_DEFAULT = { toc = "true", colorlinks = "true", linkcolor = "blue", papersize = "letter" }
 
+-- keys Pandoc's own templates would act on (geometry clashes with the class; babel-lang.tex would load mainfont)
+local DROPPED = { geometry = true, linestretch = true, mainfont = true, sansfont = true, monofont = true, mathfont = true, fontsize = true, papersize = true }
+
 -- Quarto consumes toc, lof, lot and toc-depth itself, so they never reach doc.meta; read them from the
 -- project files (_quarto.yml and the active profile files) instead.
 local FILE_KEYS = { "toc", "lof", "lot", "toc-depth" }
@@ -150,6 +153,8 @@ function Pandoc(doc)
     local v = meta[key]
     if v ~= nil and str(v) ~= QUARTO_DEFAULT[key] then
       warn("'" .. key .. "' is ignored; set " .. replacement .. " in the profile (profiles/" .. profile .. ".yaml)")
+      -- keys Pandoc's own template would act on (geometry would option-clash with the class) are dropped
+      if DROPPED[key] then meta[key] = nil end
     end
   end
   for key, file in pairs(project_yaml_keys()) do

@@ -88,6 +88,7 @@
 
 \RequirePackage{iftex}
 \RequirePackage{etoolbox}
+\RequirePackage{xcolor}
 \RequirePackage{amsmath,amssymb}
 \RequirePackage{setspace}
 
@@ -627,6 +628,7 @@
 \AddToHook{cmd/mainmatter/after}{\pagestyle{thesis@show}\setcounter{page}{\thesis@c{pagenumber.main.start}}}
 
 %% ------------------------------------------------------------------ landscape
+\thesis@ifc{appendices.placement}{before-bibliography}{\thesis@warn{appendices.placement: before-bibliography cannot be enforced; Quarto sets the chapter order (references, then appendices)}}{}
 \RequirePackage{pdflscape}
 \thesis@ifc{landscape.pageNumber}{rotated-with-text}{\thesis@warn{landscape.pageNumber: rotated-with-text is not implemented; the number stays upright on the page}}{}
 \thesis@ifc{landscape.margins.top}{}{}{\thesis@warn{landscape.margins is not implemented yet; landscape pages use the page margins}}
@@ -641,7 +643,7 @@
         \definecolor{thesislink}{HTML}{\thesis@c{submission.linkColor}}%
         \hypersetup{colorlinks=true,linkcolor=thesislink,citecolor=thesislink,urlcolor=thesislink,filecolor=thesislink}}{%
         \hypersetup{hidelinks}}}%
-    \edef\thesis@hyopts{bookmarksnumbered=true,pdfdisplaydoctitle=true,bookmarksopen=\thesis@c{submission.bookmarksOpen}}%
+    \edef\thesis@hyopts{bookmarksnumbered=true,pdfusetitle,pdfdisplaydoctitle=true,bookmarksopen=\thesis@c{submission.bookmarksOpen}}%
     \expandafter\hypersetup\expandafter{\thesis@hyopts}%
     \thesis@setslots
     \hypersetup{pdfsubject={\thesis@m{degree}, \thesis@m{field}, \thesisslot{institution}, \thesisslot{year}}}%
