@@ -240,9 +240,10 @@ R11. `classoption` MAY carry only the pass-through options of C3 (`draft`, `fina
 `profile=<id>`; `openany`/`openright` in `classoption` warn and are ignored; the class passes the resolved `headings.chapter.newPage` to `book`. **Reason:** one way to select the profile; the `thesis.profile` key
 is rendered into the same option by `doc-class.tex`.
 
-R12. The partials, filter, class, `.cfg` files, and a sample `_quarto.yml` SHOULD ship
-as one directory the template copies in whole (a Quarto format extension is an
-option; see decision 7). **Reason:** the template should not hand-assemble a dozen files.
+R12. The partials, filter, class, and a sample `_quarto.yml` SHOULD ship as one
+directory the template copies in whole (`classes/dataimago-thesis/`; a Quarto format
+extension is an option, see decision 7), together with the profile's compiled `.cfg`,
+which lives in `profiles/` beside its YAML. **Reason:** the template should not hand-assemble a dozen files.
 
 ### 2.5 What the author writes in `_quarto.yml`
 
@@ -292,7 +293,8 @@ Abstract goes in `index.qmd` front matter (`abstract:`); dedication and
 acknowledgments are divs in `chapters/00-front.qmd`. That file stays in `book.chapters` so the
 HTML book has it; for PDF the filter lifts the divs into metadata and drops the file (R8, R9). The YAML
 carries only the profile id (`thesis.profile`); the profile's values live in
-`profiles/cu-boulder.yaml`, compiled to `cu-boulder.cfg` beside the class.
+`profiles/cu-boulder.yaml`, compiled to `profiles/cu-boulder.cfg` beside the YAML (not beside
+the class; a shipped fetch copies both, per the discovery contract).
 
 ---
 
