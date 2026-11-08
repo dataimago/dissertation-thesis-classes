@@ -124,6 +124,10 @@
   \edef\thesis@tmpa{\thesis@c{type.mono}}\expandafter\setmonofont\expandafter[Scale=MatchLowercase]{\thesis@tmpa}}
 \thesis@ifc{type.math}{latex-default}{}{%
   \edef\thesis@tmpa{\thesis@c{type.math}}\expandafter\setmathfont\expandafter{\thesis@tmpa}}
+%% R19: tagging needs LuaLaTeX; on XeLaTeX the request degrades to this warning, never a failure
+\ifLuaTeX\else
+  \thesis@ifc{accessibility.tagged}{on}{\thesis@warn{accessibility.tagged is on, but XeLaTeX cannot tag PDFs; building an untagged PDF. Use LuaLaTeX for tagged output (PDF/UA)}}{}
+\fi
 %% M4: warn at load when the math font lacks an OpenType MATH table (LuaTeX only;
 %% XeLaTeX cannot inspect the font table, so CI's pdffonts check is the guard there).
 \ifLuaTeX

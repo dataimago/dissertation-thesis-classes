@@ -277,7 +277,7 @@ def main():
         "title": slots["title"], "abstract": "Abstract", "dedication": "For the imaginary readers",
         "acknowledgments": p["frontmatter"]["acknowledgments"]["heading"],
         "toc": r"(Table of contents|Contents)", "lof": "List of Figures", "lot": "List of Tables",
-        "abbreviations": "List of Abbreviations",
+        "abbreviations": "List of Abbreviations", "preface": "Preface", "symbols": "List of Symbols",
         "copyright": re.escape(fill(p["frontmatter"]["copyright"]["template"], slots)),
         "committee": p["frontmatter"]["committee"]["heading"],
     }
@@ -286,7 +286,7 @@ def main():
     errs = []
     last = -1
     for pid in order:
-        if pid in ("approval", "preface", "symbols"):
+        if pid == "approval":
             continue
         if pid == "committee" and p["frontmatter"]["committee"]["placement"] != "separate-page":
             continue

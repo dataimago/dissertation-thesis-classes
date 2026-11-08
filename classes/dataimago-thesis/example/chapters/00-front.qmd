@@ -14,3 +14,13 @@ acknowledgments page to typeset, in the position the profile gives it.
 
 **SNR**: signal to noise ratio, a real term used in a made-up setting.
 :::
+
+::: {.preface}
+This short preface is invented text. It gives the class a preface page to place.
+:::
+
+::: {.symbols}
+$x$: an input drawn by the imaginary experiment.
+
+$\sigma$: the noise level of the imaginary instrument.
+:::
