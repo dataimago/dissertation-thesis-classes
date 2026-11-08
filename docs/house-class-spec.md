@@ -755,7 +755,7 @@ Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.
 
 | Field | Type | House | Allowed | Maps to |
 |---|---|---|---|---|
-| `order` | list | `[title, committee, copyright, abstract, acknowledgments, dedication, toc, lof, lot]` | closed vocabulary (R14); must agree with R14a | `\thesisfrontmatter` |
+| `order` | list | `[title, committee, copyright, abstract, acknowledgments, dedication, preface, toc, lof, lot, abbreviations, symbols]` | closed vocabulary (R14); must agree with R14a | `\thesisfrontmatter` |
 | `titlePage.layout` | list | `[title, byline, statement, date]` | blocks as in 3.7; `committee` only if `committee.placement: title-page` | |
 | `titlePage.statement` | template string | see 3.7 | slots | |
 | `titlePage.byline` | template string | `by {author}` | | |
@@ -1053,7 +1053,7 @@ Notes on the CU example:
 | T16 | **Math font check** | run once with a deliberately broken math font in a negative test; CI MUST turn red | the check does not catch it |
 | T17 | **Unsupported keys** | negative test: set `geometry:`, `mainfont:`, `monofont:`, `linkcolor:`, `toc: false` and `toc-depth:` in `_quarto.yml`; the Lua filter MUST log a `quarto.log.warning` for each, naming the replacing profile field (R10) | no warning |
 | T18 | **Size** | file size under `submission.maxMB` | warning |
-| T19 | **Minimum text size** | extract every text span with its font size from the sample PDF (e.g. PyMuPDF `page.get_text("dict")`); every span's size MUST be at least `type.minimumSize`, within the profile's tolerance (R20) | fail |
+| T19 | **Minimum text size** | (a) the profile's `type.size`, `type.footnoteSize` and `type.captionSize` are each at least `type.minimumSize` (a schema check); (b) extract text spans with font sizes from the sample PDF (e.g. PyMuPDF `page.get_text("dict")`) and require body, footnote-text and caption spans to be at least `type.minimumSize`, within the tolerance (R20). Reduced-size spans the floor is not about are excluded: math sub/superscripts, footnote and citation markers, and running heads/folios only if the guide exempts them; the exclusions are listed in `profiles/<id>.test.yaml` | fail |
 
 R20. Measurement tolerances live in the profile test config (`profiles/<id>.test.yaml`),
 not in the profile. **Reason:** tolerances are ours, the facts are the school's.
