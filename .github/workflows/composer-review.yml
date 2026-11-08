@@ -96,6 +96,11 @@ jobs:
           # job- or workflow-level env adds one later.
           GITHUB_TOKEN: ''
           GH_TOKEN: ''
+          # The Actions runtime and OIDC tokens, if the runner sets them, are not
+          # the agent's to use either (the upload step gets its own env).
+          ACTIONS_RUNTIME_TOKEN: ''
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ''
+          ACTIONS_ID_TOKEN_REQUEST_URL: ''
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -163,6 +168,12 @@ jobs:
             --trust \
             --model cursor-grok-4.6-xhigh \
             --output-format text > composer-review.md
+          # Only a non-empty regular file goes on: an empty run fails here, so
+          # nothing is uploaded and "Re-run all jobs" starts clean.
+          if [ ! -f composer-review.md ] || [ -L composer-review.md ] || [ ! -s composer-review.md ]; then
+            echo "::error::the review produced no output (or not a regular file); nothing was published" >&2
+            exit 1
+          fi
           # The key sits in this step's env beside a --trust agent; a
           # prompt-injected diff could make it print the key, and the comment
           # job publishes this file verbatim. Refuse to hand it on if so.
@@ -181,6 +192,7 @@ jobs:
           path: composer-review.md
           retention-days: 1
           if-no-files-found: error
+          overwrite: true
 
       # A missing key must be visible: a green check with no review reads as
       # "reviewed" (three repos went unreviewed that way until 2026-11-08).
