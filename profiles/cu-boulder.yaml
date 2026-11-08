@@ -2,7 +2,9 @@
 # (classes/cu-boulder/, a feature reference only) and its sample-output.pdf show it.
 # NOTE: the Graduate School's guide text was NOT read for this profile. Every value
 # is inferred from the legacy class's behavior or measured on sample-output.pdf, and
-# is marked so in `sources`. A human must re-source each one from the guide
+# is marked so in `sources`. Fields it does not set (fonts, emphasis, PDF/A, links, tagging)
+# fall back to the house values only because the guide was not read: that is not a claim
+# that the guide is silent, so `unstated` stays empty until it has been read. A human must re-source each one from the guide
 # (docs/house-class-spec.md section 6.6) before this profile counts as conforming.
 schemaVersion: 1
 id: cu-boulder
@@ -82,14 +84,5 @@ sources:
   frontmatter.abstract.header: { inferred: true, from: "sample-output.pdf page 2", note: "three header lines" }
   frontmatter.acknowledgments.heading: { inferred: true, from: "sample-output.pdf page 4", note: "British spelling as printed" }
   frontmatter.acknowledgments.maxPages: { inferred: true, from: "legacy example comment", note: "one page" }
-  appendices.divider: { inferred: true, from: "sample-output.pdf page 5", note: "single Appendix entry in the contents" }
-unstated:
-  - type.main
-  - type.sans
-  - type.mono
-  - type.math
-  - type.emphasis
-  - submission.pdfa
-  - submission.links
-  - accessibility.tagged
-  - accessibility.pdfua
+  appendices.divider: { inferred: true, from: "sample-output.pdf page 5", note: "single Appendix entry in the contents; in Quarto books the generated Appendices entry plays that part" }
+unstated: []   # empty until the guide and the school's ETD instructions have been read (spec 6.6 note 6)

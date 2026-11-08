@@ -269,8 +269,9 @@
 \renewcommand\appendixname{\thesis@c{appendices.label}}
 \g@addto@macro\appendix{%
   \thesis@ifc{appendices.numbering}{roman}{\renewcommand\thechapter{\@Roman\c@chapter}}{%
-    \thesis@ifc{appendices.numbering}{arabic}{\renewcommand\thechapter{\@arabic\c@chapter}}{}}%
-  \thesis@ifon{appendices.divider}{\phantomsection\addcontentsline{toc}{chapter}{\appendixname}}{}}
+    \thesis@ifc{appendices.numbering}{arabic}{\renewcommand\thechapter{\@arabic\c@chapter}}{}}}
+%% appendices.divider: Quarto already writes one "Appendices" entry (\addcontentsline{toc}{part}{...}) for
+%% book.appendices; that entry is the divider, so the class adds none. divider: false cannot remove it.
 
 %% ------------------------------------------------------------------ page numbers
 \def\thesis@none{none}

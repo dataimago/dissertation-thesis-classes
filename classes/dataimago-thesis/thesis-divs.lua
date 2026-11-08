@@ -213,6 +213,8 @@ function Pandoc(doc)
   -- that its later filters read to number chapters; they must survive when a chapter is dropped.
   local function is_marker(x)
     if x.t == "RawBlock" then return true end
+    -- Quarto's own custom nodes (e.g. a conditional block whose condition is false) leave empty divs
+    if x.t == "Div" and x.attributes["__quarto_custom"] and pandoc.utils.stringify(x) == "" then return true end
     if (x.t == "Para" or x.t == "Plain") and #x.content > 0 then
       for _, i in ipairs(x.content) do if i.t ~= "RawInline" then return false end end
       return true

@@ -411,7 +411,9 @@ def main():
         print(f"WARN T18: {size_mb:.1f} MB exceeds submission.maxMB {mx}")
 
     # ---- T19(b) minimum text size
-    tol = tcfg.get("minimumText", {}).get("tolerancePt", 0.3)
+    mcfg = tcfg.get("minimumText", {})
+    tol = mcfg.get("tolerancePt", 0.3)
+    excl = set(mcfg.get("exclude", []))  # math-scripts, footnote-markers, citation-markers, folios (R20)
     mn = float(p["type"]["minimumSize"])
     small = []
     for i in range(n):
@@ -421,8 +423,12 @@ def main():
                     t = s["text"].strip()
                     if not t or s["size"] >= mn - tol:
                         continue
-                    if "Math" in s["font"] or re.fullmatch(r"[0-9¹²³⁰-⁹*†‡]+", t):
-                        continue  # math scripts and footnote/citation markers
+                    if "math-scripts" in excl and "Math" in s["font"]:
+                        continue
+                    if ({"footnote-markers", "citation-markers"} & excl) and re.fullmatch(r"[0-9\u00b9\u00b2\u00b3\u2070-\u2079*\u2020\u2021]+", t):
+                        continue
+                    if "folios" in excl and t == labels[i]:
+                        continue
                     small.append(f"p{i + 1} {s['size']:.1f}pt '{t[:20]}'")
     rec("T19b minimum text size", not small, "; ".join(small[:4]))
 
