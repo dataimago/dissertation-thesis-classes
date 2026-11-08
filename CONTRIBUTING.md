@@ -1,7 +1,12 @@
 # Contributing to dissertation-thesis-classes
 
-This registry holds one thesis class (`classes/dataimago-thesis/`) and one small
-**profile** per institution (`profiles/<id>.yaml`). The most useful contribution
+This registry holds the house thesis class (`classes/dataimago-thesis/`) with one
+small **profile** per institution (`profiles/<id>.yaml`), and the legacy
+third-party class `classes/cu-boulder/`. What the hub and Level-3 builds offer
+today is still read from `registry.json`, whose only `available` class is
+`cu-boulder`; a profile does not appear there on its own, and a profile PR
+leaves `registry.json` to the maintainer's registry step. Profiles are what the
+house class is built to take, and they are the contribution that scales. The most useful one
 is a profile for an institution that has none: a list of facts from the
 institution's formatting guide, each cited to the guide's page or section. The
 format is section 6 of [`docs/house-class-spec.md`](docs/house-class-spec.md).
@@ -49,10 +54,13 @@ wants to contribute the result. By hand, the same rules apply:
    classes/dataimago-thesis/example/render.sh <id> lualatex               # and xelatex
    ```
 
-6. Open a pull request that changes only `profiles/<id>.yaml` and its generated
-   `profiles/<id>.cfg` (spec R21). Snapshot images (`profiles/snapshots/<id>/`)
-   and `profiles/<id>.test.yaml` need a full TeX Live; leave them to the
-   maintainer if you cannot produce them. Do not edit `registry.json`,
+6. Open a pull request that changes only the profile's files (spec R21):
+   `profiles/<id>.yaml`, its generated `profiles/<id>.cfg`, the first-page
+   snapshots `profiles/snapshots/<id>/` and, optionally, `profiles/<id>.test.yaml`.
+   The snapshots need a full TeX Live (`python tools/check_pdf.py ... --update-snapshots`).
+   If you cannot produce them, send the YAML and `.cfg` alone: the snapshot check
+   (T11) fails until the maintainer adds them in the re-push below, and that
+   failure is not a defect in your profile. Do not edit `registry.json`,
    `docs/`, `classes/` or another institution's profile.
 7. Say in the pull request body that you contribute the profile with your
    consent, name the guide (title, issuer, version, date), and list the
@@ -71,8 +79,8 @@ contribution:
 
 1. **Check consent.** The fork pull request body (or the thread) says the author
    contributes the profile; if it does not, ask before doing anything else.
-2. **Check privacy**, reading the diff (it should be `profiles/<id>.yaml` and
-   `profiles/<id>.cfg` only): no manuscript content, no names or emails, no
+2. **Check privacy**, reading the diff (it should be the profile's files only: `profiles/<id>.yaml`,
+   `.cfg`, and perhaps snapshots and a test config): no manuscript content, no names or emails, no
    `inferred` value drawn from the contributor's own work, no quote over one short line, no
    local paths. If a line fails, ask the contributor to remove it, or remove it
    in the re-push commit and say so in the pull request. Do not run anything

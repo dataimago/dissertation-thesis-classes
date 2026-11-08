@@ -72,7 +72,7 @@ thesis document" — not anyone's dissertation.)
 
 ## Contributing
 
-A profile for an institution that has none is the most useful contribution: see [`CONTRIBUTING.md`](CONTRIBUTING.md) (how to contribute, the privacy rules, and how a maintainer reviews a fork pull request). The `thesis-format` skill does the conversion from a formatting guide: authors get it in their dissertation repository (`dissertation-app-template`), and a maintainer runs the copy in `.claude/skills/thesis-format/` here to seed institutions.
+A profile for an institution that has none is the most useful contribution to the house class (the hub still offers only what `registry.json` lists, which is `cu-boulder` today): see [`CONTRIBUTING.md`](CONTRIBUTING.md) (how to contribute, the privacy rules, and how a maintainer reviews a fork pull request). The `thesis-format` skill does the conversion from a formatting guide: authors get it in their dissertation repository (`dissertation-app-template`), and a maintainer runs the copy in `.claude/skills/thesis-format/` here to seed institutions.
 
 ## Contributing a class
 
