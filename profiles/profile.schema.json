@@ -1,0 +1,253 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/dataimago/dissertation-thesis-classes/profiles/profile.schema.json",
+  "title": "dataimago-thesis institution profile",
+  "description": "Validates profiles/<id>.yaml (docs/house-class-spec.md section 6.4). Cross-field rules (R14a, P1, T19a, cfg drift) live in tools/check_profile.py because JSON Schema cannot state them. YAML note: quote enum values YAML 1.1 reads as booleans or numbers (\"on\", \"off\", \"4\").",
+  "definitions": {
+    "length": { "type": "string", "pattern": "^(0|[0-9]*\\.?[0-9]+(in|cm|pt|mm|em))$" },
+    "lengthOrZero": { "oneOf": [ { "$ref": "#/definitions/length" }, { "const": 0 } ] },
+    "pt": { "type": "number", "exclusiveMinimum": 0 },
+    "pageId": { "enum": ["title","copyright","approval","committee","abstract","dedication","acknowledgments","preface","toc","lot","lof","abbreviations","symbols"] },
+    "spacingException": { "enum": ["single", "inherit"] },
+    "listSpacing": { "enum": ["single", "double", "single-within"] },
+    "sizeWeight": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "align": { "enum": ["left", "center"] },
+        "size": { "$ref": "#/definitions/pt" },
+        "weight": { "enum": ["normal", "bold"] },
+        "case": { "enum": ["as-typed", "upper"] }
+      }
+    },
+    "margins": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "top": { "$ref": "#/definitions/length" }, "bottom": { "$ref": "#/definitions/length" },
+        "inside": { "$ref": "#/definitions/length" }, "outside": { "$ref": "#/definitions/length" }
+      }
+    },
+    "listCfg": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "mode": { "enum": ["always", "auto", "never"] },
+        "numberFirstPage": { "enum": ["auto", "show", "hide"] }
+      }
+    },
+    "sourceEntry": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "section": { "type": "string" }, "page": { "type": ["string", "integer"] },
+            "quote": { "type": "string", "maxLength": 200, "pattern": "^[^\\n]*$" },
+            "inferred": { "type": "boolean" }, "from": { "type": "string" }, "note": { "type": "string" }
+          },
+          "anyOf": [ { "required": ["section"] }, { "required": ["page"] }, { "required": ["inferred", "from", "note"] } ]
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "required": ["schemaVersion", "id"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "extends": { "const": "house" },
+    "institution": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" }, "graduateSchool": { "type": "string" }, "short": { "type": "string" }
+      }
+    },
+    "guide": {
+      "type": "object", "additionalProperties": false,
+      "required": ["title", "retrieved"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 }, "issuer": { "type": "string" }, "version": { "type": "string" },
+        "date": { "type": "string", "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$" },
+        "url": { "type": "string" },
+        "retrieved": { "type": "string", "pattern": "^([0-9]{4}-[0-9]{2}-[0-9]{2}|unretrieved)$" }
+      }
+    },
+    "geometry": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "paper": { "enum": ["letter", "a4", "custom"] },
+        "paperWidth": { "$ref": "#/definitions/length" }, "paperHeight": { "$ref": "#/definitions/length" },
+        "sides": { "enum": ["one", "two"] },
+        "margins": { "$ref": "#/definitions/margins" },
+        "binding": { "type": "object", "additionalProperties": false, "properties": {
+          "gutter": { "$ref": "#/definitions/lengthOrZero" }, "side": { "enum": ["left", "right", "top"] } } },
+        "chapterOpening": { "type": "object", "additionalProperties": false, "properties": {
+          "extraTop": { "$ref": "#/definitions/lengthOrZero" } } },
+        "headerFooter": { "type": "object", "additionalProperties": false, "properties": {
+          "numberDistance": { "$ref": "#/definitions/length" } } }
+      }
+    },
+    "type": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "size": { "enum": [10, 10.5, 11, 12] },
+        "main": { "type": "string", "minLength": 1 }, "sans": { "type": "string", "minLength": 1 },
+        "mono": { "type": "string", "minLength": 1 }, "math": { "type": "string", "minLength": 1 },
+        "fallback": { "type": "array", "items": { "type": "string" } },
+        "emphasis": { "enum": ["italic", "bold"] },
+        "footnoteSize": { "$ref": "#/definitions/pt" }, "captionSize": { "$ref": "#/definitions/pt" },
+        "minimumSize": { "$ref": "#/definitions/pt" }
+      }
+    },
+    "spacing": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "body": { "oneOf": [
+          { "enum": ["single", "onehalf", "double"] },
+          { "type": "number", "exclusiveMinimum": 0 },
+          { "type": "object", "additionalProperties": false, "required": ["pitch"], "properties": { "pitch": { "$ref": "#/definitions/length" } } } ] },
+        "paragraph": { "type": "object", "additionalProperties": false, "properties": {
+          "indent": { "$ref": "#/definitions/lengthOrZero" }, "skip": { "$ref": "#/definitions/lengthOrZero" } } },
+        "blockQuotes": { "$ref": "#/definitions/spacingException" },
+        "footnotes": { "$ref": "#/definitions/spacingException" },
+        "captions": { "$ref": "#/definitions/spacingException" },
+        "tables": { "$ref": "#/definitions/spacingException" },
+        "bibliography": { "type": "object", "additionalProperties": false, "properties": {
+          "within": { "$ref": "#/definitions/spacingException" }, "between": { "$ref": "#/definitions/lengthOrZero" } } },
+        "toc": { "$ref": "#/definitions/listSpacing" },
+        "lists": { "$ref": "#/definitions/listSpacing" },
+        "abstract": { "enum": ["single", "onehalf", "double"] },
+        "code": { "enum": ["single", "inherit"] }
+      }
+    },
+    "headings": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "chapter": { "type": "object", "additionalProperties": false, "properties": {
+          "label": { "enum": ["chapter-number", "number", "none"] },
+          "align": { "enum": ["left", "center"] }, "case": { "enum": ["as-typed", "upper"] },
+          "size": { "$ref": "#/definitions/pt" }, "weight": { "enum": ["normal", "bold"] },
+          "newPage": { "enum": ["any", "right"] } } },
+        "section": { "$ref": "#/definitions/sizeWeight" },
+        "subsection": { "$ref": "#/definitions/sizeWeight" },
+        "subsubsection": { "$ref": "#/definitions/sizeWeight" },
+        "level4": { "type": "object", "additionalProperties": false, "properties": { "style": { "enum": ["block", "inline"] } } },
+        "part": { "type": "object", "additionalProperties": false, "properties": { "allowed": { "type": "boolean" } } }
+      }
+    },
+    "numbering": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "chapter": { "enum": ["arabic", "roman"] },
+        "depth": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "floats": { "enum": ["per-chapter", "continuous"] },
+        "footnotes": { "enum": ["per-chapter", "continuous"] },
+        "equations": { "enum": ["per-chapter", "continuous"] }
+      }
+    },
+    "pagenumber": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "front": { "type": "object", "additionalProperties": false, "properties": {
+          "style": { "enum": ["roman", "arabic", "none"] }, "titleCounts": { "type": "boolean" },
+          "titleShown": { "type": "boolean" },
+          "hideOn": { "type": "array", "items": { "$ref": "#/definitions/pageId" }, "uniqueItems": true } } },
+        "main": { "type": "object", "additionalProperties": false, "properties": {
+          "style": { "enum": ["arabic"] }, "start": { "type": "integer", "minimum": 1 } } },
+        "position": { "enum": ["top-right", "top-center", "top-left", "bottom-center", "bottom-right"] },
+        "chapterFirstPage": { "enum": ["show", "bottom-center", "hide"] },
+        "runningHead": { "enum": ["none", "chapter"] }
+      }
+    },
+    "frontmatter": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "order": { "type": "array", "items": { "$ref": "#/definitions/pageId" }, "uniqueItems": true, "minItems": 1 },
+        "titlePage": { "type": "object", "additionalProperties": false, "properties": {
+          "layout": { "type": "array", "uniqueItems": true, "items": { "enum": ["title", "byline", "previousDegrees", "statement", "committee", "date"] } },
+          "statement": { "type": "string" }, "byline": { "type": "string" },
+          "date": { "enum": ["year", "month-year", "none"] }, "case": { "enum": ["as-typed", "upper"] },
+          "previousDegrees": { "type": "boolean" } } },
+        "copyright": { "type": "object", "additionalProperties": false, "properties": {
+          "enabled": { "type": "boolean" }, "template": { "type": "string" } } },
+        "approval": { "type": "object", "additionalProperties": false, "properties": {
+          "enabled": { "type": "boolean" }, "statement": { "type": "string" },
+          "signatureLines": { "enum": ["advisors-and-committee"] },
+          "dateLine": { "type": "boolean" }, "irbLine": { "type": "boolean" } } },
+        "committee": { "type": "object", "additionalProperties": false, "properties": {
+          "placement": { "enum": ["title-page", "separate-page", "none"] },
+          "heading": { "type": "string" }, "format": { "type": "string" } } },
+        "abstract": { "type": "object", "additionalProperties": false, "properties": {
+          "header": { "type": "string" }, "wordLimit": { "type": "integer", "minimum": 1 }, "keywords": { "type": "boolean" } } },
+        "dedication": { "type": "object", "additionalProperties": false, "properties": { "heading": { "type": "string" } } },
+        "acknowledgments": { "type": "object", "additionalProperties": false, "properties": {
+          "heading": { "type": "string" }, "maxPages": { "type": "integer", "minimum": 1 } } },
+        "lists": { "type": "object", "additionalProperties": false, "properties": {
+          "lot": { "$ref": "#/definitions/listCfg" }, "lof": { "$ref": "#/definitions/listCfg" } } },
+        "titlesCase": { "enum": ["as-typed", "upper"] }
+      }
+    },
+    "toc": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "depth": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "columnLabels": { "type": "boolean" }, "leaders": { "enum": ["dots", "none"] },
+        "bibliography": { "type": "boolean" }, "includesFrontmatter": { "enum": ["after", "all", "none"] }
+      }
+    },
+    "appendices": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "numbering": { "enum": ["alpha", "roman", "arabic"] }, "label": { "type": "string" },
+        "divider": { "type": "boolean" }, "placement": { "enum": ["before-bibliography", "after-bibliography"] }
+      }
+    },
+    "landscape": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "pageNumber": { "enum": ["upright-page", "rotated-with-text"] },
+        "margins": { "$ref": "#/definitions/margins" }
+      }
+    },
+    "floats": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "captionPosition": { "type": "object", "additionalProperties": false, "properties": {
+          "table": { "enum": ["above", "below"] }, "figure": { "enum": ["above", "below"] } } },
+        "labelSeparator": { "type": "string" }
+      }
+    },
+    "bibliography": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "heading": { "type": "string" }, "hangingIndent": { "$ref": "#/definitions/lengthOrZero" } }
+    },
+    "submission": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "pdfa": { "enum": ["none", "1b", "2b", "3b", "4", "4f"] },
+        "embedFonts": { "const": true },
+        "bookmarkDepth": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "bookmarksOpen": { "type": "boolean" },
+        "links": { "enum": ["hidden", "boxes", "color"] },
+        "linkColor": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "maxMB": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "accessibility": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "tagged": { "enum": ["on", "off"] },
+        "altTextEnforcement": { "enum": ["error", "warn", "off"] },
+        "pdfua": { "enum": ["auto", "ua-1", "ua-2", "none"] }
+      }
+    },
+    "limits": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "pages": { "type": "integer", "minimum": 1 }, "abstractWords": { "type": "integer", "minimum": 1 } }
+    },
+    "sources": { "type": "object", "additionalProperties": { "$ref": "#/definitions/sourceEntry" } },
+    "unstated": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+  },
+  "if": { "properties": { "id": { "const": "house" } } },
+  "then": { "not": { "required": ["extends"] } },
+  "else": { "required": ["extends", "guide"] }
+}

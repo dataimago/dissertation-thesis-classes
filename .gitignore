@@ -23,3 +23,19 @@
 .Rhistory
 .RData
 *.swp
+
+# house class (dataimago-thesis): build output of the example and test scratch
+classes/dataimago-thesis/example/_build/
+classes/dataimago-thesis/example/_book/
+classes/dataimago-thesis/example/.quarto/
+classes/dataimago-thesis/example/*.tex
+classes/dataimago-thesis/example/*-luamml-mathml.html
+classes/dataimago-thesis/example/*_files/
+classes/dataimago-thesis/example/_quarto-t17.yml
+classes/dataimago-thesis/example/_quarto-noto-math.yml
+tests/smoke.pdf
+tests/*.png
+tests/dbg*.tex
+tests/smoke-cu.tex
+scratch-run.sh
+__pycache__/

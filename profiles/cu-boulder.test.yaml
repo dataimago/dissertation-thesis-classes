@@ -1,0 +1,11 @@
+# Measurement tolerances for the cu-boulder profile (R20).
+# bottomDescenderPt: TeX sets the last baseline on the bottom margin line, so descenders hang below it
+margins: { tolerancePt: 1.0, bottomDescenderPt: 3.0 }
+pageNumber: { tolerancePt: 2.0, exemptFromMarginCheck: true }
+linePitch: { tolerancePt: 0.5 }
+overfullBoxPt: 5
+snapshot: { dpi: 80, firstPages: 8, tolerance: 0.02 }
+minimumText:
+  tolerancePt: 0.3
+  # running heads/folios are exempt only if the guide says so; it was not read, so none are exempted beyond the defaults
+  exclude: [math-scripts, footnote-markers, citation-markers]

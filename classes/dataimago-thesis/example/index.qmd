@@ -1,0 +1,7 @@
+---
+abstract: |
+  This synthetic abstract stands in for a real one. It says that an imaginary study measured
+  imaginary systems with an imaginary instrument, and that the measurements agreed with a
+  plausible model. Nothing in it is a claim about the world. The abstract is long enough to
+  fill a few lines of the page so that line spacing can be measured on it.
+---

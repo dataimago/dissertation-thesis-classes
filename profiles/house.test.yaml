@@ -1,0 +1,10 @@
+# Measurement tolerances for the house profile (R20). Tolerances are ours, not facts about a guide.
+# bottomDescenderPt: TeX sets the last baseline on the bottom margin line, so descenders hang below it
+margins: { tolerancePt: 1.0, bottomDescenderPt: 3.0 }
+pageNumber: { tolerancePt: 2.0, exemptFromMarginCheck: true }
+linePitch: { tolerancePt: 0.5 }
+overfullBoxPt: 5
+snapshot: { dpi: 80, firstPages: 8, tolerance: 0.02 }
+minimumText:
+  tolerancePt: 0.3
+  exclude: [math-scripts, footnote-markers, citation-markers, folios]

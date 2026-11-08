@@ -1,0 +1,14 @@
+tex-gyre
+tex-gyre-math
+luamml
+tagpdf
+latex-lab
+latexmk
+selnolig
+xurl
+bookmark
+pdflscape
+caption
+unicode-math
+fontspec
+setspace

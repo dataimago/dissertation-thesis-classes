@@ -1,0 +1,44 @@
+$-- doc-class.tex (dataimago-thesis)
+$-- Part of the dataimago-thesis class bundle (house class, step 2).
+$-- Copyright 2026 dataimago. Distributed under the LaTeX Project Public License
+$-- 1.3c or later (https://www.latex-project.org/lppl/). Maintainer: dataimago.
+$-- Version: 2026/11/08 v0.1.0. Quarto partial: inlined into the main .tex file, so it
+$-- carries a version comment and \typeout line instead of \ProvidesFile.
+$-- Replaces Quarto's doc-class.tex. Emits \DocumentMetadata (when the profile and engine
+$-- allow tagging / PDF standards) BEFORE \documentclass, then loads the house class with
+$-- the profile id. The profile's .cfg is read here only to decide the PDF standard; the
+$-- class reads it again for everything else.
+\makeatletter
+\typeout{dataimago-thesis partial doc-class.tex 2026/11/08 v0.1.0}
+\providecommand\ThesisCfg[2]{\expandafter\gdef\csname thesis@c@#1\endcsname{#2}}
+\def\thesis@pre@get#1{\ifcsname thesis@c@#1\endcsname\csname thesis@c@#1\endcsname\fi}
+\def\thesis@pre@is#1#2{\edef\thesis@pre@a{\thesis@pre@get{#1}}\def\thesis@pre@b{#2}\ifx\thesis@pre@a\thesis@pre@b}
+\def\thesis@pre@profile{$if(thesis.profile)$$thesis.profile$$else$house$endif$}
+\InputIfFileExists{\thesis@pre@profile.cfg}{}{}
+\def\thesis@pre@std{}\def\thesis@pre@tag{}\def\thesis@pre@ver{}\def\thesis@pre@ua{}
+\def\thesis@pre@add#1{\ifx\thesis@pre@std\@empty\def\thesis@pre@std{#1}\else\edef\thesis@pre@std{\thesis@pre@std,#1}\fi}
+\thesis@pre@is{submission.pdfa}{1b}\thesis@pre@add{a-1b}\def\thesis@pre@ver{pdfversion=1.4,}\fi
+\thesis@pre@is{submission.pdfa}{2b}\thesis@pre@add{a-2b}\def\thesis@pre@ver{pdfversion=1.7,}\fi
+\thesis@pre@is{submission.pdfa}{3b}\thesis@pre@add{a-3b}\def\thesis@pre@ver{pdfversion=1.7,}\fi
+\thesis@pre@is{submission.pdfa}{4}\thesis@pre@add{a-4}\fi
+\thesis@pre@is{submission.pdfa}{4f}\thesis@pre@add{a-4f}\fi
+%% tagging only on LuaTeX (R19: XeLaTeX never gets tagging=on)
+\def\thesis@pre@lua{%
+  \thesis@pre@is{accessibility.tagged}{on}%%
+    \def\thesis@pre@tag{tagging=on,}%%
+    \thesis@pre@is{accessibility.pdfua}{none}\else%
+      \thesis@pre@is{accessibility.pdfua}{auto}%%
+        \ifx\thesis@pre@ver\@empty\def\thesis@pre@ua{ua-2}\else\def\thesis@pre@ua{ua-1}\fi%
+      \else\edef\thesis@pre@ua{\thesis@pre@get{accessibility.pdfua}}\fi\fi%
+  \fi%
+}
+\ifdefined\directlua\thesis@pre@lua\fi
+\ifx\thesis@pre@ua\@empty\else\thesis@pre@add{\thesis@pre@ua}\fi
+\edef\thesis@pre@meta{lang=$if(lang)$$lang$$else$en-US$endif$,\thesis@pre@ver
+  \ifx\thesis@pre@std\@empty\else pdfstandard={\thesis@pre@std},\fi\thesis@pre@tag xmp=true}
+\expandafter\DocumentMetadata\expandafter{\thesis@pre@meta}
+\makeatother
+\documentclass[
+profile=$if(thesis.profile)$$thesis.profile$$else$house$endif$$for(classoption)$,
+  $classoption$$endfor$
+]{dataimago-thesis}

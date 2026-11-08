@@ -1,0 +1,32 @@
+# Front matter {.unnumbered}
+
+::: {.dedication}
+For the imaginary readers of this synthetic book.
+:::
+
+::: {.acknowledgments}
+The author thanks nobody in particular. This page exists so that the class has an
+acknowledgments page to typeset, in the position the profile gives it.
+:::
+
+<!-- CU's frontmatter.order has no preface, abbreviations or symbols page, so only the house
+     profile builds these (Quarto conditional content keyed on the active profile). -->
+::: {.content-visible when-profile="house"}
+
+::: {.abbreviations}
+**ADC**: analog to digital converter, a made-up component.
+
+**SNR**: signal to noise ratio, a real term used in a made-up setting.
+:::
+
+::: {.preface}
+This short preface is invented text. It gives the class a preface page to place.
+:::
+
+::: {.symbols}
+$x$: an input drawn by the imaginary experiment.
+
+$\sigma$: the noise level of the imaginary instrument.
+:::
+
+:::

@@ -38,7 +38,10 @@ changing the contract.
 ```
 registry.json                     machine-readable index of available classes
 docs/discovery-contract.md        how an L3 build + the author's AI find/select/modify a class
-docs/house-class-spec.md           target spec for a house class + institution profiles (specified, not yet shipped; the registry still works as described here)
+docs/house-class-spec.md           spec for the house class + institution profiles (built under classes/dataimago-thesis/; the registry still works as described here until its step lands)
+classes/dataimago-thesis/          the house class (LPPL 1.3c), its Quarto partials and filter, a synthetic example book
+profiles/                          one YAML profile per institution (MIT), their schema, compiled .cfg files, snapshots
+tools/                             CI checks and the TeX Live installer
 classes/<institution-id>/
   ├─ thesis.cls                   the document class
   ├─ macros.tex                   companion macros (if any)
@@ -78,6 +81,8 @@ Add `classes/<institution-id>/` with the `.cls` (+ macros + a synthetic
 - **dataimago's own files** (this README, `CLAUDE.md`, `registry.json`,
   `docs/`, and each class directory's `README.md`) are MIT-licensed; see
   [`LICENSE`](LICENSE).
+- **The house class** (`classes/dataimago-thesis/`: the `.cls`, the Lua generator and filter, the Quarto partials) is
+  LPPL 1.3c, written fresh; its profiles, schema, checks and docs are MIT.
 - **Classes contributed to the registry** from now on are licensed under the
   [LaTeX Project Public License 1.3c](https://www.latex-project.org/lppl/lppl-1-3c/)
   unless the class's own `README.md` says otherwise.

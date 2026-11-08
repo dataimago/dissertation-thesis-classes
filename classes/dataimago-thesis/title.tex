@@ -1,0 +1,41 @@
+$-- title.tex (dataimago-thesis)
+$-- Part of the dataimago-thesis class bundle (house class, step 2).
+$-- Copyright 2026 dataimago. Distributed under the LaTeX Project Public License
+$-- 1.3c or later (https://www.latex-project.org/lppl/). Maintainer: dataimago.
+$-- Version: 2026/11/08 v0.1.0. Quarto partial: inlined into the main .tex file, so it
+$-- carries a version comment and \typeout line instead of \ProvidesFile.
+$-- Replaces Quarto's title.tex: standard one-argument \title/\author/\date, then every
+$-- thesis-specific setter from the thesis: metadata key (docs/house-class-spec.md 2.2).
+$if(title)$
+\title{$title$$if(thanks)$\thanks{$thanks$}$endif$}
+$endif$
+\author{$for(authors)$$it.name.literal$$sep$ \and $endfor$}
+\date{$date$}
+$if(subtitle)$\thesissubtitle{$subtitle$}$endif$
+$if(thesis.author-family)$\thesisauthorfamily{$thesis.author-family$}$endif$
+$if(thesis.author-given)$\thesisauthorgiven{$thesis.author-given$}$endif$
+$if(thesis.year)$\thesisyear{$thesis.year$}$endif$
+\thesishaslists{$thesis-derived.has-lof$}{$thesis-derived.has-lot$}
+\thesisdate{$thesis-derived.month-year$}{$thesis-derived.year$}
+$if(thesis.degree.name)$\thesisdegree{$thesis.degree.name$}$endif$
+$if(thesis.degree.abbreviation)$\thesisdegreeabbr{$thesis.degree.abbreviation$}$endif$
+$if(thesis.degree.field)$\thesisfield{$thesis.degree.field$}$endif$
+$if(thesis-derived.type)$\thesisdocumenttype{$thesis-derived.type$}$endif$
+$if(thesis.department)$\thesisdepartment{$thesis.department$}$endif$
+$if(thesis.institution)$\thesisinstitution{$thesis.institution$}$endif$
+$if(thesis.graduate-school)$\thesisgradschool{$thesis.graduate-school$}$endif$
+$if(thesis.irb-protocol)$\thesisirb{$thesis.irb-protocol$}$endif$
+$for(thesis.advisors)$
+\thesisaddadvisor{$it.name$}{$it.title$}{$it.role$}{$it.affiliation$}
+$endfor$
+$for(thesis.committee)$
+\thesisaddmember{$it.name$}{$it.title$}{$it.role$}{$it.affiliation$}
+$endfor$
+$for(thesis.previous-degrees)$
+\thesisaddprevious{$it$}
+$endfor$
+$for(thesis.keywords)$
+\thesisaddkeyword{$it$}
+$endfor$
+$if(thesis.draft)$\thesisdraft{true}$endif$
+$if(thesis.frontmatter)$\thesisfrontmode{$thesis.frontmatter$}$endif$
