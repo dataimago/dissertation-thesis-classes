@@ -69,7 +69,7 @@
       "guide": "CU Boulder Graduate School, Specifications for Preparation of Master's Theses & Doctoral Dissertations (web page, revised 2018, 2023, 2026)",
       "status": "available",
       "mode": "shipped",
-      "notes": "Fields the guide does not state are listed under `unstated` in the profile and keep the house value; they are pending sources (wi-20261108-cu-profile-sources). Read the profile's `unstated` and `sources` before claiming conformance."
+      "notes": "Values cite the Graduate School's guide in the profile's `sources` or are marked inferred. Fields the guide does not state, including the accessibility and PDF/A fields the guide defers to other documents, are listed under `unstated` in the profile and keep the house value. Read `unstated` and `sources` before claiming the guide is met."
     }
   ]
 }
