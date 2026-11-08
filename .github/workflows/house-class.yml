@@ -136,6 +136,10 @@ jobs:
           fc-list | grep -m3 -i "TeX Gyre Termes"
       - name: Python tools
         run: pip install -r tools/requirements.txt
+      - name: Install veraPDF (pinned, checksummed; T14)
+        run: |
+          tools/install-verapdf.sh
+          echo "$HOME/verapdf" >> "$GITHUB_PATH"
       - name: Render the example
         run: classes/dataimago-thesis/example/render.sh "${{ matrix.profile }}" "${{ matrix.engine }}"
       - name: Check the PDF
@@ -143,7 +147,7 @@ jobs:
           OUT=classes/dataimago-thesis/example/_build/${{ matrix.profile }}-${{ matrix.engine }}
           SNAP=""
           if [ "${{ matrix.engine }}" = lualatex ]; then SNAP="--snapshots profiles/snapshots/${{ matrix.profile }}"; fi
-          python tools/check_pdf.py --pdf "$OUT/thesis.pdf" --profile "${{ matrix.profile }}" --engine "${{ matrix.engine }}" --release $SNAP
+          REQUIRE_VERAPDF=1 python tools/check_pdf.py --pdf "$OUT/thesis.pdf" --profile "${{ matrix.profile }}" --engine "${{ matrix.engine }}" --release $SNAP
       - name: Keep the PDF
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

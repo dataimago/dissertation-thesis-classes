@@ -1,26 +1,28 @@
-# University of Colorado Boulder Graduate School, as the legacy class v1.14
-# (classes/cu-boulder/, a feature reference only) and its sample-output.pdf show it.
-# NOTE: the Graduate School's guide text was NOT read for this profile. Every value
-# is inferred from the legacy class's behavior or measured on sample-output.pdf, and
-# is marked so in `sources`. Fields it does not set (fonts, emphasis, PDF/A, links, tagging)
-# fall back to the house values only because the guide was not read: that is not a claim
-# that the guide is silent, so `unstated` stays empty until it has been read. A human must re-source each one from the guide
-# (docs/house-class-spec.md section 6.6) before this profile counts as conforming.
+# University of Colorado Boulder Graduate School.
+# Sourced 2026-11-08 from the Graduate School's web page "Specifications for Preparation of
+# Master's Theses & Doctoral Dissertations" (revised 2018, 2023, 2026), cited by section name in
+# `sources` (the web page has no page numbers). Where that page is silent, the value is either
+# inferred from the legacy class v1.14 (classes/cu-boulder/, a feature reference only) and its
+# sample-output.pdf and marked so, or left to the house value and listed under `unstated`.
+# Not retrieved: the "Thesis Accessibility Guidance" the page defers to and ProQuest's
+# own PDF resources; accessibility and PDF/A fields are therefore `unstated`.
 schemaVersion: 1
 id: cu-boulder
 extends: house
 institution: { name: University of Colorado, graduateSchool: Graduate School }
 guide:
-  title: "Specifications for Preparation of Master's Thesis and Doctoral Dissertations"
+  title: "Specifications for Preparation of Master's Theses & Doctoral Dissertations"
   issuer: "University of Colorado Boulder Graduate School"
-  version: "April 2010 (the legacy class header also cites a May 2020 revision)"
-  retrieved: unretrieved
+  version: "web page, revised 2018, 2023, 2026"
+  date: "2026"
+  url: "https://www.colorado.edu/graduateschool/academics/thesis-dissertation-submission/specifications-preparation-masters-theses-doctoral"
+  retrieved: "2026-11-08"
 geometry:
-  margins: { top: 1.15in, bottom: 1in, inside: 1in, outside: 1in }
   headerFooter: { numberDistance: 0.9in }
 type:
   size: 11
   footnoteSize: 9
+  captionSize: 11
   minimumSize: 9
 spacing:
   body: { pitch: 24pt }
@@ -35,7 +37,7 @@ headings:
   part: { allowed: false }
 numbering: { depth: 3 }
 pagenumber:
-  front: { hideOn: [title, abstract, dedication] }
+  front: { hideOn: [title, dedication] }
   position: top-right
   chapterFirstPage: hide
 frontmatter:
@@ -45,44 +47,59 @@ frontmatter:
     statement: "A {documentType} submitted to the Faculty of the Graduate School of the {institution} in partial fulfillment of the requirements for the degree of {degreeName}\n{department}"
     previousDegrees: true
   copyright: { enabled: false }
-  approval: { enabled: false, irbLine: true }
   committee: { placement: title-page, heading: "Committee Members", format: "{name}" }
   abstract:
     header: "{authorInverted} ({degreeAbbr}, {field})\n{title}\n{documentType} directed by {advisorTitle} {advisorName}"
-  acknowledgments: { heading: Acknowledgements, maxPages: 1 }
 appendices: { divider: true }
 sources:
-  institution.name: { inferred: true, from: "legacy class title-page wording", note: "the school's wording says University of Colorado without Boulder; used only as the {institution} default" }
-  geometry.margins.top: { inferred: true, from: "sample-output.pdf pages 8-10", note: "first body baseline at 93.6pt with a 11pt topskip; the spec sketch said 0.9in, which does not reproduce the sample" }
-  geometry.headerFooter.numberDistance: { inferred: true, from: "sample-output.pdf", note: "page-number baseline measured at 64.8pt (0.9in) from the top edge" }
-  type.size: { inferred: true, from: "registry classOptions (11pt)", note: "sample body text is 10.9pt" }
-  type.footnoteSize: { inferred: true, from: "LaTeX footnotesize at 11pt", note: "not a stated rule" }
-  type.minimumSize: { inferred: true, from: "type.footnoteSize", note: "lowers the house floor of 10 so the 9pt footnotes pass" }
-  spacing.body: { inferred: true, from: "sample-output.pdf page 8", note: "baseline pitch measured at 24.0pt" }
-  spacing.paragraph.indent: { inferred: true, from: "sample-output.pdf page 8", note: "first-line indent measured at 28.8pt (0.4in)" }
-  spacing.toc: { inferred: true, from: "sample-output.pdf pages 5-7", note: "contents entries are double spaced" }
-  spacing.lists: { inferred: true, from: "sample-output.pdf pages 6-7", note: "list of tables and figures are double spaced" }
-  headings.chapter.size: { inferred: true, from: "sample-output.pdf page 8", note: "chapter heading set at 12pt bold" }
-  headings.section.size: { inferred: true, from: "sample-output.pdf page 9", note: "same as the house value; listed only because the legacy class graded sizes" }
+  institution.name: { inferred: true, from: "legacy class title-page wording", note: "the school's statement says University of Colorado without Boulder; used only as the {institution} default" }
+  geometry.margins.top: { section: "Margins", quote: "1 inch on all edges", note: "equals the house value; the legacy class's 1.15in text top is not what the guide says" }
+  geometry.margins.bottom: { section: "Margins", quote: "1 inch on all edges", note: "equals the house value" }
+  geometry.margins.inside: { section: "Margins", quote: "1 inch on all edges", note: "equals the house value" }
+  geometry.margins.outside: { section: "Margins", quote: "1 inch on all edges", note: "equals the house value" }
+  geometry.headerFooter.numberDistance: { inferred: true, from: "sample-output.pdf", note: "the guide does not say where the number goes; baseline measured at 64.8pt (0.9in) from the top edge" }
+  type.main: { section: "Typography (font)", note: "the guide asks for a screen-reader-accessible font and names Times New Roman, Calibri and Aptos; TeX Gyre Termes is a Times-metric clone (house value kept). The same sentence says sans serif, which Times is not: see the pull request's spec questions" }
+  type.size: { inferred: true, from: "registry classOptions (11pt)", note: "the guide states no type size; sample body text is 10.9pt" }
+  type.footnoteSize: { inferred: true, from: "LaTeX footnotesize at 11pt", note: "the guide states no footnote size" }
+  type.captionSize: { section: "Typography (type size)", quote: "consistent size across body text, figure captions, and table titles", note: "so captions use the body size" }
+  type.minimumSize: { inferred: true, from: "type.footnoteSize", note: "lowers the house floor of 10 so the 9pt footnotes pass; the guide states no minimum" }
+  spacing.body: { inferred: true, from: "sample-output.pdf page 8", note: "baseline pitch measured at 24.0pt; the guide's Line spacing entry does not state double spacing" }
+  spacing.paragraph.indent: { inferred: true, from: "sample-output.pdf page 8", note: "first-line indent measured at 28.8pt (0.4in); not stated in the guide" }
+  spacing.toc: { inferred: true, from: "sample-output.pdf pages 5-7", note: "contents entries are double spaced; not stated in the guide" }
+  spacing.lists: { inferred: true, from: "sample-output.pdf pages 6-7", note: "lists of tables and figures are double spaced; not stated in the guide" }
+  headings.chapter.size: { inferred: true, from: "sample-output.pdf page 8", note: "chapter heading set at 12pt bold; the guide only asks for one consistent hierarchy" }
+  headings.section.size: { inferred: true, from: "sample-output.pdf page 9", note: "same as the house value; listed because the legacy class graded sizes" }
   headings.subsection.size: { inferred: true, from: "sample-output.pdf", note: "11pt, the body size" }
   headings.subsubsection.size: { inferred: true, from: "sample-output.pdf", note: "11pt, the body size" }
   headings.subsubsection.weight: { inferred: true, from: "sample-output.pdf", note: "bold at level 4, which the sample numbers" }
-  headings.part.allowed: { inferred: true, from: "legacy class", note: "the class makes part unavailable" }
-  numbering.depth: { inferred: true, from: "legacy class", note: "level 4 (####) is numbered, so depth 3" }
-  pagenumber.front.hideOn: { inferred: true, from: "sample-output.pdf pages 1-4", note: "no number on the title, abstract and dedication pages; the sample shows ii on the abstract page, so this is a judgment call" }
-  pagenumber.position: { inferred: true, from: "sample-output.pdf", note: "top right, aligned to the right text margin" }
-  pagenumber.chapterFirstPage: { inferred: true, from: "sample-output.pdf pages 4-8", note: "no number on chapter-style first pages" }
-  frontmatter.order: { inferred: true, from: "sample-output.pdf pages 1-7", note: "tables before figures" }
-  frontmatter.titlePage.layout: { inferred: true, from: "sample-output.pdf page 1", note: "committee block at the foot of the title page" }
-  frontmatter.titlePage.statement: { inferred: true, from: "sample-output.pdf page 1", note: "wording uses the school name without Boulder; {documentType} replaces the class's fixed word thesis (decision 8)" }
-  frontmatter.titlePage.previousDegrees: { inferred: true, from: "sample-output.pdf page 1", note: "previous degrees shown" }
-  frontmatter.copyright.enabled: { inferred: true, from: "sample-output.pdf", note: "no copyright page" }
-  frontmatter.approval.irbLine: { inferred: true, from: "legacy class", note: "the class prints an IRB line when the approval page exists" }
-  frontmatter.committee.placement: { inferred: true, from: "sample-output.pdf page 1", note: "committee on the title page since class v1.14" }
+  headings.part.allowed: { inferred: true, from: "legacy class", note: "the class makes part unavailable; the guide does not mention parts" }
+  numbering.depth: { inferred: true, from: "legacy class", note: "level 4 (####) is numbered, so depth 3; the guide asks only for a consistent hierarchy" }
+  pagenumber.front.hideOn: { section: "Page Numbering", quote: "Title and dedication page numbers are optional", note: "hiding both is within the guide; the abstract page keeps its number as in the sample (ii)" }
+  pagenumber.position: { inferred: true, from: "sample-output.pdf", note: "top right, aligned to the right text margin; the guide does not say where the number goes" }
+  pagenumber.chapterFirstPage: { section: "Page Numbering", quote: "including chapter-opening pages, even if the number is hidden", note: "hiding the number on chapter-opening pages is permitted; hiding is the sample's choice" }
+  frontmatter.order: { section: "Front matter order (items 1 to 5)", note: "title page, abstract, dedication, acknowledgments, contents; the guide lets the lists sit inside the contents or on separate pages, and tables-before-figures is the sample's order (inferred)" }
+  frontmatter.titlePage.layout: { section: "Title Page", note: "title, name, previous degrees, statement, department, year and the committee names are required; their arrangement follows the sample (inferred)" }
+  frontmatter.titlePage.statement: { inferred: true, from: "sample-output.pdf page 1", note: "the guide points to a sample page for the wording, which was not retrieved; {documentType} replaces the legacy class's fixed word thesis (decision 8)" }
+  frontmatter.titlePage.previousDegrees: { section: "Title Page", quote: "Degrees, granting institutions, and dates received", note: "required on the title page" }
+  frontmatter.copyright.enabled: { inferred: true, from: "sample-output.pdf", note: "the guide's front matter list has no copyright page" }
+  frontmatter.committee.placement: { section: "Title Page", quote: "Names of all committee members", note: "required on the title page" }
   frontmatter.committee.heading: { inferred: true, from: "sample-output.pdf page 1", note: "heading text" }
   frontmatter.committee.format: { inferred: true, from: "sample-output.pdf page 1", note: "names only; the chair is marked by role" }
-  frontmatter.abstract.header: { inferred: true, from: "sample-output.pdf page 2", note: "three header lines" }
-  frontmatter.acknowledgments.heading: { inferred: true, from: "sample-output.pdf page 4", note: "British spelling as printed" }
-  frontmatter.acknowledgments.maxPages: { inferred: true, from: "legacy example comment", note: "one page" }
-  appendices.divider: { inferred: true, from: "sample-output.pdf page 5", note: "single Appendix entry in the contents; in Quarto books the generated Appendices entry plays that part" }
-unstated: []   # empty until the guide and the school's ETD instructions have been read (spec 6.6 note 6)
+  frontmatter.abstract.header: { section: "Abstract", note: "the abstract must carry the author's name, degree initials, department, title and faculty advisor; the line layout is the sample's (inferred)" }
+  accessibility.altTextEnforcement: { section: "Tables, Figures, and Media", quote: "Include alt text for all images and figures", note: "equals the house value" }
+  submission.links: { section: "Links and color", note: "the guide says links are underlined (and should point inside the dissertation); the profile offers hidden, boxes or color, so the house value stays: see the pull request's spec questions" }
+  appendices.divider: { inferred: true, from: "sample-output.pdf page 5", note: "single Appendix entry in the contents; the guide only says appendices exist" }
+unstated:
+  - type.sans
+  - type.mono
+  - type.math
+  - type.fallback
+  - type.emphasis
+  - submission.pdfa
+  - submission.embedFonts
+  - submission.bookmarkDepth
+  - submission.bookmarksOpen
+  - submission.linkColor
+  - submission.maxMB
+  - accessibility.tagged
+  - accessibility.pdfua

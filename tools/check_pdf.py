@@ -6,6 +6,7 @@ usage: check_pdf.py --pdf thesis.pdf --profile house [--engine lualatex|xelatex]
 Exit status 1 when any check fails. MIT licensed.
 """
 import argparse
+import os
 import re
 import shutil
 import statistics
@@ -359,14 +360,29 @@ def main():
             errs.append("qpdf reports encryption")
     rec("T13 security (S3)", not errs, "; ".join(errs))
 
-    # ---- T14 PDF/A via veraPDF (optional)
-    flavour = {"1b": "1b", "2b": "2b", "3b": "3b", "4": "4", "4f": "4f"}.get(p["submission"]["pdfa"])
-    if flavour and shutil.which("verapdf"):
-        r = run(["verapdf", "--flavour", flavour, a.pdf])
-        rec("T14 PDF/A (veraPDF)", 'isCompliant="true"' in r.stdout or "<compliant" in r.stdout.lower() and 'compliant="true"' in r.stdout.lower() or "PASS" in r.stdout,
-            r.stdout[-300:] if "PASS" not in r.stdout and 'isCompliant="true"' not in r.stdout else "")
+    # ---- T14 PDF/A and PDF/UA via veraPDF (optional locally; CI sets REQUIRE_VERAPDF=1)
+    flavours = []
+    pdfa = p["submission"]["pdfa"]
+    if pdfa != "none":
+        flavours.append(pdfa)
+    if tagged_expected:
+        ua = p["accessibility"]["pdfua"]
+        if ua == "auto":
+            ua = "ua-1" if pdfa in ("1b", "2b", "3b") else "ua-2"
+        if ua != "none":
+            flavours.append(ua.replace("-", ""))
+    if flavours and shutil.which("verapdf"):
+        bad = []
+        for fl in flavours:
+            r = run(["verapdf", "--flavour", fl, "--format", "text", a.pdf])
+            if not r.stdout.startswith("PASS"):
+                d = run(["verapdf", "--flavour", fl, "--format", "text", "-v", a.pdf]).stdout
+                bad.append(f"{fl}: " + " | ".join(l.strip() for l in d.splitlines()[1:6]))
+        rec(f"T14 veraPDF ({', '.join(flavours)})", not bad, "; ".join(bad))
+    elif flavours and os.environ.get("REQUIRE_VERAPDF"):
+        rec("T14 veraPDF", False, "veraPDF is required (REQUIRE_VERAPDF) but not installed")
     else:
-        print("skip T14 PDF/A: veraPDF not installed" if flavour else "skip T14: submission.pdfa is none")
+        print("skip T14 veraPDF: not installed" if flavours else "skip T14: no PDF standard requested")
 
     # ---- T15 tagging
     if tagged_expected:
@@ -393,6 +409,54 @@ def main():
                                 walk(c, seen + 1)
 
             walk(root["/StructTreeRoot"])
+            # headings: resolve each element's role through its namespace's role map to H1..H6
+            st = root["/StructTreeRoot"]
+            def _nm(v):
+                v = v.get_object() if hasattr(v, "get_object") else v
+                if isinstance(v, list):
+                    v = v[0]
+                return str(v)
+
+            nsmaps = {}
+            for nsref in st.get("/Namespaces", []):
+                nso = nsref.get_object()
+                rmn = nso.get("/RoleMapNS")
+                nsmaps[nsref.idnum] = {str(k): _nm(v) for k, v in rmn.get_object().items()} if rmn else {}
+            flat_rm = {str(k): _nm(v) for k, v in (st.get("/RoleMap") or {}).items()}
+            levels = []
+
+            def walk_h(node, depth=0):
+                node = node.get_object()
+                if depth > 200 or not isinstance(node, dict):
+                    return
+                s = node.get("/S")
+                if s is not None:
+                    role = str(s)
+                    nsid = node.raw_get("/NS").idnum if "/NS" in node else None
+                    for _ in range(4):
+                        nxt = nsmaps.get(nsid, {}).get(role) or flat_rm.get(role)
+                        if not nxt or nxt == role:
+                            break
+                        role = nxt
+                    m = re.fullmatch(r"/H([1-6])", role)
+                    if m:
+                        levels.append(int(m.group(1)))
+                k = node.get("/K")
+                if k is not None:
+                    k = k.get_object() if hasattr(k, "get_object") else k
+                    for ch in (k if isinstance(k, list) else [k]):
+                        ch = ch.get_object() if hasattr(ch, "get_object") else ch
+                        if isinstance(ch, dict):
+                            walk_h(ch, depth + 1)
+
+            walk_h(st)
+            n_chap = len(re.findall(r"^(?:Chapter\s+\d+|Appendix\s+[A-Z])\s*$", "\n".join(texts), re.M))
+            if levels.count(1) < max(n_chap, 1):
+                errs.append(f"only {levels.count(1)} H1 heading(s) in the structure tree for {n_chap} chapter pages: chapter titles are not tagged as headings (PDF/UA)")
+            for a_, b_ in zip(levels, levels[1:]):
+                if b_ > a_ + 1:
+                    errs.append(f"heading levels jump from H{a_} to H{b_}")
+                    break
             if not figs:
                 errs.append("no Figure elements in the structure tree")
             for f in figs:

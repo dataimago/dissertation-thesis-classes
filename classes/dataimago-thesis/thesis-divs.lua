@@ -185,6 +185,23 @@ function Pandoc(doc)
   -- A2: alt text
   check_images(doc, cfg["accessibility.altTextEnforcement"] or "error")
 
+  -- which lists will have entries: a captioned table is a Quarto float (FloatRefTarget around a Table)
+  -- or a Table with a long caption; a captioned figure is a FloatRefTarget without a Table, or a captioned Figure
+  local has_lot, has_lof = false, false
+  doc.blocks:walk({
+    Table = function(t) if #t.caption.long > 0 then has_lot = true end end,
+    Figure = function(f) if #f.caption.long > 0 then has_lof = true end end,
+    Div = function(d)
+      if d.attributes["__quarto_custom_type"] == "FloatRefTarget" then
+        local table_inside = false
+        d:walk({ Table = function() table_inside = true end })
+        if table_inside then has_lot = true else has_lof = true end
+      end
+    end,
+  })
+  derived["has-lot"] = pandoc.MetaString(has_lot and "1" or "0")
+  derived["has-lof"] = pandoc.MetaString(has_lof and "1" or "0")
+
   -- R8: lift prose divs
   local order = cfg["frontmatter.order"] or ""
   local lifted = {}

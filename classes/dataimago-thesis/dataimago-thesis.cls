@@ -250,16 +250,6 @@
   \thesis@ifc{headings.chapter.label}{none}{}{%
     \thesis@ifc{headings.chapter.label}{number}{\thechapter\par\nobreak\vskip .5\baselineskip}{%
       \thesis@hcase{chapter}{\@chapapp}\space\thechapter\par\nobreak\vskip .5\baselineskip}}}
-\def\@makechapterhead#1{%
-  \vspace*{\thesis@chaptertop}%
-  {\parindent\z@ \thesis@chalign \thesis@hfont{chapter}\interlinepenalty\@M
-   \ifnum \c@secnumdepth >\m@ne \thesis@chlabel\fi
-   \thesis@hcase{chapter}{#1}\par\nobreak\vskip 2\baselineskip}}
-\def\@makeschapterhead#1{%
-  \vspace*{\thesis@chaptertop}%
-  {\parindent\z@ \thesis@chalign \thesis@hfont{chapter}\interlinepenalty\@M
-   \thesis@hcase{chapter}{#1}\par\nobreak\vskip 2\baselineskip}}
-
 %% LaTeX 2026-11 redefines \chapter with its heading templates (and a \secdef that intercepts it) when
 %% tagging is on, which would bypass \@makechapterhead. This class sets headings from the profile
 %% itself, so it restores the classic \chapter (without \secdef) on every kernel version.
@@ -267,18 +257,41 @@
   \thispagestyle{plain}\global\@topnum\z@\@afterindentfalse
   \@ifstar\@schapter{\@dblarg\@chapter}}
 
+%% Chapter headings are tagged through the kernel's heading sockets (LaTeX 2026-11 and later, tagging on):
+%% the classic \chapter restored above does not go through the heading templates, so the head opens and
+%% closes the same Sect/H structure the kernel uses for \section. Without those sockets this is a no-op.
+\newcommand\thesis@tagbegin[1]{%
+  \ifdefined\UseTaggingSocket
+    \par\UseTaggingSocket{sec/end}{0}\UseTaggingSocket{sec/begin}{{0}{}}%
+    \UseTaggingSocket{sec/title/init}{0}\UseTaggingSocket{sec/title/begin}{{0}{#1}}%
+  \fi}
+\newcommand\thesis@tagend{\ifdefined\UseTaggingSocket\par\UseTaggingSocket{sec/title/end}\fi}
+\def\@makechapterhead#1{%
+  \vspace*{\thesis@chaptertop}%
+  {\parindent\z@ \thesis@chalign \thesis@hfont{chapter}\interlinepenalty\@M
+   \thesis@tagbegin{#1}%
+   \ifnum \c@secnumdepth >\m@ne \thesis@chlabel\fi
+   \thesis@hcase{chapter}{#1}\thesis@tagend\par\nobreak\vskip 2\baselineskip}}
+\def\@makeschapterhead#1{%
+  \vspace*{\thesis@chaptertop}%
+  {\parindent\z@ \thesis@chalign \thesis@hfont{chapter}\interlinepenalty\@M
+   \thesis@tagbegin{#1}%
+   \thesis@hcase{chapter}{#1}\thesis@tagend\par\nobreak\vskip 2\baselineskip}}
+
 \renewcommand\appendixname{\thesis@c{appendices.label}}
 \g@addto@macro\appendix{%
   \thesis@ifc{appendices.numbering}{roman}{\renewcommand\thechapter{\@Roman\c@chapter}}{%
     \thesis@ifc{appendices.numbering}{arabic}{\renewcommand\thechapter{\@arabic\c@chapter}}{}}}
 %% appendices.divider: Quarto writes one "Appendices" part entry (\addcontentsline{toc}{part}{Appendices})
 %% for book.appendices; that entry is the divider. With divider: false the class drops it from the
-%% contents (English title only; the per-appendix entries stay).
+%% contents (English title only; the per-appendix entries stay). With divider: true the entry reads
+%% appendices.label (\appendixname) instead of Quarto's "Appendices".
 \let\thesis@orig@lpart\l@part
 \ExplSyntaxOn
-\NewDocumentCommand\thesis@partunless{mmm}{\tl_if_in:nnF{#1}{Appendices}{\thesis@orig@lpart{#1}{#2}}}
+\NewDocumentCommand\thesis@partunless{mmm}{\tl_if_in:nnTF{#1}{Appendices}{}{\thesis@orig@lpart{#1}{#2}}}
+\NewDocumentCommand\thesis@partlabel{mmm}{\tl_if_in:nnTF{#1}{Appendices}{\thesis@orig@lpart{\appendixname}{#2}}{\thesis@orig@lpart{#1}{#2}}}
 \ExplSyntaxOff
-\renewcommand*\l@part[2]{\thesis@ifon{appendices.divider}{\thesis@orig@lpart{#1}{#2}}{\thesis@partunless{#1}{#2}{}}}
+\renewcommand*\l@part[2]{\thesis@ifon{appendices.divider}{\thesis@partlabel{#1}{#2}{}}{\thesis@partunless{#1}{#2}{}}}
 
 %% ------------------------------------------------------------------ page numbers
 \def\thesis@none{none}
@@ -353,13 +366,16 @@
 %% which lists have entries: noted while \caption runs, written to the aux file at the end,
 %% read back by the next pass (\ThesisAux), so `mode: auto` needs no manual flag
 \AddToHook{cmd/caption/before}{\thesis@notecaption}
-%% longtable captions bypass \caption's hook point (a hook inside the alignment breaks it), so any longtable counts
-\AddToHook{env/longtable/begin}{\gdef\thesis@seen@table{1}}
 \def\thesis@notecaption{\ifdefined\@captype\expandafter\gdef\csname thesis@seen@\@captype\endcsname{1}\fi}
 \AtEndDocument{\if@filesw
   \immediate\write\@mainaux{\string\ThesisAux{seen.lof}{\ifcsname thesis@seen@figure\endcsname 1\else 0\fi}}%
   \immediate\write\@mainaux{\string\ThesisAux{seen.lot}{\ifcsname thesis@seen@table\endcsname 1\else 0\fi}}\fi}
 \providecommand\ThesisAux[2]{\expandafter\gdef\csname thesis@aux@#1\endcsname{#2}}
+%% The Quarto filter knows which floats have captions and says so (\thesishaslists); that wins over
+%% the aux-file detection above, which longtable's caption path cannot feed.
+\newcommand\thesishaslists[2]{%
+  \expandafter\gdef\csname thesis@given@lof\endcsname{#1}\expandafter\gdef\csname thesis@given@lot\endcsname{#2}}
+\newcommand\thesis@seen[1]{\ifcsname thesis@given@#1\endcsname\csname thesis@given@#1\endcsname\else\thesis@aux{seen.#1}\fi}
 \newcommand\thesis@aux[1]{\ifcsname thesis@aux@#1\endcsname\csname thesis@aux@#1\endcsname\else 0\fi}
 
 \AddToHook{begindocument/before}{%
@@ -518,7 +534,7 @@
 \def\thesis@tb@statement{{\thesis@titlecasefor{\thesis@c{frontmatter.titlePage.statement}}\par}\vskip 2\baselineskip}
 \def\thesis@tb@date{\thesis@ifc{frontmatter.titlePage.date}{none}{}{%
   \thesis@ifc{frontmatter.titlePage.date}{month-year}{\thesis@m{datemonthyear}}{\thesisslot{year}}\par\vskip 2\baselineskip}}
-\def\thesis@tb@committee{\vfill{\raggedleft\bfseries\thesis@c{frontmatter.committee.heading}:\par\thesis@committeelist\par}}
+\def\thesis@tb@committee{\vfill{\raggedleft\thesis@c{frontmatter.committee.heading}:\par\thesis@committeelist\par}}
 \newcommand\thesis@titlepage{%
   \clearpage
   \ifthesis@titlecounts\else\pagenumbering{gobble}\fi
@@ -560,6 +576,12 @@
 %% contents and lists
 \newcommand\thesis@leaders{\thesis@ifc{toc.leaders}{none}{\hfill}{\leaders\hbox{$\m@th\mkern\@dotsep mu\hbox{.}\mkern\@dotsep mu$}\hfill}}
 \def\thesis@tocgap{0pt}
+%% Contents lines. LaTeX 2026-11 wraps the text, leaders and page number of a line in hooks and tagging
+%% sockets so the tagged contents get TOCI children (Reference, Lbl, artifact leaders); this line
+%% layout keeps those calls, which are no-ops on kernels without them.
+\providecommand\@contentsline@destination{}
+\newcommand\thesis@usetochook[5]{\IfHookExistsTF{contentsline/#1}{\UseHookWithArguments{contentsline/#1}{4}{#2}{#3}{#4}{#5}}{}}
+\newcommand\thesis@tocfmt[2]{\ifcsname contentsline@text@#1@format\endcsname\csname contentsline@text@#1@format\endcsname{#2}\else#2\fi}
 \def\thesis@dottedtocline#1#2#3#4#5{%
   \ifnum #1>\c@tocdepth \else
     \vskip \thesis@tocgap\relax
@@ -569,9 +591,20 @@
      \leavevmode
      \@tempdima #3\relax
      \advance\leftskip \@tempdima \null\nobreak\hskip -\leftskip
-     {#4}\nobreak
-     \thesis@leaders\hfill\nobreak
-     \hb@xt@\@pnumwidth{\hss #5}%
+     \thesis@usetochook{text/before}{#1}{#4}{#5}{\@contentsline@destination}%
+     \thesis@tocfmt{#1}{#4}%
+     \thesis@usetochook{text/after}{#1}{#4}{#5}{\@contentsline@destination}%
+     \nobreak
+     \ifdefined\UseTaggingSocket\UseTaggingSocket{toc/leaders/before}\fi
+     \ifdefined\SuspendTagging\SuspendTagging{toc/leaders}\fi
+     \thesis@leaders\hfill
+     \ifdefined\ResumeTagging\ResumeTagging{toc/leaders}\fi
+     \ifdefined\UseTaggingSocket\UseTaggingSocket{toc/leaders/after}\fi
+     \nobreak
+     \hb@xt@\@pnumwidth{\hss
+       \thesis@usetochook{page/before}{#1}{#4}{#5}{\@contentsline@destination}%
+       #5%
+       \thesis@usetochook{page/after}{#1}{#4}{#5}{\@contentsline@destination}}%
      \par}%
   \fi}
 \renewcommand*\l@chapter[2]{\addpenalty{-\@highpenalty}\thesis@dottedtocline{0}{0em}{1.5em}{#1}{#2}}
@@ -592,7 +625,7 @@
   \global\thesis@tocdonetrue}
 \newcommand\thesis@listof[4]{% ext type title label
   \thesis@ifc{frontmatter.lists.#2.mode}{never}{}{%
-    \thesis@ifc{frontmatter.lists.#2.mode}{auto}{\ifnum\thesis@aux{seen.#1}=0 \else\thesis@dolist{#1}{#2}{#4}{#3}\fi}{\thesis@dolist{#1}{#2}{#4}{#3}}}}
+    \thesis@ifc{frontmatter.lists.#2.mode}{auto}{\ifnum\thesis@seen{#1}=0 \else\thesis@dolist{#1}{#2}{#4}{#3}\fi}{\thesis@dolist{#1}{#2}{#4}{#3}}}}
 \def\thesis@lbl@lof{Figure}\def\thesis@lbl@lot{Table}
 \newcommand\thesis@dolist[4]{% ext key title type
   \thesis@fmchapter{#2}{#3}%

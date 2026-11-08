@@ -31,6 +31,7 @@ If $f$ is strictly increasing on $\mathbb{R}$, then $f$ has an inverse on its ra
 
 ## Instruments {#sec-instruments}
 
+::: {.content-visible unless-profile="nocap"}
 The instrument is described in @tbl-instrument and sketched in @fig-block.
 
 | Component | Role | Rate (kS/s) | Resolution (bits) | Noise (mV) | Notes on the imaginary build |
@@ -40,5 +41,8 @@ The instrument is described in @tbl-instrument and sketched in @fig-block.
 | Logger | Store samples | 250 | 24 | 0.05 | Made up for this example |
 
 : Components of the imaginary instrument {#tbl-instrument}
+:::
+
+The instrument is sketched in @fig-block.
 
 ![Block diagram of the instrument](figs/block.png){#fig-block fig-alt="Three boxes in a row labeled front end, converter and logger, joined by arrows pointing right." width=60%}

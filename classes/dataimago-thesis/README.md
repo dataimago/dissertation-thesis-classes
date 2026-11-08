@@ -56,7 +56,7 @@ python tools/check_profile.py                                           # schema
 `tools/check_profile.py` (T1, T19a, R14a) and `tools/check_pdf.py` (T3 to T13, T15, T19b, T11),
 per profile and engine; `tools/negative_tests.sh` (T16 broken math font, T17 unsupported keys).
 Tolerances live in `profiles/<id>.test.yaml`; first-page snapshots in `profiles/snapshots/<id>/`
-(update deliberately with `check_pdf.py --update-snapshots`). veraPDF (T14) runs when installed.
+(update deliberately with `check_pdf.py --update-snapshots`). T14 runs veraPDF 1.30.1 in CI (installed by `tools/install-verapdf.sh`, pinned and checksummed): PDF/A-4f and PDF/UA-2 pass for both profiles on LuaLaTeX; locally it runs when `verapdf` is on the path.
 
 ## Behavior worth knowing
 
@@ -68,5 +68,6 @@ Tolerances live in `profiles/<id>.test.yaml`; first-page snapshots in `profiles/
   (drawn at an exact distance from the page edge) and the front matter. Quarto keys it replaces
   (`geometry`, `mainfont`, `fontsize`, `toc`, `colorlinks`, ...) are reported as warnings.
 * Lists with `mode: auto` appear from the second pass on; `latexmk` (Quarto's default) reruns.
-* A `longtable` in the document makes the list of tables appear; the list is empty if no table has a caption.
+* `mode: auto` for the lists comes from the filter, which knows which floats have captions (Quarto's table and figure floats); an uncaptioned markdown table does not create a List of Tables (`tools/negative_tests.sh lot`). Outside Quarto the class falls back to noting `\caption` calls on the previous pass.
+* Chapter headings are tagged (H1; sections H2, ...) on LaTeX 2026-11 and later by calling the kernel's heading sockets from the profile-driven chapter head; `check_pdf.py` T15 fails if chapter titles are missing from the structure tree or heading levels jump.
 * Known gaps are listed in the pull request that introduced the class ("Spec questions").

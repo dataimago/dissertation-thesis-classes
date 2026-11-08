@@ -55,5 +55,20 @@ t16() {
   else echo "FAIL: red, but not for the math fallback"; status=1; fi
 }
 
-case "$WHICH" in t16) t16;; t17) t17;; *) t17; t16;; esac
+# C32: lot.mode auto prints no List of Tables when no table has a caption (the example's only
+# uncaptioned table is in the appendix; the profile "nocap" hides the captioned one)
+lot() {
+  echo "== C32 no List of Tables without a captioned table"
+  printf 'thesis:\n  profile: house\n' > "$EX/_quarto-nocap.yml"
+  (cd "$EX" && TEXINPUTS="$ROOT/classes/dataimago-thesis//:$ROOT/profiles//:" THESIS_PROFILES_DIR="$ROOT/profiles" QUARTO_PROFILE=house,nocap \
+     quarto render --to pdf --output-dir _build/nocap >/dev/null 2>&1 || true)
+  rm -f "$EX/_quarto-nocap.yml"
+  [ -f "$EX/_build/nocap/thesis.pdf" ] || { echo "FAIL: the nocap build failed (index.log)"; status=1; return; }
+  txt=$(pdftotext "$EX/_build/nocap/thesis.pdf" - )
+  echo "$txt" | grep -q "List of Tables" && { echo "FAIL: a List of Tables was printed without captioned tables"; status=1; return; }
+  echo "$txt" | grep -q "List of Figures" || { echo "FAIL: the List of Figures (captioned figures exist) is missing"; status=1; return; }
+  echo "ok: no List of Tables, List of Figures still printed"
+}
+
+case "$WHICH" in t16) t16;; t17) t17;; lot) lot;; *) t17; t16; lot;; esac
 exit $status
