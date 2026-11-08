@@ -22,8 +22,9 @@ Consumers read this file; they do not hard-code paths.
   `institution`, `graduateSchool` and `credentials`.
 
 `status` is `available` (offered; the class or profile builds its synthetic
-example), `legacy` (kept for reference, never offered) or `generated`
-(contributed by an author's AI and flagged for human review before promotion to
+example), `legacy` (kept for reference, never offered), `contributed` (an author's own
+class, archived here with consent and not offered) or `generated` (a profile
+contributed by an author's AI and flagged for human review before promotion to
 `available`).
 
 A profile's `.yaml` holds facts about the institution's guide, each cited to a
@@ -65,9 +66,16 @@ author ─────┤
    Level-3 repo after setup.
 2. The author harness normalizes it (records `engine`, `documentclass`,
    `classOptions`, required macros) and, with consent, opens a PR adding
-   `classes/<institution-id>/` here. This mode is unchanged by the house class.
+   `classes/<institution-id>/` here (`status: contributed`). The author's path is
+   unchanged by the house class: they bring their own class and it builds as it
+   did.
 3. Until contributed, it lives only in the author's repo, never copied here
    without consent.
+4. A contributed class is an archive entry: the hub does not offer it, and it
+   has no profile (`profile=` and `.cfg` belong to the house class). The next
+   author at that institution is offered `shipped` only once a profile for the
+   institution is added to `profiles` (adapted from its guide, as in GENERATED);
+   until then they use `generated`, or bring the class themselves.
 
 ### GENERATED (adapt the house profile)
 1. When no profile exists and the author supplies **written formatting

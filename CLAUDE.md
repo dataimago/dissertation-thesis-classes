@@ -48,8 +48,8 @@ class or profile machinery — not their writing.
   (`apps/hub/src/lib/thesis-classes/registry.json`; it builds on Vercel from its
   own repo). After changing `registry.json`, run
   `pnpm --filter @dataimago/dissertation-hub registry:sync` in `dissertation-ai`
-  and open a PR there; its `registry:check` fails until you do. Adding or
-  renaming a mode also needs the interview's words for it in
+  and open a PR there; its `registry:check` fails until you do. Adding,
+  renaming or changing the meaning of a mode also needs the interview's words for it in
   `dissertation.yaml`, or the hub's contract test fails.
 - Level-3 generated apps' `build-thesis.yml` fetches the selected class: for
   `shipped`, the class bundle (`classes/dataimago-thesis/`) **and** the profile's

@@ -32,7 +32,6 @@
     },
     {
       "id": "cu-boulder",
-      "institution": "University of Colorado Boulder",
       "path": "classes/cu-boulder/thesis.cls",
       "companions": ["classes/cu-boulder/macros.tex"],
       "example": "classes/cu-boulder/example/",
@@ -44,7 +43,7 @@
       "conformsTo": "CU Boulder Graduate School Specifications (April 2010)",
       "license": "unstated (third party)",
       "status": "legacy",
-      "notes": "Unlicensed feature reference for the house class, kept in the tree. Never offered to authors and never fetched by a build: its institution's shipped option is the cu-boulder profile above."
+      "notes": "Unlicensed feature reference for the house class (University of Colorado Boulder, kept in the tree). Never offered to authors and never fetched by a build: its institution's shipped option is the cu-boulder profile above."
     }
   ],
   "profiles": [

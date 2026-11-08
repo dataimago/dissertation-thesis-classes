@@ -41,7 +41,7 @@ changing the contract.
 ```
 registry.json                     machine-readable index (schemaVersion 2): `classes` (the house class; the CU class as legacy) and `profiles` (house + one per institution)
 docs/discovery-contract.md        how an L3 build + the author's AI find/select/modify a class
-docs/house-class-spec.md           spec for the house class + institution profiles (built under classes/dataimago-thesis/; its Status paragraph is still the pre-registry-step text, see PR #6)
+docs/house-class-spec.md           spec for the house class + institution profiles (built under classes/dataimago-thesis/)
 classes/dataimago-thesis/          the house class (LPPL 1.3c), its Quarto partials and filter, a synthetic example book
 profiles/                          one YAML profile per institution (MIT), their schema, compiled .cfg files, snapshots
 tools/                             CI checks and the TeX Live installer
