@@ -52,7 +52,7 @@ channel), **drop** (not carried over).
 | C3 | Pass-through options `fleqn leqno openbib draft final openright openany 10pt 11pt 12pt` | Forwarded to `book` | **keep** (subset) | `draft`, `final`, `fleqn`, `leqno`, `openbib` pass through to `book`. `openany`/`openright` are NOT author options: the class sends the resolved `headings.chapter.newPage` value to `book`, and an author `classoption` for either warns and is ignored (R11); type size comes from the profile (`type.size`), with `10pt/11pt/12pt` still accepted as an override | Authors expect these; `11pt` is how CU is invoked today. |
 | C4 | Style presets `defaultstyle`, `modernstyle`, `typewriterstyle` | Bundles of heading/numbering flags | **drop**, flags kept individually | Express as profile fields under `headings.*` and `numbering.*` | Presets hide what each flag does; a guide is converted field by field. |
 | C5 | `consecutivenumbering` | Figure/table/equation numbers continue across chapters | **rename** | `numbering.floats: per-chapter \| continuous` (figures and tables) and `numbering.equations: per-chapter \| continuous` | Guides state this; make it data. |
-| C6 | `inlineh4`, `nonumh4` | Level-4 heading inline or unnumbered | **rename** | `headings.level4.style: inline \| block`, `headings.level4.numbered` | Same. |
+| C6 | `inlineh4`, `nonumh4` | Level-4 heading inline or unnumbered | **rename** | `headings.level4.style: inline \| block`; unnumbered level 4 is `numbering.depth: 2` (no separate flag) | Same. |
 | C7 | `centerh1`, `chapleft` (both set the same flag, oddly) | Center or left-align section headings | **rename** | `headings.section.align`, `headings.chapter.align` (independent) | One flag for two options is a bug; separate fields. |
 | C8 | `chapup` | All-caps chapter and list titles | **rename** | `headings.chapter.case: as-typed \| upper`, `frontmatter.titlesCase` | Guides state caps for chapter titles and list headings separately. |
 | C9 | `emph2underline` | `\emph` underlined instead of bold | **drop**, as an option | `type.emphasis: italic \| bold`, default `italic`. Underline is not supported. | CU's default turns `\emph` into bold, which breaks Quarto `*emphasis*` expectations; italic is the house default. Underline had no mechanism that avoids redefining `\em` (C16). |
@@ -189,9 +189,11 @@ and the spec does not collect.
 ### 2.3 Dedication, acknowledgments, and other prose environments
 
 R8. A Pandoc Lua filter (shipped with the class files, R12) MUST, for PDF output, lift
-the divs `.dedication`, `.acknowledgments`, `.preface`, `.abbreviations`, `.symbols` out of
-the body into document metadata (for example `thesis-front.dedication`), and remove them from
-the body. A host chapter (such as `chapters/00-front.qmd`) left with no other content is
+the divs `.dedication`, `.acknowledgments`, `.preface`, `.abbreviations`, `.symbols` whose
+page id is in `frontmatter.order` out of the body into document metadata (for example
+`thesis-front.dedication`), and remove them from the body. A non-empty div whose id is NOT in
+`frontmatter.order` stays in the body where the author wrote it, and the filter warns through
+`quarto.log.warning`, naming the id and `frontmatter.order`; the PDF never loses the only copy. A host chapter (such as `chapters/00-front.qmd`) left with no other content is
 dropped from the body and from the ToC. `before-body.tex` / `\thesisfrontmatter` prints each
 from that metadata, once, in the position `frontmatter.order` dictates. **Reason:**
 `before-body.tex` is emitted before `$body$`, so content left in a chapter would print after
@@ -726,10 +728,9 @@ decision 5.)
 | `chapter.newPage` | enum | `any` | `any`, `right` | `openany`/`openright` |
 | `section.align`, `.size`, `.weight`, `.case` | | `left`, `12`, `bold`, `as-typed` | | likewise for `subsection`, `subsubsection` |
 | `level4.style` | enum | `block` | `block`, `inline` | |
-| `level4.numbered` | bool | `false` | | |
 | `part.allowed` | bool | `true` | | |
 | `numbering.chapter` | enum | `arabic` | `arabic`, `roman` | |
-| `numbering.depth` | int | `3` | 0-5 | `secnumdepth` |
+| `numbering.depth` | int | `2` | 0-5 | `secnumdepth`, on LaTeX's `book` scale: 0 chapter, 1 section, 2 subsection, 3 subsubsection, 4 paragraph, 5 subparagraph. Quarto's `#`/`##`/`###`/`####` are chapter/section/subsection/subsubsection, so "level 4" (`####`) is numbered iff depth ≥ 3. `toc.depth` uses the same scale. |
 | `numbering.floats` | enum | `per-chapter` | `per-chapter`, `continuous` | |
 | `numbering.footnotes` | enum | `continuous` | `per-chapter`, `continuous` | |
 | `numbering.equations` | enum | `per-chapter` | `per-chapter`, `continuous` | `\counterwithin`/`\counterwithout{equation}{chapter}` |
@@ -876,9 +877,9 @@ headings:
   section:    { align: left, size: 12, weight: bold, case: as-typed }
   subsection: { align: left, size: 12, weight: bold, case: as-typed }
   subsubsection: { align: left, size: 12, weight: normal, case: as-typed }
-  level4: { style: block, numbered: false }
+  level4: { style: block }
   part: { allowed: true }
-numbering: { chapter: arabic, depth: 3, floats: per-chapter, footnotes: continuous, equations: per-chapter }
+numbering: { chapter: arabic, depth: 2, floats: per-chapter, footnotes: continuous, equations: per-chapter }
 pagenumber:
   front: { style: roman, titleCounts: true, titleShown: false, hideOn: [title, committee, copyright] }
   main: { style: arabic, start: 1 }
@@ -886,7 +887,7 @@ pagenumber:
   chapterFirstPage: show
   runningHead: none
 frontmatter:
-  order: [title, committee, copyright, abstract, acknowledgments, dedication, toc, lof, lot]
+  order: [title, committee, copyright, abstract, acknowledgments, dedication, preface, toc, lof, lot, abbreviations, symbols]
   titlePage:
     layout: [title, byline, statement, date]
     byline: "by {author}"
@@ -961,9 +962,9 @@ headings:
   section:    { align: left, size: 12, weight: bold }
   subsection: { align: left, size: 11, weight: bold }
   subsubsection: { align: left, size: 11, weight: bold }
-  level4: { style: block, numbered: true }
+  level4: { style: block }
   part: { allowed: false }
-numbering: { chapter: arabic, depth: 4, floats: per-chapter, footnotes: continuous, equations: per-chapter }
+numbering: { chapter: arabic, depth: 3, floats: per-chapter, footnotes: continuous, equations: per-chapter }   # inferred: the class's secnumdepth is 3 (level 4 numbered)
 pagenumber:
   front: { style: roman, titleCounts: true, titleShown: false, hideOn: [title, abstract, dedication] }   # inferred; chapter-style pages follow chapterFirstPage
   main: { style: arabic, start: 1 }
