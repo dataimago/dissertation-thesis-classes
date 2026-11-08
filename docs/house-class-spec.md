@@ -213,13 +213,13 @@ quoted in the docs **[verify]** against the pinned version.
 | font and geometry sub-partials (names **[verify]**) | **replace with empty** | Fonts and geometry belong to the profile | The `Option clash for package geometry` failure and the Noto fallback both came from two owners. |
 
 R10. Unsupported Quarto keys MUST be detected, not silently ignored: if `geometry`,
-`mainfont`, `sansfont`, `mathfont`, `fontsize`, `linestretch`, `papersize` or
-`colorlinks` is set, the class MUST emit a warning that names the key and the profile
+`mainfont`, `sansfont`, `mathfont`, `fontsize`, `linestretch`, `papersize`,
+`colorlinks`, `linkcolor`, `urlcolor` or `citecolor` is set, the class MUST emit a warning that names the key and the profile
 field that replaces it. **Reason:** an author changing `fontsize` and seeing nothing happen
 is the worst failure mode.
 
 R11. `classoption` MAY carry only the pass-through options of C3, plus
-`profile=<id>`. **Reason:** one way to select the profile; the `thesis.profile` key
+`profile=<id>`; `openany`/`openright` in `classoption` warn and defer to `headings.chapter.newPage`. **Reason:** one way to select the profile; the `thesis.profile` key
 is rendered into the same option by `doc-class.tex`.
 
 R12. The partials, filter, class, `.cfg` files, and a sample `_quarto.yml` SHOULD ship
@@ -236,7 +236,7 @@ book:
   author: "Ada Q. Example"
   date: "2027-05-01"
   output-file: thesis
-  chapters: [index.qmd, chapters/01-intro.qmd, chapters/02-methods.qmd]
+  chapters: [index.qmd, chapters/00-front.qmd, chapters/01-intro.qmd, chapters/02-methods.qmd]
   appendices: [chapters/appendix-a.qmd]
 bibliography: references.bib
 lang: en-US
@@ -271,8 +271,9 @@ format:
 ```
 
 Abstract goes in `index.qmd` front matter (`abstract:`); dedication and
-acknowledgments are divs in `chapters/00-front.qmd`. The profile is not in the YAML:
-it is the file `profiles/cu-boulder.yaml`, compiled to `cu-boulder.cfg` beside the class.
+acknowledgments are divs in `chapters/00-front.qmd` (listed in `book.chapters`). The YAML
+carries only the profile id (`thesis.profile`); the profile's values live in
+`profiles/cu-boulder.yaml`, compiled to `cu-boulder.cfg` beside the class.
 
 ---
 
@@ -280,7 +281,10 @@ it is the file `profiles/cu-boulder.yaml`, compiled to `cu-boulder.cfg` beside t
 
 A profile holds everything a school's guide decides. Each subsection lists the
 fields and the guide topic they come from. Field names and types are fixed in
-section 6; this section says WHAT must be expressible and why.
+section 6; this section says WHAT must be expressible and why. Where this section names a
+property that 6.4 does not list (for example per-entry heading text for every front-matter page,
+ToC page-number alignment, caption label wording), it is a fixed house default of the class,
+not a profile field, until 6.4 gains a field for it. 6.4 is the schema; 6.4 wins any conflict.
 
 ### 3.1 Geometry
 
@@ -355,8 +359,8 @@ compute the factor from the font's single pitch.
 
 R14. `frontmatter.order` is an ordered list drawn from a closed vocabulary:
 `title`, `copyright`, `approval`, `committee`, `abstract`, `dedication`,
-`acknowledgments`, `preface`, `toc`, `lot`, `lof`, `abbreviations`, `symbols`,
-`glossary`. A page absent from the list is not printed. **Reason:** order is
+`acknowledgments`, `preface`, `toc`, `lot`, `lof`, `abbreviations`, `symbols`.
+A page absent from the list is not printed. **Reason:** order is
 the most common difference after margins; a closed vocabulary is checkable.
 
 R14a. The placement fields MUST agree with `order`, and CI (T1) checks it:
@@ -400,7 +404,7 @@ R16. The title-page `statement` template MUST allow the line breaks the guide wa
 | Requirement | Reason |
 |---|---|
 | MUST: `toc.depth` (house 2; typical range 1-3) | Differs by school. |
-| MUST: lists `lot`, `lof` with `mode: always \| auto \| never`; MAY `abbreviations`, `symbols`, `glossary` | The `auto` mode drops empty lists. |
+| MUST: lists `lot`, `lof` with `mode: always \| auto \| never`; MAY `abbreviations`, `symbols` | The `auto` mode drops empty lists. |
 | MUST: order of the lists; column labels ("Chapter", "Figure", "Table", "Page") | CU lists tables before figures. |
 | MUST: leader dots, page-number alignment, indent per level | Guide-driven. |
 | SHOULD: ToC lists the front-matter pages that follow it, not those before it | Common rule. |
@@ -634,7 +638,7 @@ default when a field is omitted. "length" means a number with a unit.
 |---|---|---|---|---|
 | `paper` | enum | `letter` | `letter`, `a4`, `custom` | `geometry` paper |
 | `paperWidth`, `paperHeight` | length | | only if `custom` | |
-| `sides` | enum | `one` | `one`, `two` | `oneside`/`twoside`; `openany`/`openright` follow |
+| `sides` | enum | `one` | `one`, `two` | `oneside`/`twoside`; (`openany`/`openright` are owned by `headings.chapter.newPage`) |
 | `margins.top` | length | `1in` | > 0 | `geometry` `top` |
 | `margins.bottom` | length | `1in` | | `bottom` |
 | `margins.inside` | length | `1in` | | `inner` (left in oneside) |
@@ -1015,7 +1019,7 @@ Notes on the CU example:
 | T14 | **PDF/A** (optional but on by default when `pdfa != none`) | veraPDF with the profile matching the level; the job is skipped if veraPDF is not installed | any failure |
 | T15 | **Tagging** (lualatex, `tagged: on`) | structure tree present (`qpdf --show-object` on StructTreeRoot or `pdfinfo` "Tagged: yes"); alt text on every Figure element; optional veraPDF PDF/UA profile | missing |
 | T16 | **Math font check** | run once with a deliberately broken math font in a negative test; CI MUST turn red | the check does not catch it |
-| T17 | **Unsupported keys** | negative test: set `geometry:` and `mainfont:` in `_quarto.yml`; the build MUST warn per R10 | no warning |
+| T17 | **Unsupported keys** | negative test: set `geometry:`, `mainfont:` and `linkcolor:` in `_quarto.yml`; the build MUST warn per R10 | no warning |
 | T18 | **Size** | file size under `submission.maxMB` | warning |
 
 R20. Measurement tolerances live in the profile test config (`profiles/<id>.test.yaml`),
