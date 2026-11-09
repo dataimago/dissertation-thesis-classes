@@ -55,9 +55,11 @@ wants to contribute the result. By hand, the same rules apply:
    book picks its profile from an overlay named after it, so a new profile needs
    `classes/dataimago-thesis/example/_quarto-<id>.yml` containing
    `thesis:` and `  profile: <id>`, plus `  institution: <the profile's institution.name>`
-   if the profile sets one (an institution's name, never a person's):
+   if the profile sets one (an institution's name, never a person's). Create the
+   test config first, since T19 reads its exclusions (see step 6 for what to keep):
 
    ```sh
+   cp profiles/house.test.yaml profiles/<id>.test.yaml                    # then edit; see step 6
    texlua classes/dataimago-thesis/thesis-profile.lua profiles <id>       # writes profiles/<id>.cfg
    python tools/check_profile.py <id>                                     # schema, sources, drift
    classes/dataimago-thesis/example/render.sh <id> lualatex               # and xelatex

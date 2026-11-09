@@ -30,9 +30,15 @@ what differs when you run it inside this repository.
 - **Generate the extras CI wants.** The sample book picks its profile from an
   overlay named after it: create `classes/dataimago-thesis/example/_quarto-<id>.yml`
   containing `thesis:` and `  profile: <id>` (plus `  institution: <the profile's institution.name>`
-  if the profile sets one; otherwise the book's synthetic "Example University" stays). After the profile validates:
+  if the profile sets one; otherwise the book's synthetic "Example University" stays).
+  Then create the test config **before** any PDF check, because T19 reads its
+  exclusions: copy `profiles/house.test.yaml` to `profiles/<id>.test.yaml` (required by
+  R21), keep the `math-scripts`, `footnote-markers` and `citation-markers` exclusions the
+  sample book needs, remove `folios` unless the guide exempts running heads, and exempt
+  nothing else the guide does not exempt. After the profile validates:
 
   ```sh
+  cp profiles/house.test.yaml profiles/<id>.test.yaml                              # then edit as above
   texlua classes/dataimago-thesis/thesis-profile.lua profiles <id>                 # profiles/<id>.cfg
   python tools/check_profile.py <id>
   classes/dataimago-thesis/example/render.sh <id> lualatex
@@ -42,11 +48,6 @@ what differs when you run it inside this repository.
   python tools/check_pdf.py --pdf classes/dataimago-thesis/example/_build/<id>-xelatex/thesis.pdf \
     --profile <id> --engine xelatex                                                  # check only; no snapshots
   ```
-
-  and add `profiles/<id>.test.yaml` (required by R21: copy `profiles/house.test.yaml`,
-  keep the `math-scripts`, `footnote-markers` and `citation-markers` exclusions T19
-  needs for the sample book, keep `folios` only if the guide exempts running heads, and
-  exempt nothing else the guide does not exempt).
 - **Touch only the profile's files** (spec R21): `profiles/<id>.yaml`, `.cfg`,
   `profiles/snapshots/<id>/`, `profiles/<id>.test.yaml`, and the overlay
   above (all R21).
