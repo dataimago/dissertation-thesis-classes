@@ -2,10 +2,12 @@
 
 This registry holds the house thesis class (`classes/dataimago-thesis/`) with one
 small **profile** per institution (`profiles/<id>.yaml`), and the legacy
-third-party class `classes/cu-boulder/`. What the hub and Level-3 builds offer
-today is still read from `registry.json`, whose only `available` class is
-`cu-boulder`; a profile does not appear there on its own, and a profile PR
-leaves `registry.json` to the maintainer's registry step. Profiles are what the
+third-party class `classes/cu-boulder/` (`status: legacy`, never offered). What
+the hub and Level-3 builds offer is read from `registry.json`: today the only
+`mode: shipped` profile is `cu-boulder` (the house class with
+`profiles/cu-boulder.yaml`). A profile file is not offered until it has a
+`profiles` entry there; a profile PR leaves `registry.json` alone, and a
+maintainer adds the entry afterwards (step 6 of the maintainer section). Profiles are what the
 house class is built to take, and they are the contribution that scales. The most useful one
 is a profile for an institution that has none: a list of facts from the
 institution's formatting guide, each cited to the guide's page or section. The
@@ -68,8 +70,9 @@ wants to contribute the result. By hand, the same rules apply:
    The snapshots need a full TeX Live (`python tools/check_pdf.py ... --update-snapshots`).
    If you cannot produce them, send the YAML, the `.cfg` and the overlay (never leave the
    overlay out): the snapshot check (T11) fails until the maintainer adds the
-   snapshots in the re-push below, and that failure is not a defect in your profile. Do not edit `registry.json`,
-   `docs/`, the rest of `classes/`, or another institution's profile.
+   snapshots in the re-push below, and that failure is not a defect in your profile. Do not edit `registry.json`
+   (a maintainer registers the profile after it merges), `docs/`, the rest of
+   `classes/`, or another institution's profile.
 7. Say in the pull request body that you contribute the profile with your
    consent, name the guide (title, issuer, version, date), and list the
    `inferred` and `unstated` fields.
@@ -115,6 +118,16 @@ contribution:
    This pull request gets the normal Grok review and the `House class` CI.
 5. **Close the fork pull request** with a comment linking to the new one and
    thanking the author. The new pull request is where review continues.
+6. **Register the profile** once the profile pull request has merged, in a
+   separate maintainer pull request: append a `profiles` entry to
+   `registry.json` (`id`, `institution`, `class: dataimago-thesis`, `yaml`,
+   `cfg`, `classOptions`) with `status: generated` and `mode: generated`, and
+   leave `schemaVersion` at 2. The hub does not offer it yet. Human review
+   promotes it to `status: available`, `mode: shipped` (see
+   [`docs/discovery-contract.md`](docs/discovery-contract.md), GENERATED). After
+   any change to `registry.json`, open the matching dissertation-ai pull request
+   (`registry:sync`, see `CLAUDE.md`); until it merges, the hub and its drift
+   check still see the old copy.
 
 If the contributor withdraws, or consent is unclear, close without re-pushing.
 

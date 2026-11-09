@@ -1,6 +1,6 @@
 ---
 name: thesis-format
-description: Maintainer use inside this registry: turn an institution's formatting guide into profiles/<id>.yaml (each value cited to the guide's page or section, inferred values marked, unstated fields listed and never guessed), validate it and build the sample book with it, to seed institutions directly. The method is the dissertation-app-template skill of the same name; this file adds only what differs in this repository.
+description: Maintainer use inside this registry: turn an institution's formatting guide into profiles/<id>.yaml (each value cited to the guide's page or section, inferred values marked, unstated fields listed and never guessed), validate it and build the sample book with it, as the profile half of seeding an institution (registering it in registry.json is a separate maintainer step, CONTRIBUTING.md step 6). The method is the dissertation-app-template skill of the same name; this file adds only what differs in this repository.
 ---
 
 # /thesis-format (registry copy)
@@ -50,7 +50,10 @@ what differs when you run it inside this repository.
   `profiles/snapshots/<id>/`, optionally `profiles/<id>.test.yaml`, and the overlay
   above (all R21).
   Never `registry.json`, `docs/discovery-contract.md` or any file under
-  `classes/` other than that one overlay, from this skill.
+  `classes/` other than that one overlay, from this skill. The profile is not
+  offered until a maintainer registers it in `registry.json` in a separate pull
+  request (CONTRIBUTING.md, maintainer step 6), followed by the dissertation-ai
+  `registry:sync` pull request; say so to the maintainer when you finish.
 - **Confirm with the maintainer**, who stands in for the author: show the
   checklist (inferred, unstated, cannot be expressed) and change nothing they
   have not accepted. Commit on a branch and open a pull request; the maintainer
