@@ -40,8 +40,9 @@ name: Grok 4.6 PR Review
 #      anything not allowed is refused (WebFetch and WebSearch came back
 #      "rejected", a Task subagent's Shell "permissionDenied"). Reads outside
 #      the workspace (/etc, /home, /tmp, /proc, ...) are denied too, because
-#      `Read(**)` alone let Glob list /home/runner, so Read is allowed only under
-#      the agent's tree, /opt/review-ws.
+#      `Read(**)` alone let Glob list /home/runner. Narrowing the allow to
+#      /opt/review-ws did not restrict Glob (canary 2026-11-09: /opt/hostedtoolcache
+#      and /usr/lib still listed), so the other system trees are denied by name.
 #   2. The agent runs as a separate unprivileged user (`cursor-review`) on a
 #      read-only, root-owned copy of the tree: it cannot write the workspace or
 #      read the runner user's files or environment, whatever the CLI does.
@@ -285,12 +286,14 @@ jobs:
             "editor": { "vimMode": false },
             "approvalMode": "allowlist",
             "permissions": {
-              "allow": ["Read(/opt/review-ws/**)"],
+              "allow": ["Read(**)"],
               "deny": [
                 "Shell(*)", "Write(**)", "WebFetch(*)", "Mcp(*:*)",
                 "Read(**/.env*)", "Read(**/*.pem)", "Read(**/*.key)",
                 "Read(/proc/**)", "Read(/etc/**)", "Read(/home/**)", "Read(/tmp/**)", "Read(/root/**)",
-                "Read(/var/**)", "Read(/run/**)", "Read(/sys/**)", "Read(/opt/cursor-agent/**)"
+                "Read(/var/**)", "Read(/run/**)", "Read(/sys/**)", "Read(/opt/cursor-agent/**)",
+                "Read(/opt/hostedtoolcache/**)", "Read(/usr/**)", "Read(/dev/**)", "Read(/bin/**)", "Read(/sbin/**)", "Read(/lib/**)",
+                "Read(/lib64/**)", "Read(/boot/**)", "Read(/mnt/**)", "Read(/srv/**)", "Read(/snap/**)"
               ]
             }
           }
