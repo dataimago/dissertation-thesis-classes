@@ -102,18 +102,39 @@ contribution:
 3. **Re-push to a branch in this repository**, keeping the contributor's commits and authorship. `gh pr checkout` fetches the fork's commits and switches your worktree to them, so treat the
    checkout as untrusted text and run nothing from it:
 
+   Every gate below stops the script; run it as a whole (`sh -eu`), not line by
+   line, and set the two variables first:
+
    ```sh
-   gh pr checkout <fork-pr-number> --branch contrib/<id>
-   git diff --name-only origin/main...contrib/<id>          # HARD STOP unless every path is profiles/<id>.yaml, profiles/<id>.cfg,
-                                                            # classes/dataimago-thesis/example/_quarto-<id>.yml, profiles/<id>.test.yaml
-                                                            # or profiles/snapshots/<id>/...; otherwise do not push, ask the contributor
-   GEN="$(mktemp -d)"                                       # the file name must stay thesis-profile.lua:
-   git show origin/main:classes/dataimago-thesis/thesis-profile.lua > "$GEN/thesis-profile.lua"   # it only runs when arg[0] ends in it
-   rm -f profiles/<id>.cfg                                  # so a no-op run cannot leave the fork's .cfg in place
-   texlua "$GEN/thesis-profile.lua" profiles <id>           # regenerate the .cfg from the YAML with main's generator
-   test -s profiles/<id>.cfg || echo "HARD STOP: no .cfg written"
-   git status --short profiles/                             # if the .cfg changed, commit it as a maintainer commit
-   git push -u origin contrib/<id>
+   set -eu
+   ID=<id>                 # the profile id: lowercase letters, digits, hyphens
+   PR=<fork-pr-number>
+   printf '%s' "$ID" | LC_ALL=C grep -Eqx '[a-z0-9]+(-[a-z0-9]+)*' \
+     || { echo "HARD STOP: bad profile id"; exit 1; }
+
+   gh pr checkout "$PR" --branch "contrib/$ID"
+
+   # Gate 1: every changed path must be an R21 file for this id.
+   BAD=$(git diff --name-only origin/main...HEAD \
+     | grep -v -E "^(profiles/$ID\.(yaml|cfg|test\.yaml)|profiles/snapshots/$ID/.+|classes/dataimago-thesis/example/_quarto-$ID\.yml)\$" || true)
+   if [ -n "$BAD" ]; then echo "HARD STOP: paths outside R21:"; echo "$BAD"; exit 1; fi
+
+   # Gate 2: regenerate the .cfg with main's generator, never the fork's. The copy
+   # must keep the name thesis-profile.lua: the script only runs when arg[0] ends in it.
+   GEN="$(mktemp -d)"
+   git show origin/main:classes/dataimago-thesis/thesis-profile.lua > "$GEN/thesis-profile.lua"
+   rm -f "profiles/$ID.cfg"
+   texlua "$GEN/thesis-profile.lua" profiles "$ID"
+   test -s "profiles/$ID.cfg" || { echo "HARD STOP: no .cfg written"; exit 1; }
+
+   # Gate 3: what is pushed is main's output, committed, not the fork's file.
+   if [ -n "$(git status --porcelain -- "profiles/$ID.cfg")" ]; then
+     git add "profiles/$ID.cfg"
+     git commit -m "profiles: regenerate $ID.cfg with main's generator"
+   fi
+   test -z "$(git status --porcelain)" || { echo "HARD STOP: uncommitted changes"; exit 1; }
+
+   git push -u origin "contrib/$ID"
    ```
 
 4. **Open a same-repository pull request** from `contrib/<id>` to `main` whose
