@@ -123,7 +123,8 @@ jobs:
 
       # A step that hangs must FAIL (the comment job then posts "did not
       # complete"), not run into the job limit, which ends the job "cancelled".
-      # The step limits (5 + 3 + 45) stay below the 55-minute job limit.
+      # The step limits (5 + 3 + 44 + 2 for the upload) stay below the 55-minute
+      # job limit.
       - name: Checkout PR head (no credentials persist)
         if: steps.gate.outputs.enabled == 'true'
         timeout-minutes: 5
@@ -156,7 +157,7 @@ jobs:
 
       - name: Review diff with Grok 4.6 (no GitHub credentials)
         if: steps.gate.outputs.enabled == 'true'
-        timeout-minutes: 45
+        timeout-minutes: 44
         env:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
           # GitHub never puts GITHUB_TOKEN in a step's environment unless the
@@ -438,6 +439,7 @@ jobs:
 
       - name: Hand the review to the comment job (artifact, not a token)
         if: steps.gate.outputs.enabled == 'true'
+        timeout-minutes: 2
         uses: actions/upload-artifact@v4
         with:
           name: composer-review-${{ github.event.pull_request.number }}
