@@ -11,16 +11,13 @@
 So the registry's unit is ONE well-built class plus a small, checkable PROFILE per
 institution. Converting a guide means filling in a profile, not writing a class.
 
-**Status of this contract.** This spec describes the TARGET. Until the registry step
-(`wi-20261108-house-class-registry`) lands, `registry.json` and `docs/discovery-contract.md`
-stay in force unchanged: the three modes (`shipped`, `vendored`, `generated`) keep their
-current meanings, the registry unit is a class per institution, and the engine is
-`xelatex`. The following are targets that take effect only when that step lands, together
-with a `schemaVersion` bump and a matching dissertation-ai PR that runs `registry:sync`
-AND updates the onboarding interview's words for the modes (`dissertation.yaml`, the
-`classFile` question), since `registry:sync` copies only `registry.json`: the new mode
-meanings in F12, the `profiles/` directory, the house class entry, the `engineFallback`
-field, and the LuaLaTeX default.
+**Status of this contract.** The registry step (`wi-20261108-house-class-registry`)
+has landed: `registry.json` is `schemaVersion` 2 and `docs/discovery-contract.md` is
+rewritten to match. The new mode meanings in F12, the `profiles/` directory, the house
+class entry, the `engineFallback` field and the LuaLaTeX default are in force. The
+hub's interview words for the modes (`dissertation.yaml`, the `classFile` question)
+move in a matching dissertation-ai PR, since `registry:sync` copies only
+`registry.json`.
 
 **Reading rules.** MUST / SHOULD / MAY carry their RFC 2119 meaning. Each requirement
 has a one-line reason. Items marked **[inferred]** were not stated by a source and
@@ -108,7 +105,7 @@ channel), **drop** (not carried over).
 | F9 | `include-in-header: text: \usepackage{dataimago}` | Package load | **drop** | None; the class is loaded by `doc-class.tex` | Known failure: file injection of a `.sty` truncates `index.tex`. |
 | F10 | `fig-pos: H`, `keep-tex: true`, `pdf-engine: xelatex` | Quarto knobs | **keep `fig-pos`, `keep-tex`**; engine see section 5 | | |
 | F11 | `build-thesis.yml`: installs Noto from apt, replaces Noto Sans Math 2.001 with 3.000, `tlmgr install ...`, renders, commits PDF, checks `pdffonts` for LatinModernMath | CI | **keep and generalize** | Per-profile CI in this repo (section 7); the template's workflow adds the same `pdffonts` check for the profile's math font | The math-font fallback is silent. |
-| F12 | `THESIS-CLS-README.md` modes (`shipped`, `vendored`, `generated`) | Author docs | **rename** | `shipped` = house class + the institution's profile; `generated` = house profile adapted from the guide; `vendored` unchanged (author's own class). After the registry step, CU's shipped option is `dataimago-thesis` + `profiles/cu-boulder.yaml`; `classes/cu-boulder/thesis.cls` stays in the tree with `status: legacy` (an unlicensed feature reference the hub never offers). `id: house` is the starting profile for `generated`, never a shipped option, so `shipped` is still never the framework default (discovery contract). The registry step also updates the hub interview's mode words. | `wi-20261108-house-class-registry`. |
+| F12 | `THESIS-CLS-README.md` modes (`shipped`, `vendored`, `generated`) | Author docs | **rename** | `shipped` = house class + the institution's profile; `generated` = house profile adapted from the guide; `vendored` unchanged (author's own class). Since the registry step (registry `schemaVersion` 2), CU's shipped option is `dataimago-thesis` + `profiles/cu-boulder.yaml`; `classes/cu-boulder/thesis.cls` stays in the tree with `status: legacy` (an unlicensed feature reference the hub never offers). `id: house` is the starting profile for `generated`, never a shipped option, so `shipped` is still never the framework default (discovery contract). The hub interview's mode words (the `classFile` question in `dissertation.yaml`) change in the matching dissertation-ai PR (dissertation-ai#272), not in this repo. | `wi-20261108-house-class-registry`. |
 
 ---
 
@@ -243,9 +240,10 @@ R11. `classoption` MAY carry only the pass-through options of C3 (`draft`, `fina
 `profile=<id>`; `openany`/`openright` in `classoption` warn and are ignored; the class passes the resolved `headings.chapter.newPage` to `book`. **Reason:** one way to select the profile; the `thesis.profile` key
 is rendered into the same option by `doc-class.tex`.
 
-R12. The partials, filter, class, `.cfg` files, and a sample `_quarto.yml` SHOULD ship
-as one directory the template copies in whole (a Quarto format extension is an
-option; see decision 7). **Reason:** the template should not hand-assemble a dozen files.
+R12. The partials, filter, class, and a sample `_quarto.yml` SHOULD ship as one
+directory the template copies in whole (`classes/dataimago-thesis/`; a Quarto format
+extension is an option, see decision 7), together with the profile's compiled `.cfg`,
+which lives in `profiles/` beside its YAML. **Reason:** the template should not hand-assemble a dozen files.
 
 ### 2.5 What the author writes in `_quarto.yml`
 
@@ -295,7 +293,8 @@ Abstract goes in `index.qmd` front matter (`abstract:`); dedication and
 acknowledgments are divs in `chapters/00-front.qmd`. That file stays in `book.chapters` so the
 HTML book has it; for PDF the filter lifts the divs into metadata and drops the file (R8, R9). The YAML
 carries only the profile id (`thesis.profile`); the profile's values live in
-`profiles/cu-boulder.yaml`, compiled to `cu-boulder.cfg` beside the class.
+`profiles/cu-boulder.yaml`, compiled to `profiles/cu-boulder.cfg` beside the YAML (not beside
+the class; a shipped fetch copies both, per the discovery contract).
 
 ---
 
@@ -570,7 +569,7 @@ without tagging.** Reason: tagging and automatic MathML work only on LuaLaTeX.
 | Slower builds (LuaLaTeX is slower than XeLaTeX on large books, plus font cache on first run) | Cache `~/.texlive*/texmf-var` in CI. |
 | Needs a current TeX Live (tagging code is in rapid development; TinyTeX must be current) | CI pins the TeX Live year; the template's `tlmgr` step updates. |
 | Some XeLaTeX-only packages (`xeCJK`, `xunicode`) | Use `luatexja` or `fontspec` fallbacks for CJK. |
-| The CU class and `build-thesis.yml` use XeLaTeX today | The legacy CU class stays XeLaTeX (its registry entry says so). The house class builds under both; once the registry step lands (see Status of this contract), the registry entry for the house class records `engine: lualatex`, `engineFallback: xelatex`. |
+| The CU class and `build-thesis.yml` use XeLaTeX today | The legacy CU class stays XeLaTeX (its registry entry says so). The house class builds under both; since the registry step (see Status of this contract), the registry entry for the house class records `engine: lualatex`, `engineFallback: xelatex`. |
 | Existing authors whose chapters include XeLaTeX-specific raw LaTeX | Document in the migration notes; CI builds the sample under both engines. |
 
 R19. The class MUST build under both engines; with XeLaTeX, `accessibility.tagged`
