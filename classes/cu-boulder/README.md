@@ -7,11 +7,11 @@ The University of Colorado Boulder Graduate School dissertation/thesis LaTeX cla
 | `id` | `cu-boulder` |
 | Institution | University of Colorado Boulder (Graduate School) |
 | `documentclass` | `thesis` (options: `defaultstyle, 11pt`) |
-| Engine | XeLaTeX (dataimago thesis chain) — also builds under pdfLaTeX |
+| Engine | XeLaTeX (this third-party class only; the house class builds under LuaLaTeX, with XeLaTeX as fallback) — also builds under pdfLaTeX |
 | Version | 1.14 (Ken Anderson, 2020-08) |
 | Lineage | John P. Weiss (1997) → hyperref-compatible (Hongcheng Ni, 2014) → signature page removed, committee on title page (Anderson, 2020) |
 | Conforms to | CU Boulder Graduate School Specifications (April 2010) |
-| Status | available (`shipped`) |
+| Status | `legacy`: an unlicensed feature reference for the house class, never offered to authors. CU Boulder's `shipped` option is the house class `dataimago-thesis` with `profiles/cu-boulder.yaml`. |
 
 ## Files
 

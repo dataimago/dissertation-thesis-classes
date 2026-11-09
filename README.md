@@ -8,15 +8,18 @@ A dissertation's terminal deliverable is an institution-formatted PDF. This repo
 is the shared home for the institutional `.cls` files (and macros/examples) that
 produce it, so that a dissertation author's AI can:
 
-1. **Discover** whether a class already exists for their institution,
-2. **Use** it as-is (the common case), or
-3. **Modify / generate** an acceptable one when none exists — and contribute it
-   back.
+1. **Discover** whether a profile already exists for their institution,
+2. **Use** it as-is (the common case): the house class plus the institution's
+   profile, or
+3. **Adapt** the house profile from the institution's written guidelines when
+   none exists — and contribute it back.
 
 This realizes the **3-mode `thesis.cls` strategy** (`shipped` / `vendored` /
 `generated`) recorded in the dissertation hub wiki and the dataimago framework
-wiki: this registry is the `shipped` source, and the canonical place a `vendored`
-or `generated` class is normalized and (optionally) shared.
+wiki: this registry is the `shipped` source (the house class plus the
+institution's profile), the starting point of `generated` (the house profile,
+adapted from the author's guidelines), and the canonical place a `vendored`
+class or a `generated` profile is normalized and (optionally) shared.
 
 ## Where it sits
 
@@ -36,13 +39,13 @@ changing the contract.
 ## Structure
 
 ```
-registry.json                     machine-readable index of available classes
+registry.json                     machine-readable index (schemaVersion 2): `classes` (the house class; the CU class as legacy) and `profiles` (house + one per institution)
 docs/discovery-contract.md        how an L3 build + the author's AI find/select/modify a class
-docs/house-class-spec.md           spec for the house class + institution profiles (built under classes/dataimago-thesis/; the registry still works as described here until its step lands)
+docs/house-class-spec.md           spec for the house class + institution profiles (built under classes/dataimago-thesis/)
 classes/dataimago-thesis/          the house class (LPPL 1.3c), its Quarto partials and filter, a synthetic example book
 profiles/                          one YAML profile per institution (MIT), their schema, compiled .cfg files, snapshots
 tools/                             CI checks and the TeX Live installer
-classes/<institution-id>/
+classes/<institution-id>/          a vendored or legacy per-institution class (cu-boulder is legacy)
   ├─ thesis.cls                   the document class
   ├─ macros.tex                   companion macros (if any)
   ├─ README.md                    institution notes, version, source, engine
@@ -53,15 +56,17 @@ classes/<institution-id>/
 
 - **`dissertation-ai` onboarding** — the interview's thesis-class question
   ("How should we format the dissertation PDF?") builds its options from
-  `registry.json`: a ready-made class for the author's institution
-  (`shipped`, naming the institutions listed here), their institution's own
-  `.cls` (`vendored`), or a custom layout from written guidelines
-  (`generated`). The hub reads a byte-identical copy; see `CLAUDE.md` for
+  `registry.json`: the house class with the profile for the author's institution
+  (`shipped`, naming the institutions whose profile is `available` with `mode: shipped` here), their
+  institution's own `.cls` (`vendored`), or a custom layout adapted from written
+  guidelines starting at the house profile (`generated`). The hub reads a byte-identical copy; see `CLAUDE.md` for
   keeping it in step.
 - **Level-3 generated apps** — the per-user dissertation repo's PDF build
-  (`build-thesis.yml`, Quarto + XeLaTeX) pulls the selected class from here.
+  (`build-thesis.yml`, Quarto + LuaLaTeX, XeLaTeX as the fallback) pulls the selected class from here: for `shipped`, the house class bundle
+  (`classes/dataimago-thesis/`) and the institution's `.cfg` (`profiles/`), which
+  live in different directories.
 - **The author's AI (the Level-3 author harness)** — consults the discovery
-  contract to use, adapt, or draft a class within the author's own repo.
+  contract to use a shipped profile, adapt the house profile, or vendor a class within the author's own repo.
 
 ## Privacy
 
@@ -76,9 +81,13 @@ A profile for an institution that has none is the most useful contribution to th
 
 ## Contributing a class
 
-Add `classes/<institution-id>/` with the `.cls` (+ macros + a synthetic
-`example/`), add a `README.md`, and append an entry to `registry.json`. See
-`docs/discovery-contract.md`.
+For an institution without a class of its own, add `profiles/<id>.yaml` (and its
+compiled `.cfg`) and append a `profiles` entry to `registry.json` with
+`status: generated` and `mode: generated`; review promotes it to
+`status: available`, `mode: shipped`. For an
+author's own class (`vendored`), add `classes/<institution-id>/` with the `.cls`
+(+ macros + a synthetic `example/`) and a `README.md`, and append a `classes`
+entry with `status: contributed` (archived and not offered). See `docs/discovery-contract.md`.
 
 ## Licensing
 

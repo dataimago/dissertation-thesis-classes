@@ -5,9 +5,9 @@ school's formatting guide means filling in a profile (`../../profiles/<id>.yaml`
 class. The contract is [`docs/house-class-spec.md`](../../docs/house-class-spec.md); this page says
 what the build does, how to run it and where it departs from or leaves open the spec.
 
-**Status.** Built (house class step 2). The registry is unchanged: `registry.json` and
-`docs/discovery-contract.md` still describe the legacy per-institution classes until the registry
-step lands. Nothing here is offered to authors by the hub yet.
+**Status.** Built (house class step 2) and registered (step 3): `registry.json` lists the class
+as `available` and each institution's profile selects its rules. The hub offers it through the
+`shipped` and `generated` modes once its matching dissertation-ai PR merges.
 
 | | |
 |---|---|
