@@ -25,8 +25,9 @@ Consumers read this file; they do not hard-code paths.
 synthetic example; a profile is offered to authors only when it is also
 `mode: shipped`, so `house` is `available` with `mode: generated`), `legacy` (kept for reference, never offered), `contributed` (an author's own
 class, archived here with consent and not offered) or `generated` (a profile
-contributed by an author's AI and flagged for human review before promotion to
-`available`).
+not yet reviewed for shipping: contributed by an author's AI with the author's
+consent, or seeded by a maintainer from a public guide; its `notes` say which.
+Human review promotes it to `available`).
 
 A profile's `.yaml` holds facts about the institution's guide, each cited to a
 section or marked `inferred`; the fields the guide does not state are listed

@@ -47,7 +47,10 @@ wants to contribute the result. By hand, the same rules apply:
    out so the house value applies. Do not guess, and do not copy values from
    another institution's profile.
 4. Fill `guide:` (`title`, `retrieved`, and `issuer`, `version`, `date`, `url` if
-   known). Use `retrieved: unretrieved` only if you did not read the guide.
+   known). `retrieved` is the ISO date (YYYY-MM-DD) you read the guide; a
+   profile pull request must carry one. The schema also accepts
+   `retrieved: unretrieved`, but only for a local draft or a negative test, never
+   in a contribution: read the guide first.
 5. Validate and build (see the class README for the full commands). The sample
    book picks its profile from an overlay named after it, so a new profile needs
    `classes/dataimago-thesis/example/_quarto-<id>.yml` containing
@@ -120,9 +123,13 @@ contribution:
    thanking the author. The new pull request is where review continues.
 6. **Register the profile** once the profile pull request has merged, in a
    separate maintainer pull request: append a `profiles` entry to
-   `registry.json` (`id`, `institution`, `class: dataimago-thesis`, `yaml`,
-   `cfg`, `classOptions`) with `status: generated` and `mode: generated`, and
-   leave `schemaVersion` at 2. The hub does not offer it yet. Human review
+   `registry.json` with the same fields as the `cu-boulder` entry: `id`,
+   `institution`, `graduateSchool`, `credentials` (e.g. `["PhD dissertation",
+   "Master's thesis"]`), `class: dataimago-thesis`, `yaml: profiles/<id>.yaml`,
+   `cfg: profiles/<id>.cfg`, `classOptions: ["profile=<id>"]`, `guide` and
+   `notes`, with `status: generated` and `mode: generated`, and leave
+   `schemaVersion` at 2. Say in `notes` whether the profile was contributed by an
+   author (with consent) or seeded by a maintainer from a public guide. The hub does not offer it yet. Human review
    promotes it to `status: available`, `mode: shipped` (see
    [`docs/discovery-contract.md`](docs/discovery-contract.md), GENERATED). After
    any change to `registry.json`, open the matching dissertation-ai pull request

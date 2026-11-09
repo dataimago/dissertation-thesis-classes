@@ -664,7 +664,7 @@ default when a field is omitted. "length" means a number with a unit.
 | `institution.short` | string | | | docs only |
 | `guide.title` | string | required (except `house`) | | `sources` base |
 | `guide.issuer`, `guide.version`, `guide.date`, `guide.url` | string | | date ISO 8601 | docs |
-| `guide.retrieved` | date | required (except `house`) | ISO 8601 | docs |
+| `guide.retrieved` | date | required (except `house`) | ISO 8601 (the schema also accepts `unretrieved`, for local drafts and negative tests only; never in a contributed or registered profile) | docs |
 
 #### `geometry`
 

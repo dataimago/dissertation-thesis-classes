@@ -47,9 +47,11 @@ field and list it under `unstated`.
 ## SECURITY — privacy invariant
 
 Never add real manuscript prose, unpublished claims, or an identifiable author's
-thesis content. Examples are synthetic. A `vendored` class or a `generated` profile is
-contributed here only with the author's explicit consent, and even then only the
-class or profile machinery — not their writing.
+thesis content. Examples are synthetic. A `vendored` class or a `generated` profile from
+an author is contributed here only with the author's explicit consent, and even
+then only the class or profile machinery — not their writing. A profile a
+maintainer seeds from a public guide involves no author and no consent step; it
+holds facts about the guide only, and its registry `notes` say it was seeded.
 
 ## Consumers (don't break these)
 
