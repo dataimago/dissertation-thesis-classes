@@ -621,7 +621,7 @@ jobs:
           {
             echo "### Network (proxy log)"; sort proxy.log | uniq -c | sed 's/^/    /'
             echo "### Tool calls (started)"; jq -r 'select(.type=="tool_call" and .subtype=="started") | .tool_call | to_entries[0] | "\(.key) \(.value.args // {} | tostring | .[0:110])"' review-events.jsonl 2>/dev/null | sed 's/^/    /'
-            echo "### Tool call outcomes"; jq -r 'select(.type=="tool_call" and .subtype=="completed") | .tool_call | to_entries[0] | "\(.key) -> \(.value.result // {} | keys[0] // "none") len=\(.value.result | tostring | length) body-keys=\([.value.result | .. | objects | keys[] | select(test("content|contents|matches|files|text|output"))] | unique | join(","))"' review-events.jsonl 2>/dev/null | sed 's/^/    /'
+            echo "### Tool call outcomes"; jq -r 'select(.type=="tool_call" and .subtype=="completed") | .tool_call | to_entries[0] | "\(.key) -> \(.value.result // {} | keys[0] // "none") len=\(.value.result | tostring | length) body-keys=\([.value.result | .. | objects | keys[] | select(test("content|contents|matches|files|text|output"))] | unique | join(",")) :: \(.value.result | tostring | .[0:330])"' review-events.jsonl 2>/dev/null | sed 's/^/    /'
           } | tee -a "$GITHUB_STEP_SUMMARY" || true
           if [ "${STATUS:-}" = failed ]; then : > composer-review.md; exit 1; fi
           # Fail-closed audit: any tool call that is not a known read-only kind
