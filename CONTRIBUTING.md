@@ -107,8 +107,11 @@ contribution:
    git diff --name-only origin/main...contrib/<id>          # HARD STOP unless every path is profiles/<id>.yaml, profiles/<id>.cfg,
                                                             # classes/dataimago-thesis/example/_quarto-<id>.yml, profiles/<id>.test.yaml
                                                             # or profiles/snapshots/<id>/...; otherwise do not push, ask the contributor
-   git show origin/main:classes/dataimago-thesis/thesis-profile.lua > /tmp/thesis-profile-main.lua   # the generator from main, not the fork
-   texlua /tmp/thesis-profile-main.lua profiles <id>        # regenerate the .cfg from the YAML
+   GEN="$(mktemp -d)"                                       # the file name must stay thesis-profile.lua:
+   git show origin/main:classes/dataimago-thesis/thesis-profile.lua > "$GEN/thesis-profile.lua"   # it only runs when arg[0] ends in it
+   rm -f profiles/<id>.cfg                                  # so a no-op run cannot leave the fork's .cfg in place
+   texlua "$GEN/thesis-profile.lua" profiles <id>           # regenerate the .cfg from the YAML with main's generator
+   test -s profiles/<id>.cfg || echo "HARD STOP: no .cfg written"
    git status --short profiles/                             # if the .cfg changed, commit it as a maintainer commit
    git push -u origin contrib/<id>
    ```

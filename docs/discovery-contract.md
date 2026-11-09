@@ -88,8 +88,9 @@ author ─────┤  with mode "shipped" in the registry?
 2. It validates by compiling the synthetic `example/` with the new profile (never
    the author's prose).
 3. The result may be contributed back, with consent, as a new
-   `profiles/<id>.yaml` (+ compiled `.cfg`) in a profile PR (spec R21, which
-   leaves `registry.json` alone). After it merges, a maintainer adds a `profiles`
+   `profiles/<id>.yaml` (+ compiled `.cfg`) and the example overlay
+   `classes/dataimago-thesis/example/_quarto-<id>.yml` in a profile PR (the
+   spec R21 files; R21 leaves `registry.json` alone). After it merges, a maintainer adds a `profiles`
    entry with `status: generated` and `mode: generated` in a separate pull
    request (`CONTRIBUTING.md`, maintainer step 6). The hub does not offer it. Human
    review promotes it to `status: available`, `mode: shipped`, which is the

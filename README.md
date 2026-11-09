@@ -81,8 +81,10 @@ A profile for an institution that has none is the most useful contribution to th
 
 ## Contributing a class
 
-For an institution without a class of its own, contribute `profiles/<id>.yaml`
-(and its compiled `.cfg`) as a profile PR (`CONTRIBUTING.md`); a maintainer then
+For an institution without a class of its own, contribute the spec R21 files
+(`profiles/<id>.yaml`, its compiled `.cfg` and the example overlay
+`classes/dataimago-thesis/example/_quarto-<id>.yml`) as a profile PR
+(`CONTRIBUTING.md`); a maintainer then
 appends its `profiles` entry to `registry.json` with `status: generated` and
 `mode: generated`, and review promotes it to `status: available`,
 `mode: shipped`. For an
