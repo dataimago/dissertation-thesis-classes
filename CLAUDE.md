@@ -32,12 +32,26 @@ author's manuscript prose** — only classes, macros, and synthetic samples.
   xelatex`; the legacy CU class is `xelatex`), `documentclass`
   name, and `classOptions` so a build can be reconstructed.
 
+## Profiles from guides
+
+A profile (`profiles/<id>.yaml`) is converted from an institution's formatting
+guide with the `thesis-format` skill; `CONTRIBUTING.md` says how a contribution
+arrives (a fork pull request) and how a maintainer re-pushes it to a same-repo
+branch for review. The canonical copy of the skill is in
+`dissertation-app-template`; `.claude/skills/thesis-format/` here points to it
+and adds only what differs in this repository. Cite every value that differs from
+the house value in `sources`, mark a value read from a sample the institution
+published `inferred`, and never add a value the guide does not state: omit the
+field and list it under `unstated`.
+
 ## SECURITY — privacy invariant
 
 Never add real manuscript prose, unpublished claims, or an identifiable author's
-thesis content. Examples are synthetic. A `vendored` class or a `generated` profile is
-contributed here only with the author's explicit consent, and even then only the
-class or profile machinery — not their writing.
+thesis content. Examples are synthetic. A `vendored` class or a `generated` profile from
+an author is contributed here only with the author's explicit consent, and even
+then only the class or profile machinery — not their writing. A profile a
+maintainer seeds from a public guide involves no author and no consent step; it
+holds facts about the guide only, and its registry `notes` say it was seeded.
 
 ## Consumers (don't break these)
 

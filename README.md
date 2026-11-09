@@ -75,15 +75,22 @@ documents. **Never commit a real author's manuscript prose** here. (The included
 `cu-boulder/example/` is the class's own upstream demonstration document — "a fake
 thesis document" — not anyone's dissertation.)
 
+## Contributing
+
+A profile for an institution that has none is the most useful contribution to the house class (the hub offers only the `profiles` entries in `registry.json` with `mode: shipped`, which is `cu-boulder` today; a new profile is registered there by a maintainer after its profile PR merges): see [`CONTRIBUTING.md`](CONTRIBUTING.md) (how to contribute, the privacy rules, and how a maintainer reviews a fork pull request). The `thesis-format` skill does the conversion from a formatting guide: authors get it in their dissertation repository (`dissertation-app-template`), and a maintainer runs the copy in `.claude/skills/thesis-format/` here to seed institutions.
+
 ## Contributing a class
 
-For an institution without a class of its own, add `profiles/<id>.yaml` (and its
-compiled `.cfg`) and append a `profiles` entry to `registry.json` with
-`status: generated` and `mode: generated`; review promotes it to
-`status: available`, `mode: shipped`. For an
+For an institution without a class of its own, contribute the files spec R21
+lists (the profile YAML, its compiled `.cfg`, the required test config, the example
+overlay and, if you can produce them, the snapshots; `CONTRIBUTING.md` step 6 has the
+paths) as a profile PR; a maintainer then
+appends its `profiles` entry to `registry.json` with `status: generated` and
+`mode: generated`, and review promotes it to `status: available`,
+`mode: shipped`. For an
 author's own class (`vendored`), add `classes/<institution-id>/` with the `.cls`
-(+ macros + a synthetic `example/`) and a `README.md`, and append a `classes`
-entry with `status: contributed` (archived and not offered). See `docs/discovery-contract.md`.
+(+ macros + a synthetic `example/`) and a `README.md`; a maintainer appends its
+`classes` entry with `status: contributed` (archived and not offered). See `docs/discovery-contract.md`.
 
 ## Licensing
 

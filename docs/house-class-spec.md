@@ -664,7 +664,7 @@ default when a field is omitted. "length" means a number with a unit.
 | `institution.short` | string | | | docs only |
 | `guide.title` | string | required (except `house`) | | `sources` base |
 | `guide.issuer`, `guide.version`, `guide.date`, `guide.url` | string | | date ISO 8601 | docs |
-| `guide.retrieved` | date | required (except `house`) | ISO 8601 | docs |
+| `guide.retrieved` | date | required (except `house`) | ISO 8601 (the schema also accepts `unretrieved`, for local drafts and negative tests only; never in a contributed or registered profile) | docs |
 
 #### `geometry`
 
@@ -1030,7 +1030,9 @@ Notes on the CU example:
   creates a float page, display equations including `\mathbb`, `\mathcal`, a Quarto theorem div (`::: {#thm-...}`; the sample defines no `theorem` of its own)),
   a bibliography, one appendix, one landscape page, a list of figures
   and tables, an abbreviations list. No real prose. The book is the same for every
-  profile; only `thesis.profile` changes.
+  profile; only `thesis.profile` changes, through the overlay `_quarto-<id>.yml` (R21),
+plus `thesis.institution` set to the profile's `institution.name` when it has one
+(otherwise the book's synthetic "Example University" stays).
 * CI runs the matrix `profile × engine`: `house`, `cu-boulder` × `lualatex`, `xelatex`.
   (Tagging checks run on `lualatex` only.)
 
@@ -1061,9 +1063,17 @@ Notes on the CU example:
 R20. Measurement tolerances live in the profile test config (`profiles/<id>.test.yaml`),
 not in the profile. **Reason:** tolerances are ours, the facts are the school's.
 
-R21. A profile PR changes only `profiles/<id>.yaml`, its `.cfg`, its snapshot images, and
-optionally its test config. CI MUST run the full matrix for the changed profile and
-the schema check for all. **Reason:** keeps contributions small and reviewable.
+R21. A profile PR changes only `profiles/<id>.yaml`, its `.cfg`, its snapshot images,
+the example book's overlay `classes/dataimago-thesis/example/_quarto-<id>.yml`, and its
+test config `profiles/<id>.test.yaml`. The test config is required: the sample book has
+math scripts and footnote and citation markers, and T19's exclusions for them live there
+(start from `profiles/house.test.yaml`; keep `folios` excluded only if the guide exempts
+running heads). The overlay sets `thesis.profile: <id>` and, when the profile
+sets `institution.name`, `thesis.institution` to that name (section 7.1); nothing else,
+so no titles, people's names or committee. Without it the example renders as the
+house book. CI MUST run the full matrix for the changed
+profile and the schema check for all. **Reason:** keeps contributions small and
+reviewable.
 
 ---
 

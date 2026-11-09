@@ -25,8 +25,9 @@ Consumers read this file; they do not hard-code paths.
 synthetic example; a profile is offered to authors only when it is also
 `mode: shipped`, so `house` is `available` with `mode: generated`), `legacy` (kept for reference, never offered), `contributed` (an author's own
 class, archived here with consent and not offered) or `generated` (a profile
-contributed by an author's AI and flagged for human review before promotion to
-`available`).
+not yet reviewed for shipping: contributed by an author's AI with the author's
+consent, or seeded by a maintainer from a public guide; its `notes` say which.
+Human review promotes it to `available`).
 
 A profile's `.yaml` holds facts about the institution's guide, each cited to a
 section or marked `inferred`; the fields the guide does not state are listed
@@ -87,8 +88,14 @@ author ─────┤  with mode "shipped" in the registry?
 2. It validates by compiling the synthetic `example/` with the new profile (never
    the author's prose).
 3. The result may be contributed back, with consent, as a new
-   `profiles/<id>.yaml` (+ compiled `.cfg`) and a `profiles` entry with
-   `status: generated` and `mode: generated`. The hub does not offer it. Human
+   profile PR carrying the spec R21 files: `profiles/<id>.yaml`, its compiled
+   `.cfg`, the example overlay `classes/dataimago-thesis/example/_quarto-<id>.yml`,
+   the first-page snapshots `profiles/snapshots/<id>/` and the test config
+   `profiles/<id>.test.yaml` (required; it carries T19's exclusions). An author without a full TeX Live may leave the
+   snapshots out; the snapshot check (T11) then fails until a maintainer adds
+   them on re-push (`CONTRIBUTING.md`). R21 leaves `registry.json` alone. After it merges, a maintainer adds a `profiles`
+   entry with `status: generated` and `mode: generated` in a separate pull
+   request (`CONTRIBUTING.md`, maintainer step 6). The hub does not offer it. Human
    review promotes it to `status: available`, `mode: shipped`, which is the
    point at which it becomes `shipped` for that institution.
 
