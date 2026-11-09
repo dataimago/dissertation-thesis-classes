@@ -40,10 +40,11 @@ name: Grok 4.6 PR Review
 #      anything not allowed is refused (WebFetch and WebSearch came back
 #      "rejected", a Task subagent's Shell "permissionDenied"). Reads outside
 #      the workspace (/etc, /home, /tmp, /proc, ...) are denied too, because
-#      `Read(**)` alone let Glob list /home/runner. Read is allowed only under the
-#      agent's tree (/opt/review-ws), so Read of any other path is refused; Glob is
-#      not bound by the allow (a canary still listed /opt/hostedtoolcache), so the
-#      system trees are also denied by name.
+#      `Read(**)` alone let Glob list /home/runner. Narrowing the allow to the
+#      agent's tree does NOT restrict anything (canary 2026-11-09: with
+#      allow Read(/opt/review-ws/**) files under /opt/az and /opt/pipx were still
+#      read and /opt/hostedtoolcache still listed); only denies bind. So the system
+#      trees are denied by name and every other /opt/* tree is denied at runtime.
 #   2. The agent runs as a separate unprivileged user (`cursor-review`) on a
 #      read-only, root-owned copy of the tree: it cannot write the workspace or
 #      read the runner user's files or environment, whatever the CLI does.
@@ -284,13 +285,13 @@ jobs:
           # published. The model itself has no write or shell tool to change it with.
           CFG=/home/cursor-review/.cursor
           sudo -u cursor-review mkdir -p "$CFG"
-          sudo -u cursor-review tee "$CFG/cli-config.json" >/dev/null <<'CFG_EOF'
+          cat > "$RUNNER_TEMP/cli-config.base.json" <<'CFG_EOF'
           {
             "version": 1,
             "editor": { "vimMode": false },
             "approvalMode": "allowlist",
             "permissions": {
-              "allow": ["Read(/opt/review-ws/**)"],
+              "allow": ["Read(**)"],
               "deny": [
                 "Shell(*)", "Write(**)", "WebFetch(*)", "Mcp(*:*)",
                 "Read(**/.env*)", "Read(**/*.pem)", "Read(**/*.key)",
@@ -302,6 +303,9 @@ jobs:
             }
           }
           CFG_EOF
+          # Only denies bind (see the header): deny every /opt/* tree except the agent's.
+          OPT_DENY=$(for d in /opt/*/; do d=${d%/}; [ "$d" = /opt/review-ws ] || printf 'Read(%s/**)\n' "$d"; done | jq -R . | jq -s .)
+          jq --argjson x "$OPT_DENY" '.permissions.deny += $x | .permissions.deny |= unique' "$RUNNER_TEMP/cli-config.base.json" | sudo -u cursor-review tee "$CFG/cli-config.json" >/dev/null
           sudo jq -S '.permissions' "$CFG/cli-config.json" | tee "$RUNNER_TEMP/policy.expected" >/dev/null
           # Layer 3: a CONNECT proxy that tunnels only to Cursor's API hosts, and
           # iptables that leave the review user nothing else (no DNS either).
