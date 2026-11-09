@@ -65,7 +65,10 @@ wants to contribute the result. By hand, the same rules apply:
 
 6. Open a pull request that changes only the profile's files (spec R21):
    `profiles/<id>.yaml`, its generated `profiles/<id>.cfg`, the first-page
-   snapshots `profiles/snapshots/<id>/` and, optionally, `profiles/<id>.test.yaml`,
+   snapshots `profiles/snapshots/<id>/`, the test config `profiles/<id>.test.yaml`
+   (required: copy `profiles/house.test.yaml`, keep its `math-scripts`,
+   `footnote-markers` and `citation-markers` exclusions, and keep `folios` only if
+   the guide exempts running heads; without it T19 fails on the sample book),
    and the example overlay `classes/dataimago-thesis/example/_quarto-<id>.yml`
    from step 5. `render.sh` sets only `QUARTO_PROFILE`, so without the overlay
    the example keeps `thesis.profile: house` and the new id would be checked
@@ -93,7 +96,7 @@ contribution:
 1. **Check consent.** The fork pull request body (or the thread) says the author
    contributes the profile; if it does not, ask before doing anything else.
 2. **Check privacy**, reading the diff (it should be the profile's files only: `profiles/<id>.yaml`,
-   `.cfg`, the overlay `classes/dataimago-thesis/example/_quarto-<id>.yml`, and perhaps snapshots and a test config): no manuscript content, no names or emails, no
+   `.cfg`, the overlay `classes/dataimago-thesis/example/_quarto-<id>.yml`, the test config, and perhaps snapshots): no manuscript content, no names or emails, no
    `inferred` value drawn from the contributor's own work, no quote over one short line, no
    local paths. If a line fails, ask the contributor to remove it, or remove it
    in the re-push commit and say so in the pull request. Do not run anything

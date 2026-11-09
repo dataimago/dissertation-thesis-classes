@@ -43,11 +43,12 @@ what differs when you run it inside this repository.
     --profile <id> --engine xelatex                                                  # check only; no snapshots
   ```
 
-  and, only if the defaults do not fit, add `profiles/<id>.test.yaml` (optional per
-  R21; tolerances; copy `profiles/cu-boulder.test.yaml` and exempt nothing the guide
-  does not exempt).
+  and add `profiles/<id>.test.yaml` (required by R21: copy `profiles/house.test.yaml`,
+  keep the `math-scripts`, `footnote-markers` and `citation-markers` exclusions T19
+  needs for the sample book, keep `folios` only if the guide exempts running heads, and
+  exempt nothing else the guide does not exempt).
 - **Touch only the profile's files** (spec R21): `profiles/<id>.yaml`, `.cfg`,
-  `profiles/snapshots/<id>/`, optionally `profiles/<id>.test.yaml`, and the overlay
+  `profiles/snapshots/<id>/`, `profiles/<id>.test.yaml`, and the overlay
   above (all R21).
   Never `registry.json`, `docs/discovery-contract.md` or any file under
   `classes/` other than that one overlay, from this skill. The profile is not

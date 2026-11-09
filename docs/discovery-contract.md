@@ -90,8 +90,8 @@ author ─────┤  with mode "shipped" in the registry?
 3. The result may be contributed back, with consent, as a new
    profile PR carrying the spec R21 files: `profiles/<id>.yaml`, its compiled
    `.cfg`, the example overlay `classes/dataimago-thesis/example/_quarto-<id>.yml`,
-   the first-page snapshots `profiles/snapshots/<id>/` and, optionally,
-   `profiles/<id>.test.yaml`. An author without a full TeX Live may leave the
+   the first-page snapshots `profiles/snapshots/<id>/` and the test config
+   `profiles/<id>.test.yaml` (required; it carries T19's exclusions). An author without a full TeX Live may leave the
    snapshots out; the snapshot check (T11) then fails until a maintainer adds
    them on re-push (`CONTRIBUTING.md`). R21 leaves `registry.json` alone. After it merges, a maintainer adds a `profiles`
    entry with `status: generated` and `mode: generated` in a separate pull
