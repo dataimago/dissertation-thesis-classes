@@ -260,8 +260,11 @@ Partials are inlined into the main `.tex` by Pandoc, so a partial carries a vers
 and a `\typeout` line instead of `\ProvidesFile`; `\ProvidesFile` appears only in the
 compiled `.cfg` (8). The font and geometry sub-partial names were confirmed on Quarto 1.11.9:
 `fonts.latex` and `font-settings.latex` are emptied; the geometry load is **not** a partial
-(it is `$if(geometry)$` in `template.tex`), so a `geometry:` key still emits
-`\usepackage[...]{geometry}` and clashes, which is why the filter warns first (R10, T17).
+(it is `$if(geometry)$` in `template.tex`), so a `geometry:` key would emit
+`\usepackage[...]{geometry}` and clash with the class. The filter therefore warns and then
+removes `geometry` (and the other keys Pandoc's template would act on: `linestretch`, the
+font keys, `fontsize`, `papersize`) from the metadata before Pandoc fills the template (R10);
+T17 sets `geometry:` and requires both the warning and a PDF.
 `common.latex` loads `parskip` unless `indent` is set, so the filter sets `indent: true`.
 
 R10. Unsupported Quarto keys MUST be detected, not silently ignored: if `geometry`,
@@ -276,9 +279,11 @@ is set, the Lua filter (the one of R8) MUST warn through
 from `doc.meta`. **Exception:** Quarto consumes `toc`, `lof`, `lot` and `toc-depth` itself,
 so they never reach `doc.meta` (and `-M` command-line flags do not reach the filter either);
 the filter reads those four from `_quarto.yml` and from the active `_quarto-<profile>.yml`
-files (`QUARTO_PROFILE`). **Limit:** Quarto injects some values itself (`toc: true` on books,
-`colorlinks: true`, `linkcolor: blue`, `papersize: letter`), and they cannot be told from
-author values, so a value equal to Quarto's own default is not reported; any other value is. The class and the
+files (`QUARTO_PROFILE`), and warns whenever one of them is written there, whatever its
+value: a project file holds only what the author wrote. **Limit (keys read from
+`doc.meta`):** Quarto injects some values itself (`colorlinks: true`, `linkcolor: blue`,
+`papersize: letter`), and in `doc.meta` they cannot be told from author values, so a value
+equal to Quarto's own default is not reported there; any other value is. The class and the
 emptied partials cannot see these keys, so they are not the place for the warning. **Reason:** an author changing `fontsize` and seeing nothing happen
 is the worst failure mode.
 
@@ -336,7 +341,7 @@ format:
   pdf:
     documentclass: dataimago-thesis
     pdf-engine: lualatex
-    template-partials: [doc-class.tex, title.tex, before-body.tex, toc.tex]
+    template-partials: [doc-class.tex, title.tex, before-body.tex, toc.tex, fonts.latex, font-settings.latex]
     filters: [thesis-divs.lua]
     keep-tex: true
 ```
@@ -913,11 +918,12 @@ Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.
 enforceable (`pagenumber.runningHead: chapter`, `landscape.pageNumber: rotated-with-text`,
 `landscape.margins`, `type.size: 10.5`) is accepted by the schema, compiles into the `.cfg`,
 and produces one class warning at build that names the key and what the build does instead.
-The fields marked **[specified, not yet implemented]** are different: the schema does not
-accept them yet (`additionalProperties: false`), so a profile cannot set them until the
-follow-up PR adds them to the schema and the class together. A profile MAY set one of them to record
-what the guide says, but its value changes nothing in the PDF until the option is
-implemented. `toc.leaders`, `numbering.*`, `spacing.*` and the other fields not marked are
+A profile MAY set one of these to record what the guide says, but its value changes
+nothing in the PDF until the option is implemented. The fields and values marked
+**[specified, not yet implemented]** are different: the schema does not accept them yet (a
+new key fails `additionalProperties: false`, and `submission.links: underline` fails the
+`links` enum), so a profile cannot set them until the follow-up PR adds them to the schema
+and the class together. `toc.leaders`, `numbering.*`, `spacing.*` and the other fields not marked are
 implemented.
 
 #### `submission`, `accessibility`, `limits`
@@ -1025,6 +1031,8 @@ bibliography: { heading: Bibliography, hangingIndent: 0.5in }
 submission: { pdfa: 4f, embedFonts: true, bookmarkDepth: 2, bookmarksOpen: false, links: hidden }
 accessibility: { tagged: "on", altTextEnforcement: error, pdfua: auto }
 limits: {}
+sources:
+  submission.pdfa: { inferred: true, from: "build spike, TeX Live 2026 (2026-11-08)", note: "..." }
 ```
 
 ### 6.6 Worked example 2: `profiles/cu-boulder.yaml` (values only)
