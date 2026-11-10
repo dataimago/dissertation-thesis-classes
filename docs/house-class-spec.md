@@ -653,7 +653,11 @@ sets `pdfdisplaydoctitle` and the bookmark options on the pinned TeX Live.
 * The `tagpdf` package (the core of this work) is loaded automatically by
   `\DocumentMetadata`; it supports pdfLaTeX and LuaLaTeX. It was released often through
   2026 (CTAN announcements), and must stay in sync with the kernel and `latex-lab`:
-  a current TeX Live is required.
+  a recent TeX Live is required. Every build uses one dated TeX Live snapshot, pinned in
+  `tools/texlive-pin.txt` with the installer's and the package database's checksums, and the
+  same three values sit in both templates' `build-thesis.yml`. The snapshot is bumped on
+  purpose, with this repository's CI as the gate (maintainer decision 2026-11-10;
+  CONTRIBUTING.md, "Maintainers: bumping TeX Live").
 * Unresolved: whether Quarto/Pandoc's generated LaTeX tags cleanly (tables, lists,
   raw blocks, citations). **[verify]** by a spike in the build step.
 
@@ -666,7 +670,7 @@ without tagging.** Reason: tagging and automatic MathML work only on LuaLaTeX.
 |---|---|
 | `fontspec` and `unicode-math` work on both engines; font names stay the same | The profile's `type.*` fields do not change. |
 | Slower builds (LuaLaTeX is slower than XeLaTeX on large books, plus font cache on first run) | Cache `~/.texlive*/texmf-var` in CI. |
-| Needs a current TeX Live (tagging code is in rapid development; TinyTeX must be current) | CI pins the TeX Live year; the template's `tlmgr` step updates. |
+| Needs a recent TeX Live (tagging code is in rapid development; TinyTeX must be current) | One dated snapshot (`tools/texlive-pin.txt`), checksummed, used by the registry's CI and both templates and bumped on purpose (5.2). |
 | Some XeLaTeX-only packages (`xeCJK`, `xunicode`) | Use `luatexja` or `fontspec` fallbacks for CJK. |
 | The CU class and `build-thesis.yml` use XeLaTeX today | The legacy CU class stays XeLaTeX (its registry entry says so). The house class builds under both; since the registry step (see Status of this contract), the registry entry for the house class records `engine: lualatex`, `engineFallback: xelatex`. |
 | Existing authors whose chapters include XeLaTeX-specific raw LaTeX | Document in the migration notes; CI builds the sample under both engines. |
