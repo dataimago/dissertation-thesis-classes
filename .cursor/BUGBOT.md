@@ -34,8 +34,13 @@ defects; do not turn style preferences or speculative redesigns into findings.
   `mode`/`status`, removed mode) needs a `schemaVersion` bump.
 - dissertation-ai vendors a **byte-identical copy** of `registry.json` and
   fails its `registry:check` on drift. Any `registry.json` change needs a
-  matching dissertation-ai PR (`registry:sync`); flag a PR that does not
-  mention one. Adding or renaming a mode also needs the hub interview's words.
+  matching dissertation-ai PR (`registry:sync`). That repository is private and
+  you see only `pr.diff`, so the evidence is the row the PR appends to
+  `docs/registry-sync-log.md` (blob + `dataimago/dissertation-ai#N`); CI's
+  `tools/check_sync_log.py` checks the blob and the append-only rule. Flag a
+  `registry.json` change whose diff adds no such row, and a row whose change
+  text does not describe this diff. Do not ask for the hub PR in other files.
+  Adding or renaming a mode also needs the hub interview's words.
 - Every `available` class keeps a buildable synthetic `example/` and records
   `engine`, `documentclass`, and `classOptions`.
 

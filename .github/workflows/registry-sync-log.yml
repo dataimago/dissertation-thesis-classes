@@ -1,0 +1,37 @@
+name: Registry sync log
+
+# docs/registry-sync-log.md names the dissertation-ai pull request that copies each
+# registry.json. That repository is private, so this check (and the reviewer) can see
+# only the log: its newest row must carry the blob of the current registry.json, and a
+# pull request that changes registry.json appends exactly one row. The hub's own
+# registry:check then holds its copy byte-identical to main. No path filter, so the
+# check always reports and can be made required.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  sync-log:
+    name: registry.json names its hub sync PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Check the sync log
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          # On a push that creates the branch, `before` is all zeros; check the tree alone.
+          if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != 0000000000000000000000000000000000000000 ]; then
+            python3 tools/check_sync_log.py --selftest --base "$BASE_SHA"
+          else
+            python3 tools/check_sync_log.py --selftest
+          fi
