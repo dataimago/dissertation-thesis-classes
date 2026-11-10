@@ -6,7 +6,7 @@
 | Class name | `dataimago-thesis.cls` (LPPL 1.3c, new code) |
 | Profiles | `profiles/<id>.yaml` (MIT), one per institution |
 | Date | 2026-11-08 |
-| Revision | 2026-11-09 (rev. 2): answers the 19 spec questions of the build PR (#5); specifies the three CU schema gaps (see "Changes in revision 2") |
+| Revision | 2026-11-09 (rev. 3): the three CU schema gaps (R22, S8) are implemented and the CU profile uses them; four corrections to rev. 2 (see "Changes in revision 2"). Rev. 2 answered the 19 spec questions of the build PR (#5) |
 
 **Idea.** Few institutions publish a LaTeX class; authors bring a formatting guide.
 So the registry's unit is ONE well-built class plus a small, checkable PROFILE per
@@ -34,10 +34,14 @@ places changed: 2.2 and R5a (`thesis.institution`), R9b (Quarto book structure),
 headers, sub-partials) and R10 (keys the filter reads), R12 and 2.5 (where the files live), 3.5
 to 3.11 and R17, R22 (what the class does not implement or enforce; heading text), S4, S8, A8,
 6.1, P4a (quoted YAML values), 6.4 (notes, new fields, house `pdfa: 4f`, `pdfua: auto`), 6.5,
-7.1, T5, T11, T14 and section 8 (headers and licences). Three fields are **specified here and implemented in a
-follow-up PR**: `submission.links: underline`, `frontmatter.<page>.heading` for the contents
-and the lists, and `abstract.heading`, `abstract.align` and `abstract.headerWeight` (6.4, marked **[specified, not
-yet implemented]**). The CU "sans serif" sentence (question 16) is not a spec question; it
+7.1, T5, T11, T14 and section 8 (headers and licences). Three fields were **specified here and implemented in the
+follow-up PR** (revision 3, 2026-11-09): `submission.links: underline`, `frontmatter.toc.heading` and
+`frontmatter.lists.<list>.heading` for the contents and the lists, and `abstract.heading`,
+`abstract.align` and `abstract.headerWeight` (6.4, marked **[implemented]**). Revision 3 also
+corrects four statements of revision 2: the 2.4 partials row (geometry is not a partial), the
+`\typeout` claim (only `doc-class.tex` has one), R5a (the example overlay sets
+`thesis.institution`) and S4 (its pointer for the `4f` default), and S8 now says the underline
+is a link-annotation border, not text underlining. The CU "sans serif" sentence (question 16) is not a spec question; it
 stays open for the maintainer.
 
 **Contents:** 1 Inventory · 2 Quarto integration · 3 What a profile covers ·
@@ -193,7 +197,8 @@ document must not fail for a field the spec can fill.
 R5a. `thesis.institution` is MUST only in that the build needs a value: the profile's
 `institution.name` (6.4) is its default, and `thesis.institution` overrides it. The class
 errors (R5) only when both are empty (as in `house`, whose `institution.name` is empty). The
-example book overrides it per build profile with a synthetic name (7.1). **Reason:** a profile
+example book's overlay sets it to the profile's `institution.name` when the profile has one;
+otherwise the base book's synthetic "Example University" stays (7.1). **Reason:** a profile
 for one school already knows the school's name; only a profile without one needs the author to
 supply it.
 
@@ -253,11 +258,12 @@ quoted in the docs **[verify]** against the pinned version.
 | `before-body.tex` | **replace** | Calls `\thesisfrontmatter` (title, copyright, approval, committee, abstract, dedication, acknowledgments, preface, ToC, lists, in profile order), then `\mainmatter`. The dedication, acknowledgments and similar pages are read from the metadata the filter lifted (R8), never from `$body$`. | Quarto's default prints `\maketitle` and the abstract itself; the class owns the order. |
 | `toc.tex` | **replace with empty** | Suppresses Quarto's own ToC and lists | The class prints them in `frontmatter.order`. Avoids a doubled ToC. |
 | `after-body.tex` | keep (empty) | | Nothing to add; the class handles back matter itself. |
-| `pandoc.tex` | **keep**, unedited. Its `hyperref`/`bookmark` load is a no-op because the package is already loaded (by the tagging code, or by the class on the untagged path). Its `\hypersetup{...}` is overridden: the class re-applies its own `\hypersetup{...}` (R18) in `\AddToHook{begindocument/before}`, which runs after the whole preamble, so the class's values win. Geometry and font loads are prevented by the emptied sub-partials below. **[verify]** in `-build` against the pinned Quarto's `pandoc.tex`. | | Required by Quarto; Pandoc features (highlighting, tables, citations) need it. |
-| font and geometry sub-partials (names **[verify]**) | **replace with empty** so Pandoc applies none of those keys; the warning comes from the Lua filter (R10), not from these partials | Fonts and geometry belong to the profile | The `Option clash for package geometry` failure and the Noto fallback both came from two owners. |
+| `pandoc.tex` | **keep**, unedited. Its `hyperref`/`bookmark` load is a no-op because the package is already loaded (by the tagging code, or by the class on the untagged path). Its `\hypersetup{...}` is overridden: the class re-applies its own `\hypersetup{...}` (R18) in `\AddToHook{begindocument/before}`, which runs after the whole preamble, so the class's values win. Font loads are prevented by the emptied font sub-partials below; the geometry load by the filter, which drops the `geometry` key. **[verify]** in `-build` against the pinned Quarto's `pandoc.tex`. | | Required by Quarto; Pandoc features (highlighting, tables, citations) need it. |
+| font sub-partials `fonts.latex` and `font-settings.latex` | **replace with empty** so Pandoc applies none of the font keys; the warning comes from the Lua filter (R10), not from these partials. Geometry is not a partial: it is `$if(geometry)$` in `template.tex`, and the filter drops the `geometry` key (below) | Fonts and geometry belong to the profile | The `Option clash for package geometry` failure and the Noto fallback both came from two owners. |
 
 Partials are inlined into the main `.tex` by Pandoc, so a partial carries a version comment
-and a `\typeout` line instead of `\ProvidesFile`; `\ProvidesFile` appears only in the
+(`$-- Version: ...`, with the LPPL notice above it) instead of `\ProvidesFile`; only `doc-class.tex`
+also prints a `\typeout` line, because it is the one partial that emits TeX before the class loads. `\ProvidesFile` appears only in the
 compiled `.cfg` (8). The font and geometry sub-partial names were confirmed on Quarto 1.11.9:
 `fonts.latex` and `font-settings.latex` are emptied; the geometry load is **not** a partial
 (it is `$if(geometry)$` in `template.tex`), so a `geometry:` key would emit
@@ -454,10 +460,10 @@ for one fact drift apart.
 
 Heading text, by page. The profile gives heading text only for the pages 6.4 lists a
 `heading` field for: `committee.heading`, `dedication.heading`, `acknowledgments.heading`,
-and (specified in this revision, not yet implemented) `abstract.heading`, `toc.heading` and
-`lists.<list>.heading`. The heading text of every other generated page (the contents and
-the lists today; "Preface", "List of Abbreviations", "List of Symbols") is a fixed house
-default of the class, as the opening of section 3 allows: contents and lists use the
+`abstract.heading`, `toc.heading` and
+`lists.<list>.heading` (R22). The heading text of every other generated page ("Preface", "List of
+Abbreviations", "List of Symbols") is a fixed house default of the class, as the opening of
+section 3 allows. Where a profile gives no contents or list heading, those pages use the
 language's own names (`\contentsname`, `\listtablename`, `\listfigurename`), which read
 "Table of contents", "List of Tables" and "List of Figures" in English. Whether a page is
 numbered, listed in the ToC, starts a new page, or is single or double spaced is likewise the
@@ -480,14 +486,15 @@ Slots: `{title}` `{author}` `{authorInverted}` `{degreeName}` `{degreeAbbr}` `{f
 | **Copyright page** | `copyright.enabled`, `copyright.template`, position | `© {year} {author}. All rights reserved.` (SHOULD be offered; ProQuest supports registered copyright) |
 | **Approval / signature page** | `approval.enabled`, `approval.statement`, `approval.signatureLines` (from advisors+committee), `approval.dateLine`, `approval.irbLine` | House fallback, written for the house: `Approved by the {documentType} committee, {department}, {institution}.` plus signature lines and a date line. A school's own sentences come from its guide, cited in its profile; never from a legacy class. |
 | **Committee page / block** | `committee.placement: title-page \| separate-page \| none`, `committee.heading`, `committee.format` (name, title, role, affiliation, order) | `Committee` heading, then `{name}, {title}` per member, chair first |
-| **Abstract page** | `abstract.header` (template), `abstract.wordLimit`, `abstract.keywords: true\|false`; `abstract.heading`, `abstract.align` and `abstract.headerWeight` (specified in this revision, not yet implemented) | House fallback: `{title}` / `{author}, {degreeAbbr}` / `{institution}, {year}` |
+| **Abstract page** | `abstract.header` (template), `abstract.wordLimit`, `abstract.keywords: true\|false`; `abstract.heading`, `abstract.align` and `abstract.headerWeight` (R22) | House fallback: `{title}` / `{author}, {degreeAbbr}` / `{institution}, {year}` |
 | Dedication, acknowledgments | heading text, case, placement | |
 
-R22. **[specified here, implemented in a follow-up PR]** The abstract page, the contents and
+R22. **[implemented]** The abstract page, the contents and
 the lists MUST be able to carry school wording, so the profile gains the fields in 6.4 and
 the fixed text of these pages stops being a house default. (a) `frontmatter.toc.heading`,
-`frontmatter.lists.lot.heading`, `frontmatter.lists.lof.heading`: the page heading, and the PDF
-bookmark, use the string when set and the language's own name otherwise (today's output).
+`frontmatter.lists.lot.heading`, `frontmatter.lists.lof.heading`: the page heading (and, for
+the two lists, the PDF bookmark; the contents page has no bookmark of its own) use the string
+when set and the language's own name otherwise (today's output).
 They follow `titlesCase`. The names extend the existing `frontmatter.<page>.heading` fields
 (`committee`, `dedication`, `acknowledgments`), with the lists under `lists.<list>` as
 `mode` and `numberFirstPage` already are. (b)
@@ -570,11 +577,11 @@ See section 10 for links.
 | S1 | The PDF MUST embed every font (subset is fine); CI fails on any font with `emb = no`. | ProQuest rule; unembedded fonts lose characters in print. |
 | S2 | The PDF MUST NOT contain Type 3 fonts. CI fails on `type = Type 3`. | ProQuest rule (renders poorly). Type 3 fonts creep in via bitmap fonts and some plot output. |
 | S3 | The PDF MUST be unencrypted with no restrictions on printing, copying or modification. | ProQuest rule. |
-| S4 | Profile field `submission.pdfa` in {`none`, `1b`, `2b`, `3b`, `4`, `4f`}; house default `4f` (decision 2 chose `2b`; the build spike showed it cannot be combined with tagging and PDF/UA-2, so decision 2's fallback applies, 5.3 and the composition rule in 6.4). `2b` maps to `pdfstandard=a-2b`, `4` to `a-4`, `4f` to `a-4f` (the `f` level allows embedded files). The enum is the same in 6.4. | Schools differ; a level is a profile fact. |
+| S4 | Profile field `submission.pdfa` in {`none`, `1b`, `2b`, `3b`, `4`, `4f`}; house default `4f` (decision 2 chose `2b`; the build spike showed it cannot be combined with tagging and PDF/UA-2, so decision 2's fallback applies; see decision 2 and the composition rule in 6.4). `2b` maps to `pdfstandard=a-2b`, `4` to `a-4`, `4f` to `a-4f` (the `f` level allows embedded files). The enum is the same in 6.4. | Schools differ; a level is a profile fact. |
 | S5 | If `pdfa != none`, the class MUST set it via `\DocumentMetadata{pdfstandard=...}`, which also embeds an output intent. CI validates with veraPDF where available (T14). `pdfstandard` is built from BOTH fields as a list: the PDF/A entry from `submission.pdfa` (omitted if `none`) plus the UA entry from the resolved `accessibility.pdfua` (omitted if `none`); for example `pdfstandard={a-4f, ua-2}` (the house default). | The kernel's PDF management is the supported path. Which levels combine with tagging and `lualatex` on the pinned TeX Live is resolved in 6.4 (composition rule): `a-2b` cannot share a PDF version with `ua-2`. |
 | S6 | Bookmarks MUST be generated from the ToC to the profile's depth (`submission.bookmarkDepth`, house 2), with open state per profile. | Not a ProQuest rule; a navigation and accessibility baseline, cheap with `hyperref`. |
 | S7 | PDF metadata MUST be set from the document: Title, Author, Subject (degree and institution), Keywords, Creator, language. No default "Untitled" or empty values, except that Keywords is omitted (not empty) when `thesis.keywords` is absent; CI reads them with `pdfinfo`/`exiftool`. | Archives index these. |
-| S8 | Links: `submission.links: hidden \| boxes \| color \| underline`, house `hidden` (no borders, no color; text remains clickable). `underline` **[specified here, implemented in a follow-up PR]**: the link text keeps the text color and is underlined **in the page content** (so it survives printing and rasterising), not only as a PDF annotation border, and it stays clickable; no box, no color. Added because the CU guide says links are underlined. Existing profiles are unaffected: the default and every current value render as before. | Print and submission checks often object to colored link boxes; the profile may require color or underlining. |
+| S8 | Links: `submission.links: hidden \| boxes \| color \| underline`, house `hidden` (no borders, no color; text remains clickable). `underline` **[implemented]**: the link text keeps the text color (black) and each link annotation is drawn with an underline border (`pdfborderstyle={/S/U/W 1}`, black, `colorlinks=false`); the text is not changed, so tagging and PDF/UA see the same content as with `hidden`. The annotation carries the Print flag, so viewers and printers draw the underline, and the link stays clickable; no box, no color. The build chose the annotation border over underlining the text (`ulem`, `\underline`, or a redefined `\em`, which C9 rejects) because text underlining re-sets the link text and breaks tagging and line breaking, and a border costs nothing in the tag tree. The underline is a viewer-drawn border: a tool that discards annotations (some print-to-image paths) shows no underline. Added because the CU guide says links are underlined. Existing profiles are unaffected: the default and every current value render as before. | Print and submission checks often object to colored link boxes; the profile may require color or underlining. |
 | S9 | Page size MUST equal the profile's paper size to the nearest 0.1 pt tolerance; CI measures with `pdfinfo`. | Catches stray `geometry`. |
 | S10 | File size SHOULD stay below the school/ProQuest limit (`submission.maxMB`); CI warns. | Upload limits. |
 | S11 | Images SHOULD be embedded at 300 dpi at final size or as vector; CI warns on lower `pdfimages` resolution. | Print legibility. |
@@ -876,11 +883,11 @@ Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.
 | `committee.format` | template | `{name}, {title}` | role appended for chair | |
 | `abstract.header` | template | `{title}` / `{author}, {degreeAbbr}` / `{institution}, {year}` | | |
 | `abstract.wordLimit` | int | none | | CI warning |
-| `abstract.heading` | string | `Abstract` | any text; `""` prints no heading. **[specified, not yet implemented]** | the heading line below the header block |
-| `abstract.align` | enum | `center` | `center`, `left`. **[specified, not yet implemented]** | alignment of the header block and of the heading |
-| `abstract.headerWeight` | enum | `bold` | `bold`, `normal`. **[specified, not yet implemented]** | weight of the header lines |
-| `frontmatter.toc.heading` (the `toc` here is the page, not the top-level `toc` table of depth and leaders) | string | none (the language's name: "Table of contents") | non-empty text. **[specified, not yet implemented]** | the contents page heading (also its bookmark) |
-| `lists.lot.heading`, `lists.lof.heading` (under `frontmatter`) | string | none (the language's names: "List of Tables", "List of Figures") | non-empty text. **[specified, not yet implemented]** | the list page headings (also their bookmarks) |
+| `abstract.heading` | string | `Abstract` | any text; `""` prints no heading. **[implemented]** | the heading line below the header block |
+| `abstract.align` | enum | `center` | `center`, `left`. **[implemented]** | alignment of the header block and of the heading |
+| `abstract.headerWeight` | enum | `bold` | `bold`, `normal`. **[implemented]** | weight of the header lines |
+| `frontmatter.toc.heading` (the `toc` here is the page, not the top-level `toc` table of depth and leaders) | string | none (the language's name: "Table of contents") | non-empty text. **[implemented]** | the contents page heading (the contents page has no PDF bookmark of its own) |
+| `lists.lot.heading`, `lists.lof.heading` (under `frontmatter`) | string | none (the language's names: "List of Tables", "List of Figures") | non-empty text. **[implemented]** | the list page headings (also their bookmarks) |
 | `dedication.heading` | string | none | | |
 | `acknowledgments.heading` | string | `Acknowledgments` | | |
 | `acknowledgments.maxPages` | int | none | | CI warning |
@@ -919,12 +926,11 @@ enforceable (`pagenumber.runningHead: chapter`, `landscape.pageNumber: rotated-w
 `landscape.margins`, `type.size: 10.5`) is accepted by the schema, compiles into the `.cfg`,
 and produces one class warning at build that names the key and what the build does instead.
 A profile MAY set one of these to record what the guide says, but its value changes
-nothing in the PDF until the option is implemented. The fields and values marked
-**[specified, not yet implemented]** are different: the schema does not accept them yet (a
-new key fails `additionalProperties: false`, and `submission.links: underline` fails the
-`links` enum), so a profile cannot set them until the follow-up PR adds them to the schema
-and the class together. `toc.leaders`, `numbering.*`, `spacing.*` and the other fields not marked are
-implemented.
+nothing in the PDF until the option is implemented. The fields and values that
+were **[specified, not yet implemented]** in revision 2 are now **[implemented]** (R22, S8): the schema accepts
+them, the generator compiles them into the `.cfg`, and the class reads them with the defaults in
+the table, so a profile that sets none of them renders as before. `toc.leaders`, `numbering.*`,
+`spacing.*` and the other fields not marked are implemented.
 
 #### `submission`, `accessibility`, `limits`
 
@@ -938,7 +944,7 @@ implemented.
 | `submission.embedFonts` | bool | `true` | MUST be true | CI |
 | `submission.bookmarkDepth` | int | `2` | 0-4 | `hyperref` `bookmarksdepth` |
 | `submission.bookmarksOpen` | bool | `false` | | |
-| `submission.links` | enum | `hidden` | `hidden`, `boxes`, `color`, `underline` **[specified, not yet implemented]** | `hyperref` options |
+| `submission.links` | enum | `hidden` | `hidden`, `boxes`, `color`, `underline` **[implemented]** | `hyperref` options (`underline`: `pdfborderstyle={/S/U/W 1}`, black border, text color unchanged) |
 | `submission.linkColor` | color | `#1a4f8b` | only if `links: color` (`underline` keeps the text color: black) | |
 | `submission.maxMB` | number | none | | CI warning |
 | `accessibility.tagged` | enum | `on` (quote it: P4a) | `on`, `off` | `\DocumentMetadata{tagging=...}` |
@@ -1208,7 +1214,7 @@ reviewable.
 | Fonts | Each font keeps its own license (TeX Gyre: GUST Font License) | Fonts are installed in CI, never committed. |
 
 A partial is inlined into the main `.tex` by Pandoc, so its LPPL notice is a version comment
-and a `\typeout` line rather than `\ProvidesFile` (2.4). The compiled `profiles/<id>.cfg`
+rather than `\ProvidesFile` (2.4; only `doc-class.tex` also prints a `\typeout` line). The compiled `profiles/<id>.cfg`
 carries `\ProvidesFile` and a note that it is a compile of MIT profile data, so the `.cfg` is
 MIT like its YAML even though the class that reads it is LPPL. `tests/negative/noto-math.yaml`
 is a test-only profile outside `profiles/` (the T16 trap; never registered).

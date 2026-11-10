@@ -50,7 +50,13 @@ frontmatter:
   committee: { placement: title-page, heading: "Committee Members", format: "{name}" }
   abstract:
     header: "{authorInverted} ({degreeAbbr}, {field})\n{title}\n{documentType} directed by {advisorTitle} {advisorName}"
+    heading: ""
+    align: left
+    headerWeight: normal
+  toc: { heading: Contents }
+  lists: { lot: { heading: Tables }, lof: { heading: Figures } }
 appendices: { divider: true }
+submission: { links: underline }
 sources:
   institution.name: { inferred: true, from: "legacy class title-page wording", note: "the school's statement says University of Colorado without Boulder; used only as the {institution} default" }
   geometry.margins.top: { section: "Margins", quote: "1 inch on all edges", note: "equals the house value; the legacy class's 1.15in text top is not what the guide says" }
@@ -87,7 +93,13 @@ sources:
   frontmatter.committee.format: { inferred: true, from: "sample-output.pdf page 1", note: "names only; the chair is marked by role" }
   frontmatter.abstract.header: { section: "Abstract", note: "the abstract must carry the author's name, degree initials, department, title and faculty advisor; the line layout is the sample's (inferred)" }
   accessibility.altTextEnforcement: { section: "Tables, Figures, and Media", quote: "Include alt text for all images and figures", note: "equals the house value" }
-  submission.links: { section: "Links and color", note: "the guide says links are underlined (and should point inside the dissertation); the profile offers hidden, boxes or color, so the house value stays: see the pull request's spec questions" }
+  submission.links: { section: "Links and color", note: "the guide says links are underlined (and should point inside the dissertation); `underline` draws the link annotation's border as an underline and leaves the text black (spec 4.3, S8)" }
+  frontmatter.abstract.heading: { inferred: true, from: "sample-output.pdf page 2", note: "the abstract page prints no \"Abstract\" heading line" }
+  frontmatter.abstract.align: { inferred: true, from: "sample-output.pdf page 2", note: "header lines are left aligned" }
+  frontmatter.abstract.headerWeight: { inferred: true, from: "sample-output.pdf page 2", note: "header lines are set in the regular weight" }
+  frontmatter.toc.heading: { inferred: true, from: "sample-output.pdf page 5", note: "the contents page reads \"Contents\"" }
+  frontmatter.lists.lot.heading: { inferred: true, from: "sample-output.pdf page 6", note: "the list of tables page reads \"Tables\"" }
+  frontmatter.lists.lof.heading: { inferred: true, from: "sample-output.pdf page 7", note: "the list of figures page reads \"Figures\"" }
   appendices.divider: { inferred: true, from: "sample-output.pdf page 5", note: "single Appendix entry in the contents; the guide only says appendices exist" }
 unstated:
   - type.sans

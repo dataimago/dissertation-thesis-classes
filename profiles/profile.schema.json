@@ -30,7 +30,8 @@
       "type": "object", "additionalProperties": false,
       "properties": {
         "mode": { "enum": ["always", "auto", "never"] },
-        "numberFirstPage": { "enum": ["auto", "show", "hide"] }
+        "numberFirstPage": { "enum": ["auto", "show", "hide"] },
+        "heading": { "type": "string", "minLength": 1 }
       }
     },
     "sourceEntry": {
@@ -177,7 +178,11 @@
           "placement": { "enum": ["title-page", "separate-page", "none"] },
           "heading": { "type": "string" }, "format": { "type": "string" } } },
         "abstract": { "type": "object", "additionalProperties": false, "properties": {
-          "header": { "type": "string" }, "wordLimit": { "type": "integer", "minimum": 1 }, "keywords": { "type": "boolean" } } },
+          "header": { "type": "string" }, "wordLimit": { "type": "integer", "minimum": 1 }, "keywords": { "type": "boolean" },
+          "heading": { "type": "string" },
+          "align": { "enum": ["center", "left"] },
+          "headerWeight": { "enum": ["bold", "normal"] } } },
+        "toc": { "type": "object", "additionalProperties": false, "properties": { "heading": { "type": "string", "minLength": 1 } } },
         "dedication": { "type": "object", "additionalProperties": false, "properties": { "heading": { "type": "string" } } },
         "acknowledgments": { "type": "object", "additionalProperties": false, "properties": {
           "heading": { "type": "string" }, "maxPages": { "type": "integer", "minimum": 1 } } },
@@ -227,7 +232,7 @@
         "embedFonts": { "const": true },
         "bookmarkDepth": { "type": "integer", "minimum": 0, "maximum": 4 },
         "bookmarksOpen": { "type": "boolean" },
-        "links": { "enum": ["hidden", "boxes", "color"] },
+        "links": { "enum": ["hidden", "boxes", "color", "underline"] },
         "linkColor": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
         "maxMB": { "type": "number", "exclusiveMinimum": 0 }
       }
