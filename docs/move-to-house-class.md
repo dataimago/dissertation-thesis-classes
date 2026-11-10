@@ -3,8 +3,9 @@
 **For authors.** If dissertation.ai set up your dissertation repository before
 2026-11-09, its thesis PDF is built with the framework's earlier default class (the
 `thesis.cls` copied into your book folder at setup), and the AI instructions in it read
-this registry the old way: they look for a ready-made format among the registry's
-classes, where the current registry no longer lists institutions. One thing is wrong as
+this registry the old way: they look for a ready-made format on the registry's
+classes, but institutions are now listed under its profiles (a profile with `mode:
+shipped` is ready-made). One thing is wrong as
 a result: asked about your institution's ready-made format, your AI may say there is
 none when there is (a ready-made profile; CU Boulder has one today). Nothing is broken and your PDF has not
 changed; moving is your choice, and nothing changes until you agree.
