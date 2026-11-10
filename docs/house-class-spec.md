@@ -36,7 +36,7 @@ to 3.11 and R17, R22 (what the class does not implement or enforce; heading text
 6.1, P4a (quoted YAML values), 6.4 (notes, new fields, house `pdfa: 4f`, `pdfua: auto`), 6.5,
 7.1, T5, T11, T14 and section 8 (headers and licences). Three fields are **specified here and implemented in a
 follow-up PR**: `submission.links: underline`, `frontmatter.<page>.heading` for the contents
-and the lists, and `abstract.heading` and `abstract.align` (6.4, marked **[specified, not
+and the lists, and `abstract.heading`, `abstract.align` and `abstract.headerWeight` (6.4, marked **[specified, not
 yet implemented]**). The CU "sans serif" sentence (question 16) is not a spec question; it
 stays open for the maintainer.
 
@@ -475,7 +475,7 @@ Slots: `{title}` `{author}` `{authorInverted}` `{degreeName}` `{degreeAbbr}` `{f
 | **Copyright page** | `copyright.enabled`, `copyright.template`, position | `© {year} {author}. All rights reserved.` (SHOULD be offered; ProQuest supports registered copyright) |
 | **Approval / signature page** | `approval.enabled`, `approval.statement`, `approval.signatureLines` (from advisors+committee), `approval.dateLine`, `approval.irbLine` | House fallback, written for the house: `Approved by the {documentType} committee, {department}, {institution}.` plus signature lines and a date line. A school's own sentences come from its guide, cited in its profile; never from a legacy class. |
 | **Committee page / block** | `committee.placement: title-page \| separate-page \| none`, `committee.heading`, `committee.format` (name, title, role, affiliation, order) | `Committee` heading, then `{name}, {title}` per member, chair first |
-| **Abstract page** | `abstract.header` (template), `abstract.wordLimit`, `abstract.keywords: true\|false`; `abstract.heading` and `abstract.align` (specified in this revision, not yet implemented) | House fallback: `{title}` / `{author}, {degreeAbbr}` / `{institution}, {year}` |
+| **Abstract page** | `abstract.header` (template), `abstract.wordLimit`, `abstract.keywords: true\|false`; `abstract.heading`, `abstract.align` and `abstract.headerWeight` (specified in this revision, not yet implemented) | House fallback: `{title}` / `{author}, {degreeAbbr}` / `{institution}, {year}` |
 | Dedication, acknowledgments | heading text, case, placement | |
 
 R22. **[specified here, implemented in a follow-up PR]** The abstract page, the contents and
@@ -488,9 +488,9 @@ They follow `titlesCase`. The names extend the existing `frontmatter.<page>.head
 `mode` and `numberFirstPage` already are. (b)
 `abstract.heading`: the text of the line below the header block, default `Abstract`; `""`
 omits the line. (c) `abstract.align`: `center` (default) or `left`, applied to the header
-block and the heading together. Defaults are chosen so that a profile that sets none of them
-renders exactly as before. Not covered: the weight of the header lines (bold today); a guide
-that wants them plain needs a further field. **Reason:** the CU sample prints "Contents",
+block and the heading together. (d) `abstract.headerWeight`: `bold` (default, today's output)
+or `normal`, the weight of the header lines. Defaults are chosen so that a profile that sets
+none of them renders exactly as before. **Reason:** the CU sample prints "Contents",
 "Tables", "Figures", and an abstract page with plain left-aligned header lines and no
 "Abstract" heading; with the fixed text the CU profile cannot reproduce it.
 
@@ -566,7 +566,7 @@ See section 10 for links.
 | S2 | The PDF MUST NOT contain Type 3 fonts. CI fails on `type = Type 3`. | ProQuest rule (renders poorly). Type 3 fonts creep in via bitmap fonts and some plot output. |
 | S3 | The PDF MUST be unencrypted with no restrictions on printing, copying or modification. | ProQuest rule. |
 | S4 | Profile field `submission.pdfa` in {`none`, `1b`, `2b`, `3b`, `4`, `4f`}; house default `4f` (decision 2 chose `2b`; the build spike showed it cannot be combined with tagging and PDF/UA-2, so decision 2's fallback applies, 5.3 and the composition rule in 6.4). `2b` maps to `pdfstandard=a-2b`, `4` to `a-4`, `4f` to `a-4f` (the `f` level allows embedded files). The enum is the same in 6.4. | Schools differ; a level is a profile fact. |
-| S5 | If `pdfa != none`, the class MUST set it via `\DocumentMetadata{pdfstandard=...}`, which also embeds an output intent. CI validates with veraPDF where available (T14). `pdfstandard` is built from BOTH fields as a list: the PDF/A entry from `submission.pdfa` (omitted if `none`) plus the UA entry from the resolved `accessibility.pdfua` (omitted if `none`); for example `pdfstandard={a-2b, ua-2}`. | The kernel's PDF management is the supported path. **[verify]** which levels/combinations the pinned TeX Live accepts together with tagging and `lualatex`. |
+| S5 | If `pdfa != none`, the class MUST set it via `\DocumentMetadata{pdfstandard=...}`, which also embeds an output intent. CI validates with veraPDF where available (T14). `pdfstandard` is built from BOTH fields as a list: the PDF/A entry from `submission.pdfa` (omitted if `none`) plus the UA entry from the resolved `accessibility.pdfua` (omitted if `none`); for example `pdfstandard={a-4f, ua-2}` (the house default). | The kernel's PDF management is the supported path. Which levels combine with tagging and `lualatex` on the pinned TeX Live is resolved in 6.4 (composition rule): `a-2b` cannot share a PDF version with `ua-2`. |
 | S6 | Bookmarks MUST be generated from the ToC to the profile's depth (`submission.bookmarkDepth`, house 2), with open state per profile. | Not a ProQuest rule; a navigation and accessibility baseline, cheap with `hyperref`. |
 | S7 | PDF metadata MUST be set from the document: Title, Author, Subject (degree and institution), Keywords, Creator, language. No default "Untitled" or empty values, except that Keywords is omitted (not empty) when `thesis.keywords` is absent; CI reads them with `pdfinfo`/`exiftool`. | Archives index these. |
 | S8 | Links: `submission.links: hidden \| boxes \| color \| underline`, house `hidden` (no borders, no color; text remains clickable). `underline` **[specified here, implemented in a follow-up PR]**: the link text keeps the text color and is underlined **in the page content** (so it survives printing and rasterising), not only as a PDF annotation border, and it stays clickable; no box, no color. Added because the CU guide says links are underlined. Existing profiles are unaffected: the default and every current value render as before. | Print and submission checks often object to colored link boxes; the profile may require color or underlining. |
@@ -873,6 +873,7 @@ Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.
 | `abstract.wordLimit` | int | none | | CI warning |
 | `abstract.heading` | string | `Abstract` | any text; `""` prints no heading. **[specified, not yet implemented]** | the heading line below the header block |
 | `abstract.align` | enum | `center` | `center`, `left`. **[specified, not yet implemented]** | alignment of the header block and of the heading |
+| `abstract.headerWeight` | enum | `bold` | `bold`, `normal`. **[specified, not yet implemented]** | weight of the header lines |
 | `frontmatter.toc.heading` (the `toc` here is the page, not the top-level `toc` table of depth and leaders) | string | none (the language's name: "Table of contents") | non-empty text. **[specified, not yet implemented]** | the contents page heading (also its bookmark) |
 | `lists.lot.heading`, `lists.lof.heading` (under `frontmatter`) | string | none (the language's names: "List of Tables", "List of Figures") | non-empty text. **[specified, not yet implemented]** | the list page headings (also their bookmarks) |
 | `dedication.heading` | string | none | | |
@@ -908,16 +909,20 @@ Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.
 | `bibliography.heading` | string | `Bibliography` | e.g. `References` | |
 | `bibliography.hangingIndent` | length | `0.5in` | | |
 
-**Warn-only options.** Every option marked above as not implemented or not enforceable is
-accepted by the schema, compiles into the `.cfg`, and produces one class warning at build
-that names the key and what the build does instead. A profile MAY set one of them to record
+**Warn-only options.** Every existing option marked above as not implemented or not
+enforceable (`pagenumber.runningHead: chapter`, `landscape.pageNumber: rotated-with-text`,
+`landscape.margins`, `type.size: 10.5`) is accepted by the schema, compiles into the `.cfg`,
+and produces one class warning at build that names the key and what the build does instead.
+The fields marked **[specified, not yet implemented]** are different: the schema does not
+accept them yet (`additionalProperties: false`), so a profile cannot set them until the
+follow-up PR adds them to the schema and the class together. A profile MAY set one of them to record
 what the guide says, but its value changes nothing in the PDF until the option is
 implemented. `toc.leaders`, `numbering.*`, `spacing.*` and the other fields not marked are
 implemented.
 
 #### `submission`, `accessibility`, `limits`
 
-**Composition rule (resolved).** The class builds `\DocumentMetadata{pdfstandard={...}}` as one list from `submission.pdfa` (PDF/A entry, unless `none`) and the resolved `accessibility.pdfua` (UA entry, unless `none`). `auto` resolves to `ua-2` when the engine is lualatex and `accessibility.tagged` is `on`, otherwise `none`. The build spike found that PDF/A-2b cannot be combined with tagging and UA-2 on the pinned TeX Live (tagging forces PDF 2.0; the kernel reports `PDF version 2.0 is too high for standard pdf/A-2B`), so the house `submission.pdfa` is `4f` (PDF 2.0), and the result is recorded in a `sources` note on that field in `profiles/house.yaml`. `a-4f` with `ua-2` builds without warnings. `a-2b` still works untagged, or with `ua-1` at PDF 1.7.
+**Composition rule (resolved).** The class builds `\DocumentMetadata{pdfstandard={...}}` as one list from `submission.pdfa` (PDF/A entry, unless `none`) and the resolved `accessibility.pdfua` (UA entry, unless `none`). `auto` resolves to `ua-2` when the engine is lualatex and `accessibility.tagged` is `on` (`ua-1` when `submission.pdfa` is `1b`, `2b` or `3b`; see below), otherwise `none`. The build spike found that PDF/A-2b cannot be combined with tagging and UA-2 on the pinned TeX Live (tagging forces PDF 2.0; the kernel reports `PDF version 2.0 is too high for standard pdf/A-2B`), so the house `submission.pdfa` is `4f` (PDF 2.0), and the result is recorded in a `sources` note on that field in `profiles/house.yaml`. `a-4f` with `ua-2` builds without warnings. `a-2b` still works untagged, or with `ua-1` at PDF 1.7.
 
 **`pdfua: auto`, exactly.** It resolves only on LuaLaTeX with `accessibility.tagged: "on"`; on XeLaTeX, or untagged, it resolves to `none`. When it does resolve, it gives `ua-2`, except that when `submission.pdfa` is `1b`, `2b` or `3b` it gives `ua-1` and the class sets the PDF version to 1.7 (1.4 for `1b`), because those levels cannot share a PDF version with `ua-2`. `4` and `4f` resolve to `ua-2`. An explicit `ua-1` or `ua-2` is passed through as written.
 
@@ -945,8 +950,9 @@ implemented.
 
 ### 6.5 Worked example 1: `profiles/house.yaml` (values only)
 
-The neutral dataimago default. No guide, so no `sources`. House values are choices,
-not institutional facts.
+The neutral dataimago default. No guide, so no guide-derived `sources`; its one `sources`
+note records the build spike's result for `submission.pdfa` (6.4, composition rule). House
+values are choices, not institutional facts.
 
 ```yaml
 schemaVersion: 1
@@ -1123,7 +1129,7 @@ Notes on the CU example:
 4. `acknowledgments.maxPages: 1` comes from a comment in the class's own `example/main.tex`
    (one page, "as required by the Grad School Specifications") **[inferred]**.
 5. `type.footnoteSize: 9` is the LaTeX `\footnotesize` for 11pt, not a stated rule.
-6. Fonts, emphasis, PDF/A, links and tagging are omitted, so the house defaults apply (tagged PDF, PDF/A `2b`, TeX Gyre). The 2010 class says nothing about them, but that is the class's silence, not the guide's, so `unstated` stays empty. The build step MUST read the guide and the school's ETD instructions and then either list these fields under `unstated` or set them with a citation (decision 2 notes that some libraries forbid PDF/A).
+6. Fonts, emphasis, PDF/A, links and tagging are omitted, so the house defaults apply (tagged PDF, PDF/A `4f`, TeX Gyre). The 2010 class says nothing about them, but that is the class's silence, not the guide's, so `unstated` stays empty. The build step MUST read the guide and the school's ETD instructions and then either list these fields under `unstated` or set them with a citation (decision 2 notes that some libraries forbid PDF/A).
 7. CU's title-page statement, abstract header and committee heading are CU wording taken from how the class behaves; they are `inferred` and must be re-sourced from the guide. The house defaults do not reuse them.
 
 ---
