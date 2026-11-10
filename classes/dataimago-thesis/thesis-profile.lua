@@ -241,6 +241,8 @@ M.templates = {
 M.texts = {
   ["frontmatter.committee.heading"] = true, ["frontmatter.dedication.heading"] = true,
   ["frontmatter.acknowledgments.heading"] = true, ["appendices.label"] = true,
+  ["frontmatter.abstract.heading"] = true, ["frontmatter.toc.heading"] = true,
+  ["frontmatter.lists.lot.heading"] = true, ["frontmatter.lists.lof.heading"] = true,
   ["floats.labelSeparator"] = true, ["bibliography.heading"] = true, ["institution.name"] = true,
   ["institution.graduateSchool"] = true,
 }

@@ -473,12 +473,19 @@
   \ifx\thesis@abstracttext\@empty\thesis@err{The abstract is missing}{Add an `abstract:` field to the front matter of index.qmd.}\fi}
 
 %% ------------------------------------------------------------------ the abstract environment
+%% abstract.heading (unset: Abstract; "" omits it), abstract.align (center | left),
+%% abstract.headerWeight (bold | normal); the defaults are the house output
+\ifcsname thesis@c@frontmatter.abstract.heading\endcsname
+  \protected@edef\thesis@abshead{\thesis@c{frontmatter.abstract.heading}}
+\else\def\thesis@abshead{Abstract}\fi
+\def\thesis@absalign{\thesis@ifc{frontmatter.abstract.align}{left}{\raggedright}{\centering}}
+\def\thesis@absweight{\thesis@ifc{frontmatter.abstract.headerWeight}{normal}{\normalfont}{\bfseries}}
 \newenvironment{abstract}{\thesis@abstractbegin}{\thesis@abstractend}
 \def\thesis@abstractbegin{%
   \thesis@startpage{abstract}%
-  {\centering\thesis@single\bfseries\thesis@c{frontmatter.abstract.header}\par}%
+  {\thesis@absalign\thesis@single\thesis@absweight\thesis@c{frontmatter.abstract.header}\par}%
   \vskip 1.5\baselineskip
-  {\centering\bfseries Abstract\par}\vskip \baselineskip
+  \ifx\thesis@abshead\@empty\else{\thesis@absalign\bfseries\thesis@abshead\par}\vskip \baselineskip\fi
   \thesis@spacingof{abstract}}
 \def\thesis@abstractend{\par}
 
@@ -622,8 +629,10 @@
     \thesis@ifc{spacing.#1}{single}{\thesis@single\def\thesis@tocgap{0pt}}{\thesis@single\def\thesis@tocgap{\baselineskip}}}}
 \newcommand\thesis@labelrow[1]{%
   \thesis@ifon{toc.columnLabels}{{\noindent\bfseries #1\hfill Page\par}\vskip .5\baselineskip}{}}
+%% contents and list headings: the profile's string when set, else the language's name
+\newcommand\thesis@listname[2]{\thesis@xifc{#1}{}{#2}{\thesis@c{#1}}}
 \renewcommand\tableofcontents{%
-  \thesis@fmchapter{toc}{\contentsname}\@mkboth{\contentsname}{\contentsname}%
+  \thesis@fmchapter{toc}{\thesis@listname{frontmatter.toc.heading}{\contentsname}}\@mkboth{\contentsname}{\contentsname}%
   \begingroup\thesis@spaceoflist{toc}\thesis@labelrow{Chapter}\@starttoc{toc}\endgroup
   \global\thesis@tocdonetrue}
 \newcommand\thesis@listof[4]{% ext type title label
@@ -642,8 +651,8 @@
   \thesis@ifc{frontmatter.lists.#1.numberFirstPage}{show}{\thispagestyle{thesis@show}}{%
     \thesis@ifc{frontmatter.lists.#1.numberFirstPage}{hide}{\thispagestyle{thesis@hide}}{%
       \ifnum\thesis@aux{#1.end}=\thesis@aux{#1.start}\relax\ifnum\thesis@aux{#1.end}>0 \thispagestyle{thesis@show}\fi\fi}}}
-\renewcommand\listoffigures{\thesis@listof{lof}{lof}{figure}{\listfigurename}}
-\renewcommand\listoftables{\thesis@listof{lot}{lot}{table}{\listtablename}}
+\renewcommand\listoffigures{\thesis@listof{lof}{lof}{figure}{\thesis@listname{frontmatter.lists.lof.heading}{\listfigurename}}}
+\renewcommand\listoftables{\thesis@listof{lot}{lot}{table}{\thesis@listname{frontmatter.lists.lot.heading}{\listtablename}}}
 \newcommand\thesis@page@toc{\tableofcontents}
 \newcommand\thesis@page@lof{\listoffigures}
 \newcommand\thesis@page@lot{\listoftables}
@@ -675,10 +684,12 @@
 \AddToHook{begindocument/before}{%
   \IfPackageLoadedTF{hyperref}{%
     \thesis@ifc{submission.links}{boxes}{}{%
+      \thesis@ifc{submission.links}{underline}{%
+        \hypersetup{colorlinks=false,pdfborder={0 0 1},pdfborderstyle={/S/U/W 1},allbordercolors=black}}{%
       \thesis@ifc{submission.links}{color}{%
         \definecolor{thesislink}{HTML}{\thesis@c{submission.linkColor}}%
         \hypersetup{colorlinks=true,linkcolor=thesislink,citecolor=thesislink,urlcolor=thesislink,filecolor=thesislink}}{%
-        \hypersetup{hidelinks}}}%
+        \hypersetup{hidelinks}}}}%
     \edef\thesis@hyopts{bookmarksnumbered=true,pdfusetitle,pdfdisplaydoctitle=true,bookmarksopen=\thesis@c{submission.bookmarksOpen}}%
     \expandafter\hypersetup\expandafter{\thesis@hyopts}%
     \thesis@setslots

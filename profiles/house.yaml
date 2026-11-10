@@ -1,6 +1,7 @@
 # The neutral dataimago default profile. No institutional guide stands behind
-# it: these are house choices (docs/house-class-spec.md section 6.5), so there
-# is no `sources` map. Every other profile extends this one.
+# it: these are house choices (docs/house-class-spec.md section 6.5), so its
+# `sources` map holds only the one field a build test settled (`submission.pdfa`).
+# Every other profile extends this one.
 schemaVersion: 1
 id: house
 institution:

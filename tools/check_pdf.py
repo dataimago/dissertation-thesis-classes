@@ -274,14 +274,32 @@ def main():
                  degreeAbbr=th["degree"]["abbreviation"], field=th["degree"]["field"], documentType=th["type"],
                  department=th["department"], institution=th.get("institution") or p["institution"]["name"],
                  graduateSchool=th.get("graduate-school") or p["institution"]["graduateSchool"], year=str(th["year"]))
+    fmt = p["frontmatter"]
+    # the contents and list headings, and the abstract line, may be the profile's own wording (R22)
+    toc_head = fmt.get("toc", {}).get("heading")
+    lot_head = fmt["lists"]["lot"].get("heading")
+    lof_head = fmt["lists"]["lof"].get("heading")
+    abs_head = fmt["abstract"].get("heading", "Abstract")
+    if abs_head == "":
+        # no heading line: the page is found by the first line of its header block, which sits
+        # on a page after the title page (index 1 on)
+        slots["authorInverted"] = f'{th["author-family"]}, {th["author-given"]}'
+        abs_head = norm(fill(fmt["abstract"]["header"].split("\n")[0], slots))
+    def lead(h):
+        # a heading, not a contents entry of the same name (entries are followed by leader dots)
+        return r"(?<!\S)" + re.escape(h) + r"(?! \.)"
+
     heads = {
-        "title": slots["title"], "abstract": "Abstract", "dedication": "For the imaginary readers",
+        "title": slots["title"], "abstract": abs_head, "dedication": "For the imaginary readers",
         "acknowledgments": p["frontmatter"]["acknowledgments"]["heading"],
-        "toc": r"(Table of contents|Contents)", "lof": "List of Figures", "lot": "List of Tables",
+        "toc": lead(toc_head) if toc_head else r"(Table of contents|Contents)",
+        "lof": lead(lof_head) if lof_head else "List of Figures",
+        "lot": lead(lot_head) if lot_head else "List of Tables",
         "abbreviations": "List of Abbreviations", "preface": "Preface", "symbols": "List of Symbols",
         "copyright": re.escape(fill(p["frontmatter"]["copyright"]["template"], slots)),
         "committee": p["frontmatter"]["committee"]["heading"],
     }
+    rx = {"toc", "copyright"} | ({"lot"} if lot_head else set()) | ({"lof"} if lof_head else set())  # patterns that are regexes
     order = p["frontmatter"]["order"]
     pages = []
     errs = []
@@ -292,7 +310,8 @@ def main():
         if pid == "committee" and p["frontmatter"]["committee"]["placement"] != "separate-page":
             continue
         pat = heads[pid]
-        hit = next((i for i, t in enumerate(texts[: first_main or n]) if re.search(pat if pid in ("toc", "copyright") else re.escape(pat), norm(t))), None)
+        lo = 1 if pid == "abstract" else 0
+        hit = next((i for i, t in enumerate(texts[: first_main or n]) if i >= lo and re.search(pat if pid in rx else re.escape(pat), norm(t))), None)
         if hit is None:
             errs.append(f"{pid}: no page carries '{pat}'")
         else:
@@ -349,6 +368,23 @@ def main():
     elif outline and depth(outline) > bd + 1:
         errs.append(f"bookmarks nest {depth(outline)} deep, bookmarkDepth is {bd}")
     rec("T12 metadata and bookmarks (S6, S7)", not errs, "; ".join(errs))
+
+    # ---- T12b link style (S8): `underline` draws every link annotation's border as an underline
+    if p["submission"]["links"] == "underline":
+        errs = []
+        total = 0
+        for pg in reader.pages:
+            for an in pg.get("/Annots") or []:
+                an = an.get_object()
+                if an.get("/Subtype") == "/Link":
+                    total += 1
+                    bs = an.get("/BS") or {}
+                    if bs.get("/S") != "/U" or not bs.get("/W"):
+                        errs.append("a link annotation has no underline border")
+                        break
+        if total == 0:
+            errs.append("the example has no link annotations to check")
+        rec("T12b link style (S8)", not errs, "; ".join(errs[:1]))
 
     # ---- T13 security
     errs = []
