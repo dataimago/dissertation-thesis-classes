@@ -171,6 +171,33 @@ A label-triggered review of the fork pull request itself (a workflow on `main`
 that never executes the fork's code, with a read-only reviewer) is planned. The
 re-push stays the route until it ships, and this section is updated then.
 
+## Maintainers: bumping TeX Live
+
+Every build installs one dated snapshot of TeX Live from the daily archive at
+texlive.info, pinned in `tools/texlive-pin.txt` (the date, the installer's SHA-512
+and the package database's SHA-512). A bump is a deliberate pull request, and this
+repository's CI is the gate:
+
+1. Pick a date that the archive has, then read the two checksums from TeX Live's own
+   files in that snapshot:
+
+   ```sh
+   U=https://texlive.info/tlnet-archive/2026/11/09/tlnet           # the new date
+   curl -fsSL "$U/install-tl-unx.tar.gz.sha512"                    # first field: TL_INSTALLER_SHA512
+   curl -fsSL "$U/tlpkg/texlive.tlpdb.sha512"                      # first field: TL_TLPDB_SHA512
+   ```
+
+2. Put the three values in `tools/texlive-pin.txt` and open a pull request. The cache
+   key changes, so CI installs the new snapshot and builds every profile with both
+   engines. If the first-page snapshots (T11) move, look at the pages and update them
+   in the same pull request, saying why.
+3. After it merges, put the same three values in the `env:` of the Install TeX Live
+   step in `dissertation-app-template` (`build-thesis.yml`) and
+   `dissertation-rpkg-template` (`build-thesis.yml` and `template-thesis-check.yml`).
+   The rpkg template's check compares its pin with this file at the registry commit
+   its vendored class came from, so bump that class (`sync.py sync --ref <commit>`) in
+   the same pull request.
+
 ## Adding a class
 
 A class that is not a profile (rare now; the house class is meant to cover

@@ -1,0 +1,11 @@
+# The TeX Live every house-class build uses: one dated snapshot of the tlnet repository
+# from the daily archive at texlive.info, so a build today and a build next month install
+# the same packages. Read by tools/install-texlive.sh; both templates' build-thesis.yml
+# carry the same three values (CONTRIBUTING.md, "Bumping TeX Live").
+#   TL_SNAPSHOT          YYYY/MM/DD of https://texlive.info/tlnet-archive/<date>/tlnet
+#   TL_INSTALLER_SHA512  of install-tl-unx.tar.gz in that snapshot (TeX Live's own .sha512 file)
+#   TL_TLPDB_SHA512      of tlpkg/texlive.tlpdb, the snapshot's package database (its .sha512 file);
+#                        install-tl and tlmgr check every package against that database
+TL_SNAPSHOT=2026/11/09
+TL_INSTALLER_SHA512=9bf5cc108530b16f8bb3af646b429f2ace8ad640326fc4b5d95e9e056126427a52e90ad923316f7f9e7b5e232eb1fd0af0c79e6f4c00a9f2437c4a22ecd6b06f
+TL_TLPDB_SHA512=f7c90c78376245b0bed91ff10a6d19d7e3c48099f61349e2419d492b0ce8357519734a38d5a27d1af937a3c6c6fe8f751ae5c5a2463b66cf60f57d14e5a981d4
