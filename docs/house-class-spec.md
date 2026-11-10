@@ -48,7 +48,9 @@ Accessibility Office's Thesis Accessibility Guidance and ProQuest's manuscript g
 stays `unstated`, since neither sets a level). The same day the profile's citations were re-read against the live
 Graduate School page (its headings, its own words), and the maintainer read its "Underline should be used for links
 only" as naming underline as the link marker, which keeps `submission.links: underline`. The hub's copy of the changed
-`registry.json` is synced in dissertation-ai#283.
+`registry.json` is synced in dissertation-ai#283. The CU entry's `notes` were then corrected to say which `sources`
+entries name their document (only ProQuest's does; the Graduate School citations use the page's headings); the hub's copy
+of that change is synced in dissertation-ai#285.
 
 **Contents:** 1 Inventory · 2 Quarto integration · 3 What a profile covers ·
 4 Submission · 5 Accessibility and engine · 6 Profile format · 7 Testing ·
