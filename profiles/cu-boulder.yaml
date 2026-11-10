@@ -1,7 +1,8 @@
 # University of Colorado Boulder Graduate School.
 # Sourced 2026-11-08 from the Graduate School's web page "Specifications for Preparation of
 # Master's Theses & Doctoral Dissertations" (revised 2018, 2023, 2026), cited by section name in
-# `sources` (the web page has no page numbers). Where that page is silent, the value is either
+# `sources` (the web page has no page numbers). Re-read 2026-11-10: every `section` is one of the
+# page's headings and every `quote` is the page's own words. Where that page is silent, the value is either
 # inferred from the legacy class v1.14 (classes/cu-boulder/, a feature reference only) and its
 # sample-output.pdf and marked so, or left to the house value and listed under `unstated`.
 # Two further documents were read on 2026-11-10, and `sources` entries naming them say so in
@@ -22,10 +23,11 @@ guide:
   version: "web page, revised 2018, 2023, 2026"
   date: "2026"
   url: "https://www.colorado.edu/graduateschool/academics/thesis-dissertation-submission/specifications-preparation-masters-theses-doctoral"
-  retrieved: "2026-11-08"
+  retrieved: "2026-11-10"
 geometry:
   headerFooter: { numberDistance: 0.9in }
 type:
+  main: TeX Gyre Termes
   size: 11
   footnoteSize: 9
   captionSize: 11
@@ -65,15 +67,15 @@ appendices: { divider: true }
 submission: { links: underline }
 sources:
   institution.name: { inferred: true, from: "legacy class title-page wording", note: "the school's statement says University of Colorado without Boulder; used only as the {institution} default" }
-  geometry.margins.top: { section: "Margins", quote: "1 inch on all edges", note: "equals the house value; the legacy class's 1.15in text top is not what the guide says" }
-  geometry.margins.bottom: { section: "Margins", quote: "1 inch on all edges", note: "equals the house value" }
-  geometry.margins.inside: { section: "Margins", quote: "1 inch on all edges", note: "equals the house value" }
-  geometry.margins.outside: { section: "Margins", quote: "1 inch on all edges", note: "equals the house value" }
+  geometry.margins.top: { section: "Margins", quote: "Thesis margins should be 1 inch from all edges.", note: "equals the house value; the legacy class's 1.15in text top is not what the guide says" }
+  geometry.margins.bottom: { section: "Margins", quote: "Thesis margins should be 1 inch from all edges.", note: "equals the house value" }
+  geometry.margins.inside: { section: "Margins", quote: "Thesis margins should be 1 inch from all edges.", note: "equals the house value" }
+  geometry.margins.outside: { section: "Margins", quote: "Thesis margins should be 1 inch from all edges.", note: "equals the house value" }
   geometry.headerFooter.numberDistance: { inferred: true, from: "sample-output.pdf", note: "the guide does not say where the number goes; baseline measured at 64.8pt (0.9in) from the top edge" }
-  type.main: { section: "Typography (font); Thesis Accessibility Guidance (fonts)", note: "both ask for a sans serif font accessible to screen readers yet name Times New Roman, Calibri and Aptos as examples, and Times is a serif. Maintainer decision 2026-11-10 (question 16): the house serif is kept, read as the guide's own Times New Roman example; TeX Gyre Termes is a Times-metric clone" }
+  type.main: { section: "Type", quote: "Use a sans serif font accessible to screen readers (Times New Roman, Calibri, Aptos, etc.).", note: "the examples include Times New Roman, a serif; the Thesis Accessibility Guidance repeats the sentence. Maintainer decision 2026-11-10 (question 16): the house serif is kept, read by the Times New Roman example; TeX Gyre Termes is a Times-metric clone" }
   type.size: { inferred: true, from: "registry classOptions (11pt)", note: "the guide states no type size; sample body text is 10.9pt" }
   type.footnoteSize: { inferred: true, from: "LaTeX footnotesize at 11pt", note: "the guide states no footnote size" }
-  type.captionSize: { section: "Typography (type size)", quote: "consistent size across body text, figure captions, and table titles", note: "so captions use the body size" }
+  type.captionSize: { section: "Type", quote: "Type size should typically follow a consistent pattern throughout the thesis—in text, figure captions, and table titles.", note: "so captions use the body size" }
   type.minimumSize: { inferred: true, from: "type.footnoteSize", note: "lowers the house floor of 10 so the 9pt footnotes pass; the guide states no minimum" }
   spacing.body: { inferred: true, from: "sample-output.pdf page 8", note: "baseline pitch measured at 24.0pt; the guide's Line spacing entry does not state double spacing" }
   spacing.paragraph.indent: { inferred: true, from: "sample-output.pdf page 8", note: "first-line indent measured at 28.8pt (0.4in); not stated in the guide" }
@@ -86,21 +88,21 @@ sources:
   headings.subsubsection.weight: { inferred: true, from: "sample-output.pdf", note: "bold at level 4, which the sample numbers" }
   headings.part.allowed: { inferred: true, from: "legacy class", note: "the class makes part unavailable; the guide does not mention parts" }
   numbering.depth: { inferred: true, from: "legacy class", note: "level 4 (####) is numbered, so depth 3; the guide asks only for a consistent hierarchy" }
-  pagenumber.front.hideOn: { section: "Page Numbering", quote: "Title and dedication page numbers are optional", note: "hiding both is within the guide; the abstract page keeps its number as in the sample (ii)" }
+  pagenumber.front.hideOn: { section: "Pagination", quote: "showing numbers on the title page and dedication page is optional", note: "hiding both is within the guide; the abstract page keeps its number as in the sample (ii)" }
   pagenumber.position: { inferred: true, from: "sample-output.pdf", note: "top right, aligned to the right text margin; the guide does not say where the number goes" }
-  pagenumber.chapterFirstPage: { section: "Page Numbering", quote: "including chapter-opening pages, even if the number is hidden", note: "hiding the number on chapter-opening pages is permitted; hiding is the sample's choice" }
-  frontmatter.order: { section: "Front matter order (items 1 to 5)", note: "title page, abstract, dedication, acknowledgments, contents; the guide lets the lists sit inside the contents or on separate pages, and tables-before-figures is the sample's order (inferred)" }
+  pagenumber.chapterFirstPage: { section: "Pagination", quote: "even on pages where you may choose for a number to not appear (e.g. first page of a chapter)", note: "hiding the number on chapter-opening pages is permitted; hiding is the sample's choice" }
+  frontmatter.order: { section: "Thesis Organization", note: "title page, abstract, dedication, acknowledgments, table of contents, in the guide's order; the lists \"may be included as part of the full Table of Contents or created as separate pages\", and tables-before-figures is the sample's order (inferred)" }
   frontmatter.titlePage.layout: { section: "Title Page", note: "title, name, previous degrees, statement, department, year and the committee names are required; their arrangement follows the sample (inferred)" }
   frontmatter.titlePage.statement: { inferred: true, from: "sample-output.pdf page 1", note: "the guide points to a sample page for the wording, which was not retrieved; {documentType} replaces the legacy class's fixed word thesis (decision 8)" }
-  frontmatter.titlePage.previousDegrees: { section: "Title Page", quote: "Degrees, granting institutions, and dates received", note: "required on the title page" }
+  frontmatter.titlePage.previousDegrees: { section: "Title Page", quote: "candidate's degrees, granting institutions, and dates received", note: "required on the title page" }
   frontmatter.copyright.enabled: { inferred: true, from: "sample-output.pdf", note: "the guide's front matter list has no copyright page" }
-  frontmatter.committee.placement: { section: "Title Page", quote: "Names of all committee members", note: "required on the title page" }
+  frontmatter.committee.placement: { section: "Title Page", quote: "It also includes the names of all committee members", note: "required on the title page" }
   frontmatter.committee.heading: { inferred: true, from: "sample-output.pdf page 1", note: "heading text" }
   frontmatter.committee.format: { inferred: true, from: "sample-output.pdf page 1", note: "names only; the chair is marked by role" }
-  frontmatter.abstract.header: { section: "Abstract", note: "the abstract must carry the author's name, degree initials, department, title and faculty advisor; the line layout is the sample's (inferred)" }
-  accessibility.altTextEnforcement: { section: "Tables, Figures, and Media", quote: "Include alt text for all images and figures", note: "equals the house value" }
-  submission.links: { section: "Links and color; Thesis Accessibility Guidance (color and contrast)", quote: "Underline should only be used for links", note: "the guide says links are underlined (and should point inside the dissertation); `underline` draws the link annotation's border as an underline and leaves the text black (spec 4.3, S8)" }
-  submission.embedFonts: { section: "ProQuest, Preparing your manuscript (PDF requirements)", quote: "Embed all fonts", note: "equals the house value; ProQuest also asks that Type 3 fonts be avoided" }
+  frontmatter.abstract.header: { section: "Abstract", quote: "The abstract must include your name, the initials of your degree, your department, thesis title, and faculty advisor", note: "the line layout is the sample's (inferred)" }
+  accessibility.altTextEnforcement: { section: "Tables, Figures, Images, and Media", quote: "include descriptive alt text for all images and figures", note: "equals the house value" }
+  submission.links: { section: "Type", quote: "Underline should be used for links only.", note: "the guide does not say links must be underlined. Maintainer decision 2026-11-10: read the sentence as naming underline as the link marker, so links are identifiable without colour; `underline` draws the link annotation's border as an underline and leaves the text black (spec 4.3, S8)" }
+  submission.embedFonts: { section: "ProQuest manuscript guide (PDF requirements)", quote: "Embed all fonts", note: "a second document, named in the header; equals the house value; ProQuest also asks that Type 3 fonts be avoided" }
   frontmatter.abstract.heading: { inferred: true, from: "sample-output.pdf page 2", note: "the abstract page prints no \"Abstract\" heading line" }
   frontmatter.abstract.align: { inferred: true, from: "sample-output.pdf page 2", note: "header lines are left aligned" }
   frontmatter.abstract.headerWeight: { inferred: true, from: "sample-output.pdf page 2", note: "header lines are set in the regular weight" }
