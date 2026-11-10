@@ -101,7 +101,6 @@ sources:
   accessibility.altTextEnforcement: { section: "Tables, Figures, and Media", quote: "Include alt text for all images and figures", note: "equals the house value" }
   submission.links: { section: "Links and color; Thesis Accessibility Guidance (color and contrast)", quote: "Underline should only be used for links", note: "the guide says links are underlined (and should point inside the dissertation); `underline` draws the link annotation's border as an underline and leaves the text black (spec 4.3, S8)" }
   submission.embedFonts: { section: "ProQuest, Preparing your manuscript (PDF requirements)", quote: "Embed all fonts", note: "equals the house value; ProQuest also asks that Type 3 fonts be avoided" }
-  accessibility.tagged: { inferred: true, from: "Thesis Accessibility Guidance (headings, tables, alt text); ProQuest's export steps", note: "neither document names tagged PDF; it asks for programmatic headings, table header rows and alt text, which a PDF carries only as structure tags, and ProQuest's export steps tick tags for accessibility; equals the house value" }
   frontmatter.abstract.heading: { inferred: true, from: "sample-output.pdf page 2", note: "the abstract page prints no \"Abstract\" heading line" }
   frontmatter.abstract.align: { inferred: true, from: "sample-output.pdf page 2", note: "header lines are left aligned" }
   frontmatter.abstract.headerWeight: { inferred: true, from: "sample-output.pdf page 2", note: "header lines are set in the regular weight" }
@@ -120,4 +119,5 @@ unstated:
   - submission.bookmarksOpen
   - submission.linkColor
   - submission.maxMB
+  - accessibility.tagged
   - accessibility.pdfua
