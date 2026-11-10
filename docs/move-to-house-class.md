@@ -1,10 +1,12 @@
 # Moving an older dissertation repository to the house class
 
 **For authors.** If dissertation.ai set up your dissertation repository before
-2026-11-09, its thesis PDF is built with an older class (`thesis.cls`), and the AI
-instructions in it read an older version of this registry. One thing is wrong as a
-result: asked about your institution's ready-made format, your AI may say there is
-none when there is (CU Boulder has one today). Nothing is broken and your PDF has not
+2026-11-09, its thesis PDF is built with the framework's earlier default class (the
+`thesis.cls` copied into your book folder at setup), and the AI instructions in it read
+this registry the old way: they look for a ready-made format among the registry's
+classes, where the current registry no longer lists institutions. One thing is wrong as
+a result: asked about your institution's ready-made format, your AI may say there is
+none when there is (a ready-made profile; CU Boulder has one today). Nothing is broken and your PDF has not
 changed; moving is your choice, and nothing changes until you agree.
 
 To move: open your dissertation repository in your AI tool (Claude Code, Codex,
@@ -51,6 +53,13 @@ Then stop, and tell the author why, in any of these cases:
   first, so the move is one clean change they can review.
 
 ### 2. Update the repository's thesis skills (with a yes)
+
+The old skills fetch the live `registry.json` but read it as `schemaVersion` 1, looking for
+an `institution` on `classes`; version 2 lists institutions under `profiles` (`mode:
+shipped`), so they report no ready-made format. Replacing the skills is what fixes that.
+There is no registry copy in the repository to refresh. The book's `thesis.cls` is the
+framework's earlier default class, not this registry's legacy `classes/cu-boulder/`
+class, which is never fetched or offered.
 
 The repository's `.claude/skills/thesis-build/`, `.claude/skills/thesis-format/` and
 `.claude/agents/thesis-build-agent.md` predate the house class. The current ones carry the
