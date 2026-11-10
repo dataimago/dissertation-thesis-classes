@@ -5,8 +5,9 @@
 # page's headings and every `quote` is the page's own words. Where that page is silent, the value is either
 # inferred from the legacy class v1.14 (classes/cu-boulder/, a feature reference only) and its
 # sample-output.pdf and marked so, or left to the house value and listed under `unstated`.
-# Two further documents were read on 2026-11-10, and `sources` entries naming them say so in
-# their `section`: the Digital Accessibility Office's "Thesis Accessibility Guidance" (the page
+# Two further documents were read on 2026-11-10. ProQuest's is cited by name in the `section` of
+# `submission.embedFonts`; the accessibility guidance repeats the guide's font and link sentences and is
+# named in the notes on `type.main` and `submission.links`. They are the Digital Accessibility Office's "Thesis Accessibility Guidance" (the page
 # the Graduate School defers to; undated,
 # https://www.colorado.edu/digital-accessibility/thesis-accessibility-guidance) and ProQuest's
 # "Preparing your manuscript for submission to ProQuest" (PDF dated 2023-10,
@@ -101,7 +102,7 @@ sources:
   frontmatter.committee.format: { inferred: true, from: "sample-output.pdf page 1", note: "names only; the chair is marked by role" }
   frontmatter.abstract.header: { section: "Abstract", quote: "The abstract must include your name, the initials of your degree, your department, thesis title, and faculty advisor", note: "the line layout is the sample's (inferred)" }
   accessibility.altTextEnforcement: { section: "Tables, Figures, Images, and Media", quote: "include descriptive alt text for all images and figures", note: "equals the house value" }
-  submission.links: { section: "Type", quote: "Underline should be used for links only.", note: "the guide does not say links must be underlined. Maintainer decision 2026-11-10: read the sentence as naming underline as the link marker, so links are identifiable without colour; `underline` draws the link annotation's border as an underline and leaves the text black (spec 4.3, S8)" }
+  submission.links: { section: "Type", quote: "Underline should be used for links only.", note: "the Thesis Accessibility Guidance repeats it (\"Underline should only be used for links\"); neither says links must be underlined. Maintainer decision 2026-11-10: read the sentence as naming underline as the link marker, so links are identifiable without colour; `underline` draws the link annotation's border as an underline and leaves the text black (spec 4.3, S8)" }
   submission.embedFonts: { section: "ProQuest manuscript guide (PDF requirements)", quote: "Embed all fonts", note: "a second document, named in the header; equals the house value; ProQuest also asks that Type 3 fonts be avoided" }
   frontmatter.abstract.heading: { inferred: true, from: "sample-output.pdf page 2", note: "the abstract page prints no \"Abstract\" heading line" }
   frontmatter.abstract.align: { inferred: true, from: "sample-output.pdf page 2", note: "header lines are left aligned" }
