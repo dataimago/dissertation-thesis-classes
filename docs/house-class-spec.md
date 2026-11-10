@@ -41,8 +41,10 @@ follow-up PR** (revision 3, 2026-11-09): `submission.links: underline`, `frontma
 corrects four statements of revision 2: the 2.4 partials row (geometry is not a partial), the
 `\typeout` claim (only `doc-class.tex` has one), R5a (the example overlay sets
 `thesis.institution`) and S4 (its pointer for the `4f` default), and S8 now says the underline
-is a link-annotation border, not text underlining. The CU "sans serif" sentence (question 16) is not a spec question; it
-stays open for the maintainer.
+is a link-annotation border, not text underlining. The CU "sans serif" sentence (question 16) is not a spec question;
+the maintainer decided it on 2026-11-10: the CU profile keeps the house serif, reading the sentence by its own Times
+New Roman example (recorded on `type.main` in `profiles/cu-boulder.yaml`, which now also cites the Digital
+Accessibility Office's Thesis Accessibility Guidance and ProQuest's manuscript guide).
 
 **Contents:** 1 Inventory · 2 Quarto integration · 3 What a profile covers ·
 4 Submission · 5 Accessibility and engine · 6 Profile format · 7 Testing ·
