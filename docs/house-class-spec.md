@@ -492,8 +492,9 @@ Slots: `{title}` `{author}` `{authorInverted}` `{degreeName}` `{degreeAbbr}` `{f
 R22. **[implemented]** The abstract page, the contents and
 the lists MUST be able to carry school wording, so the profile gains the fields in 6.4 and
 the fixed text of these pages stops being a house default. (a) `frontmatter.toc.heading`,
-`frontmatter.lists.lot.heading`, `frontmatter.lists.lof.heading`: the page heading, and the PDF
-bookmark, use the string when set and the language's own name otherwise (today's output).
+`frontmatter.lists.lot.heading`, `frontmatter.lists.lof.heading`: the page heading (and, for
+the two lists, the PDF bookmark; the contents page has no bookmark of its own) use the string
+when set and the language's own name otherwise (today's output).
 They follow `titlesCase`. The names extend the existing `frontmatter.<page>.heading` fields
 (`committee`, `dedication`, `acknowledgments`), with the lists under `lists.<list>` as
 `mode` and `numberFirstPage` already are. (b)
@@ -885,7 +886,7 @@ Paths are relative to `frontmatter` (e.g. `committee.placement` is `frontmatter.
 | `abstract.heading` | string | `Abstract` | any text; `""` prints no heading. **[implemented]** | the heading line below the header block |
 | `abstract.align` | enum | `center` | `center`, `left`. **[implemented]** | alignment of the header block and of the heading |
 | `abstract.headerWeight` | enum | `bold` | `bold`, `normal`. **[implemented]** | weight of the header lines |
-| `frontmatter.toc.heading` (the `toc` here is the page, not the top-level `toc` table of depth and leaders) | string | none (the language's name: "Table of contents") | non-empty text. **[implemented]** | the contents page heading (also its bookmark) |
+| `frontmatter.toc.heading` (the `toc` here is the page, not the top-level `toc` table of depth and leaders) | string | none (the language's name: "Table of contents") | non-empty text. **[implemented]** | the contents page heading (the contents page has no PDF bookmark of its own) |
 | `lists.lot.heading`, `lists.lof.heading` (under `frontmatter`) | string | none (the language's names: "List of Tables", "List of Figures") | non-empty text. **[implemented]** | the list page headings (also their bookmarks) |
 | `dedication.heading` | string | none | | |
 | `acknowledgments.heading` | string | `Acknowledgments` | | |
