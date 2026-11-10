@@ -162,8 +162,9 @@ contribution:
    promotes it to `status: available`, `mode: shipped` (see
    [`docs/discovery-contract.md`](docs/discovery-contract.md), GENERATED). After
    any change to `registry.json`, open the matching dissertation-ai pull request
-   (`registry:sync`, see `CLAUDE.md`); until it merges, the hub and its drift
-   check still see the old copy.
+   (`registry:sync`, see `CLAUDE.md`) and append its row to
+   [`docs/registry-sync-log.md`](docs/registry-sync-log.md); CI fails without it.
+   Until this pull request merges, the hub's drift check still sees the old copy.
 
 If the contributor withdraws, or consent is unclear, close without re-pushing.
 

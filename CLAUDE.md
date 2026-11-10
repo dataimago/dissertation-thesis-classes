@@ -62,7 +62,10 @@ holds facts about the guide only, and its registry `notes` say it was seeded.
   (`apps/hub/src/lib/thesis-classes/registry.json`; it builds on Vercel from its
   own repo). After changing `registry.json`, run
   `pnpm --filter @dataimago/dissertation-hub registry:sync` in `dissertation-ai`
-  and open a PR there; its `registry:check` fails until you do. Adding,
+  against your branch and open a PR there, then append a row naming that PR to
+  `docs/registry-sync-log.md` (`tools/check_sync_log.py` in CI). The hub PR's
+  `registry:check` compares with this repository's `main`, so it stays red until
+  this PR merges; re-run it then. Adding,
   renaming or changing the meaning of a mode also needs the interview's words for it in
   `dissertation.yaml`, or the hub's contract test fails.
 - Level-3 generated apps' `build-thesis.yml` fetches the selected class: for
