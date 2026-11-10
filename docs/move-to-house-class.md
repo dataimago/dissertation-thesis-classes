@@ -10,6 +10,12 @@ a result: asked about your institution's ready-made format, your AI may say ther
 none when there is (a ready-made profile; CU Boulder has one today). Nothing is broken and your PDF has not
 changed; moving is your choice, and nothing changes until you agree.
 
+What the move changes: your book is then built with the house class on LuaLaTeX, which
+gives a tagged (accessible) PDF; its fonts and layout come from a profile (the neutral
+`house` one, or your institution's if you choose it), so the PDF looks somewhat different.
+Raw LaTeX you added that only works under XeLaTeX may need changing. Your AI renders the
+book before you commit, so you see the result first.
+
 To move: open your dissertation repository in your AI tool (Claude Code, Codex,
 Cursor, or another tool that can read files and run commands) and say:
 
@@ -44,6 +50,10 @@ Find the **book folder** (the folder holding `_quarto.yml` for the thesis):
 
 Then stop, and tell the author why, in any of these cases:
 
+- Neither layout is there (no `thesis/_quarto.yml`, and no `_quarto.yml` in the R-package
+  folder the spec names, or no `source.rPackage` block): this guide does not know the
+  layout. Change nothing, including the skills in step 2.
+
 - `<book folder>/thesis-class/sync.py` exists: the repository is already on the house
   class. Nothing to move.
 - `vertical.dissertation.thesis.classFile.type` in `dataimago-spec.yaml` is `vendored`: the book uses the
@@ -54,6 +64,9 @@ Then stop, and tell the author why, in any of these cases:
   first, so the move is one clean change they can review.
 
 ### 2. Update the repository's thesis skills (with a yes)
+
+Only after step 1 found the book folder and none of its stops applied. Tell the author what
+the move changes (the paragraph "What the move changes" at the top) before asking.
 
 The old skills fetch the live `registry.json` but read it as `schemaVersion` 1, looking for
 an `institution` on `classes`; version 2 lists institutions under `profiles` (`mode:
