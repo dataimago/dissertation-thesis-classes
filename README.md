@@ -67,6 +67,11 @@ classes/<institution-id>/          a vendored or legacy per-institution class (c
   live in different directories.
 - **The author's AI (the Level-3 author harness)** — consults the discovery
   contract to use a shipped profile, adapt the house profile, or vendor a class within the author's own repo.
+- **Repositories set up before the house class (before 2026-11-09)** — still build with the
+  framework's earlier default `thesis.cls` in the author's book folder (not this registry's
+  legacy `classes/cu-boulder/` class). [`docs/move-to-house-class.md`](docs/move-to-house-class.md) is a
+  stand-alone guide the author hands to their AI: it updates the repository's thesis skills and
+  moves the book to the house class, asking first at each step.
 
 ## Privacy
 

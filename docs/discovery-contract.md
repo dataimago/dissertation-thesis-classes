@@ -122,7 +122,7 @@ framework's default layout".)
 ## Readers of the live registry
 
 Some consumers fetch `main/registry.json` live rather than from a vendored copy.
-Repos already generated from `dissertation-app-template` carry a thesis-build
+Repos generated from `dissertation-app-template` before 2026-11-09 carry a thesis-build
 skill (`.claude/skills/thesis-build/SKILL.md`, step 2) that looks for a `classes`
 entry whose `institution` is the author's and whose `status` is `available`.
 `schemaVersion` 2 carries no `institution` on any `classes` entry, so that
@@ -130,9 +130,14 @@ version-1 reader finds no match for any institution and takes its documented
 "no ready-made class" path: it tells the author the registry has none yet and
 offers `generated`. That is graceful (no crash, and it can never select the
 `legacy` CU class, which is neither `available` nor named by an institution), but
-it is a behaviour change for CU authors until the templates read `profiles`
-(`wi-20261108-house-class-templates`). A new reader must check
-`schemaVersion` and read `profiles`, not `classes`, to find an institution.
+it is a behaviour change for CU authors in those repos. The templates' own skills
+read `profiles` at `schemaVersion` 2 since 2026-11-09 (dissertation-app-template#23,
+dissertation-rpkg-template#14, `wi-20261108-house-class-templates`), and they carry the
+section "Moving an older repository to the house class". A repo generated before then
+keeps the version-1 reader until its skills are replaced; `docs/move-to-house-class.md`
+is the stand-alone guide that does that, with the author's agreement, and then follows that
+section. The skill text itself is owned by the templates, not this repository. A new reader
+must check `schemaVersion` and read `profiles`, not `classes`, to find an institution.
 
 ## Privacy invariant
 
