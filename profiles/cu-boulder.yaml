@@ -10,7 +10,8 @@
 # https://www.colorado.edu/digital-accessibility/thesis-accessibility-guidance) and ProQuest's
 # "Preparing your manuscript for submission to ProQuest" (PDF dated 2023-10,
 # https://pq-static-content.proquest.com/collateral/media2/documents/preparingyourmanuscript.pdf).
-# Fields that all three documents leave open stay `unstated`.
+# Fields that all three documents leave open stay `unstated`; that includes the PDF/A level, which
+# ProQuest's export steps use without naming the house level (4f).
 schemaVersion: 1
 id: cu-boulder
 extends: house
@@ -100,8 +101,7 @@ sources:
   accessibility.altTextEnforcement: { section: "Tables, Figures, and Media", quote: "Include alt text for all images and figures", note: "equals the house value" }
   submission.links: { section: "Links and color; Thesis Accessibility Guidance (color and contrast)", quote: "Underline should only be used for links", note: "the guide says links are underlined (and should point inside the dissertation); `underline` draws the link annotation's border as an underline and leaves the text black (spec 4.3, S8)" }
   submission.embedFonts: { section: "ProQuest, Preparing your manuscript (PDF requirements)", quote: "Embed all fonts", note: "equals the house value; ProQuest also asks that Type 3 fonts be avoided" }
-  submission.pdfa: { section: "ProQuest, Preparing your manuscript (converting to PDF)", note: "ProQuest's export steps tick PDF/A as a way to embed every font and name no level; neither it nor the two CU documents forbids PDF/A-4f or PDF 2.0, so the house value is kept" }
-  accessibility.tagged: { section: "Thesis Accessibility Guidance (headings, tables, alt text)", note: "programmatic headings, table header rows and alt text exist in a PDF only as structure tags, and ProQuest's export steps ask for tags for accessibility; equals the house value" }
+  accessibility.tagged: { inferred: true, from: "Thesis Accessibility Guidance (headings, tables, alt text); ProQuest's export steps", note: "neither document names tagged PDF; it asks for programmatic headings, table header rows and alt text, which a PDF carries only as structure tags, and ProQuest's export steps tick tags for accessibility; equals the house value" }
   frontmatter.abstract.heading: { inferred: true, from: "sample-output.pdf page 2", note: "the abstract page prints no \"Abstract\" heading line" }
   frontmatter.abstract.align: { inferred: true, from: "sample-output.pdf page 2", note: "header lines are left aligned" }
   frontmatter.abstract.headerWeight: { inferred: true, from: "sample-output.pdf page 2", note: "header lines are set in the regular weight" }
@@ -115,6 +115,7 @@ unstated:
   - type.math
   - type.fallback
   - type.emphasis
+  - submission.pdfa
   - submission.bookmarkDepth
   - submission.bookmarksOpen
   - submission.linkColor

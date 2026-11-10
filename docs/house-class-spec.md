@@ -44,7 +44,8 @@ corrects four statements of revision 2: the 2.4 partials row (geometry is not a 
 is a link-annotation border, not text underlining. The CU "sans serif" sentence (question 16) is not a spec question;
 the maintainer decided it on 2026-11-10: the CU profile keeps the house serif, reading the sentence by its own Times
 New Roman example (recorded on `type.main` in `profiles/cu-boulder.yaml`, which now also cites the Digital
-Accessibility Office's Thesis Accessibility Guidance and ProQuest's manuscript guide).
+Accessibility Office's Thesis Accessibility Guidance and ProQuest's manuscript guide; `submission.pdfa`
+stays `unstated`, since neither sets a level).
 
 **Contents:** 1 Inventory · 2 Quarto integration · 3 What a profile covers ·
 4 Submission · 5 Accessibility and engine · 6 Profile format · 7 Testing ·
