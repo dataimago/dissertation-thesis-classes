@@ -34,4 +34,5 @@ file, the Lua generator and filter, and the Quarto partials, but not the
 example book named above), which is under the LaTeX Project Public License
 1.3c, as that directory's README.md records.
 It does not cover third-party document classes, macros or example documents
-under classes/; those keep their own terms, as each class's README.md records.
+under classes/ (classes/cu-boulder/ is one); those keep their own terms, as
+each such class's README.md records.
