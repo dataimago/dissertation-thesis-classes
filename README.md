@@ -100,8 +100,9 @@ author's own class (`vendored`), add `classes/<institution-id>/` with the `.cls`
 ## Licensing
 
 - **dataimago's own files** (this README, `CLAUDE.md`, `CONTRIBUTING.md`,
-  `registry.json`, `docs/`, `profiles/`, `tools/`, `tests/`, `.github/`, and
-  each class directory's `README.md`) are MIT-licensed; see
+  `registry.json`, `docs/`, `profiles/`, `tools/`, `tests/`, `.github/`,
+  each class directory's `README.md`, and the example book in
+  `classes/dataimago-thesis/example/`) are MIT-licensed; see
   [`LICENSE`](LICENSE), whose scope paragraph lists them.
 - **The house class** (`classes/dataimago-thesis/`: the `.cls`, the Lua generator and filter, the Quarto partials) is
   LPPL 1.3c, written fresh; its profiles, schema, checks and docs are MIT.
