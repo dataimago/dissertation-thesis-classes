@@ -13,7 +13,7 @@ as `available` and each institution's profile selects its rules. The hub offers 
 |---|---|
 | Class | `dataimago-thesis.cls`, LPPL 1.3c |
 | Companions (LPPL 1.3c) | `thesis-profile.lua` (YAML to `.cfg` generator), `thesis-divs.lua` (Quarto filter), Quarto partials `doc-class.tex`, `title.tex`, `before-body.tex`, `toc.tex` and the emptied `fonts.latex`, `font-settings.latex` |
-| Profiles, schema, checks, docs (MIT) | `../../profiles/`, `../../tools/`, this README |
+| Profiles, schema, checks, docs, example (MIT) | `../../profiles/`, `../../tools/`, this README, `example/` (a starting point an author copies) |
 | Engines | LuaLaTeX (house default, tagged PDF, PDF/UA-2) and XeLaTeX (supported, untagged) |
 | Fonts | TeX Gyre (Termes, Heros, Cursor, Termes Math) from TeX Live; never committed |
 | Feature reference | the CU Boulder thesis class v1.14 (John P. Weiss 1997, Bruce Fast, Steven V. Penton, E. Joshua Rigler, Hongcheng Ni, Ken Anderson): feature reference only, no code derived |
