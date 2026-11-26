@@ -23,7 +23,13 @@ SOFTWARE.
 ---
 
 Scope: this license covers dataimago's own files in this repository, namely
-README.md, CLAUDE.md, LICENSE, registry.json, docs/, and the README.md in each
-classes/<institution-id>/ directory. It does not cover third-party document
-classes, macros or example documents under classes/; those keep their own
-terms, as each class's README.md records.
+README.md, CLAUDE.md, CONTRIBUTING.md, LICENSE, registry.json, docs/,
+profiles/ (the institution profiles, their schema and their test files),
+tools/, tests/, .github/, and the README.md in each classes/<institution-id>/
+directory.
+
+It does not cover the house class under classes/dataimago-thesis/ (the .cls
+file, the Lua generator and filter, and the Quarto partials), which is under
+the LaTeX Project Public License 1.3c, as that directory's README.md records.
+It does not cover third-party document classes, macros or example documents
+under classes/; those keep their own terms, as each class's README.md records.
