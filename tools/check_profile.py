@@ -2,6 +2,8 @@
 """T1 (schema, sources, cfg drift) and T19(a) for every profile, plus the R14a cross-field rules.
 
 usage: check_profile.py [profile-id ...]        (default: every profiles/*.yaml)
+       --registry: also require the registry's licence tags at the top of each profile
+       (CI passes it; an author checking a profile of their own does not).
 Exit status 1 when any check fails. MIT licensed.
 """
 import json
@@ -15,6 +17,10 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from profiles_lib import PROFILES, ROOT, flatten, load_raw, load_resolved  # noqa: E402
 
 GEN = ROOT / "classes" / "dataimago-thesis" / "thesis-profile.lua"
+# Each profile names its licence in the file: profiles are copied into authors'
+# repositories, where this repository's LICENSE does not travel with them.
+# Required of the registry's profiles only (--registry): an author's own profile is theirs.
+SPDX_TAGS = ("# SPDX-FileCopyrightText: 2026 dataimago", "# SPDX-License-Identifier: MIT")
 
 
 def texlua():
@@ -33,7 +39,7 @@ def sources_cover(path, sources):
     return any(".".join(parts[: i + 1]) in sources for i in range(len(parts)))
 
 
-def check(pid):
+def check(pid, registry=False):
     errs = []
     raw = load_raw(pid)
     schema = json.loads((PROFILES / "profile.schema.json").read_text())
@@ -57,6 +63,9 @@ def check(pid):
         for path in raw.get("unstated") or []:
             if path in flat:
                 errs.append(f"P2: {path} is listed under `unstated` but also set")
+    head = (PROFILES / f"{pid}.yaml").read_text().splitlines()[:2]
+    if registry and tuple(head) != SPDX_TAGS:
+        errs.append("licence tags: the file must open with the two lines " + " / ".join(repr(t) for t in SPDX_TAGS))
     # R14a
     fm = res["frontmatter"]
     order = fm["order"]
@@ -100,10 +109,12 @@ def check(pid):
 
 
 def main():
-    ids = sys.argv[1:] or sorted(p.stem for p in PROFILES.glob("*.yaml") if not p.name.endswith(".test.yaml"))
+    registry = "--registry" in sys.argv[1:]
+    args = [a for a in sys.argv[1:] if a != "--registry"]
+    ids = args or sorted(p.stem for p in PROFILES.glob("*.yaml") if not p.name.endswith(".test.yaml"))
     bad = 0
     for pid in ids:
-        errs = check(pid)
+        errs = check(pid, registry)
         print(f"{'FAIL' if errs else 'ok  '} {pid}")
         for e in errs:
             print(f"     - {e}")

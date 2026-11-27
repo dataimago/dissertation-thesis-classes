@@ -299,6 +299,18 @@ function M.resolve(dir, id)
   return M.merge(house, prof), prof
 end
 
+-- The licence tag lines a profile opens with (comment lines `# SPDX-<Name>: <value>`
+-- before its first key), without the comment mark.
+function M.licence_tags(dir, id)
+  local tags = {}
+  for line in (read_file(dir .. "/" .. id .. ".yaml") .. "\n"):gmatch("(.-)\r?\n") do
+    if not line:match("^#") then break end
+    local tag = line:match("^#%s*(SPDX%-[%a%-]+:%s*%S.-)%s*$")
+    if tag then tags[#tags+1] = tag end
+  end
+  return tags
+end
+
 function M.cfg_text(dir, id)
   local merged = M.resolve(dir, id)
   local flat = {}
@@ -310,9 +322,16 @@ function M.cfg_text(dir, id)
   local out = {
     "%% " .. id .. ".cfg -- GENERATED from profiles/" .. id .. ".yaml (with the house defaults merged in).",
     "%% Do not edit: regenerate with  texlua classes/dataimago-thesis/thesis-profile.lua profiles " .. id,
-    "%% The profile data is MIT-licensed (repository LICENSE); this file is its compiled form.",
-    "\\ProvidesFile{" .. id .. ".cfg}[2026/11/08 compiled profile " .. id .. "]",
   }
+  -- The compiled profile carries its profile's licence in the file itself: it is
+  -- copied into authors' repositories, where no "repository LICENSE" stands behind
+  -- it. The tags are the profile's own, so an author's profile is not labelled ours.
+  local tags = M.licence_tags(dir, id)
+  for _, t in ipairs(tags) do out[#out+1] = "%% " .. t end
+  out[#out+1] = #tags > 0
+    and "%% This file is the compiled form of that profile and carries its licence."
+    or "%% This file is the compiled form of that profile."
+  out[#out+1] = "\\ProvidesFile{" .. id .. ".cfg}[2026/11/08 compiled profile " .. id .. "]"
   for _, k in ipairs(keys) do
     out[#out+1] = ("\\ThesisCfg{%s}{%s}"):format(k, cfg_value(k, flat[k]))
   end

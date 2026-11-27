@@ -90,7 +90,7 @@ jobs:
           version: ${{ env.QUARTO_VERSION }}
       - run: pip install -r tools/requirements.txt
       - name: Check every profile
-        run: python tools/check_profile.py
+        run: python tools/check_profile.py --registry
 
   build:
     name: ${{ matrix.profile }} / ${{ matrix.engine }}
