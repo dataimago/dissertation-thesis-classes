@@ -1227,11 +1227,15 @@ reviewable.
 
 A partial is inlined into the main `.tex` by Pandoc, so its LPPL notice is a version comment
 rather than `\ProvidesFile` (2.4; only `doc-class.tex` also prints a `\typeout` line). The compiled `profiles/<id>.cfg`
-carries `\ProvidesFile`, the two SPDX tag lines (`SPDX-FileCopyrightText: 2026 dataimago`,
-`SPDX-License-Identifier: MIT`) and a note that it is a compile of MIT profile data, so the `.cfg` is
-MIT like its YAML even though the class that reads it is LPPL. Each `profiles/<id>.yaml` opens with
-the same two tags as comments (checked by `tools/check_profile.py`): a profile is copied into authors'
-repositories, where this repository's `LICENSE` does not travel with it. `tests/negative/noto-math.yaml`
+carries `\ProvidesFile` and its profile's own licence: the generator copies the `SPDX-` tag lines the
+profile's YAML opens with into the `.cfg` as comments, followed by the line "This file is the compiled
+form of that profile and carries its licence." A profile with no tags compiles to a `.cfg` with none
+("This file is the compiled form of that profile."), so a profile an author keeps for themselves is
+not labelled ours. A profile in this registry must open with `# SPDX-FileCopyrightText: 2026 dataimago`
+and `# SPDX-License-Identifier: MIT`; CI enforces it with `python tools/check_profile.py --registry`
+(without the flag the check does not ask for them). So a registry `.cfg` is MIT like its YAML even
+though the class that reads it is LPPL, and both say so in the file: they are copied into authors'
+repositories, where this repository's `LICENSE` does not travel with them. `tests/negative/noto-math.yaml`
 is a test-only profile outside `profiles/` (the T16 trap; never registered).
 
 L1. **No code is copied from the CU class**, not as text, not as logic transliterated
