@@ -28,6 +28,11 @@ A profile holds **facts about a guide only**. It must not contain:
 
 A contribution is made with the contributor's explicit consent. Profiles are MIT
 licensed (see `README.md`) and public once merged.
+Each profile in this registry says so in the file: it opens with the two comment lines
+`# SPDX-FileCopyrightText: 2026 dataimago` and `# SPDX-License-Identifier: MIT`, and the
+generator copies them into the compiled `.cfg`. Start from `profiles/house.yaml` and they
+are already there; `tools/check_profile.py --registry` (what CI runs) checks them. A
+profile you keep for yourself needs neither line.
 
 ## How to contribute a profile
 
