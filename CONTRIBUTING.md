@@ -32,7 +32,8 @@ Each profile in this registry says so in the file: it opens with the two comment
 `# SPDX-FileCopyrightText: 2026 dataimago` and `# SPDX-License-Identifier: MIT`, and the
 generator copies them into the compiled `.cfg`. Start from `profiles/house.yaml` and they
 are already there; `tools/check_profile.py --registry` (what CI runs) checks them. A
-profile you keep for yourself needs neither line.
+profile you keep for yourself needs neither line: if you made it from `house.yaml`,
+delete the two lines, as the note at the top of that file says.
 
 ## How to contribute a profile
 
