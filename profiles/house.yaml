@@ -1,6 +1,11 @@
 # SPDX-FileCopyrightText: 2026 dataimago
 # SPDX-License-Identifier: MIT
 #
+# The two lines above are dataimago's notice for this file and for the house.cfg
+# compiled from it. If you copy this file to start a profile of your own, delete
+# them: your profile is yours, and the generator would otherwise carry them into
+# your .cfg. Keep them only in a profile you offer to the registry.
+#
 # The neutral dataimago default profile. No institutional guide stands behind
 # it: these are house choices (docs/house-class-spec.md section 6.5), so its
 # `sources` map holds only the one field a build test settled (`submission.pdfa`).
